@@ -140,6 +140,7 @@ def get_music_dict(music_name, artist, model=False) -> dict:
             music_dict = get_music_dict(music_name, artist, True)
         else:
             music_dict = {}
+        return music_dict
 
 
 def get_music_info(music_dict):
