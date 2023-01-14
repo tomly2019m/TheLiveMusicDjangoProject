@@ -1,0 +1,100 @@
+body {
+    margin: 0;
+    padding: 0;
+    /*background-color: rgb(237, 242, 247);*/
+    font-family: "Microsoft YaHei UI", serif;
+}
+
+canvas {
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: -1;
+    position: absolute;
+}
+
+#content {
+    min-height: 795px;
+    /*中间内容*/
+}
+
+#header {
+    top: 0;
+    position: sticky;
+    padding-left: 30px;
+    background-color: #222226;
+}
+
+#footer {
+    float: bottom;
+    color: #7a7a7a;
+    padding: 20px 0;
+    font-size: 8px;
+    text-align: center;
+    /*margin-left: 300px;*/
+    background-color: #222226;
+    /*脚注*/
+}
+
+#footer a {
+    color: #7a7a7a;
+    text-decoration-line: none;
+    /*脚注超链接*/
+}
+
+#left_logo {
+    float: left;
+    margin: -2px 0 0 6px;
+    /*左上角logo*/
+}
+
+#menu {
+    height: 60px;
+    font-size: 16px;
+    background-color: #222226;
+    display: flex;
+    align-items: center;
+    /*顶部菜单栏*/
+}
+
+#menu a {
+    float: left;
+    color: #ffffff;
+    padding: 0 28px;
+    /*line-height: 53px;*/
+    /*text-align: center;*/
+    /*display: inline-block;*/
+    text-decoration-line: none;
+    /*菜单栏按钮*/
+}
+
+#menu a:hover {
+    color: #ffffff;
+    border-top: 2px solid #fc5531;
+    background-color: #444444;
+}
+
+.msg_op {
+    top: 10px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    position: absolute;
+    background: #fc5531;
+}
+
+#menu .left_a {
+    float: right;
+    /*登录*/
+}
+
+#menu label {
+    float: right;
+    margin-top: 15px;
+    /*搜索按钮*/
+}
+
+#menu #search {
+    color: #7a7a7a;
+    /*搜索框*/
+}

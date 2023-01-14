@@ -1,0 +1,148 @@
+html, body {
+    font-family: "Microsoft YaHei UI", serif;
+}
+
+#url {
+    margin-left: 15px;
+    /*中间插件链接*/
+}
+
+#setting-label {
+    margin-left: 20px;
+    float: left;
+    width: 300px;
+    /*设置显示效果组件*/
+}
+
+#copy-input {
+    width: 300px;
+}
+
+#display-css {
+    width: 458px;
+    height: 500px;
+    /*background-image: url("/static/images/background_op.png");*/
+    border-image-repeat: repeat;
+    border: #c0c0c0 solid 2px;
+    /*background-color: #c0c0c0;*/
+    overflow: hidden;
+    display: inline-block;
+}
+
+#display-css #change_button {
+    float: right;
+    display: none;
+    color: #fff;
+    background-color: #e9686b;
+    /*预览里面的更换背景按钮*/
+}
+
+#display-css #change_button:hover {
+    background-color: #ba3537;
+    text-decoration: none;
+}
+
+.conform {
+    color: #ffffff;
+    background: #e9686b;
+}
+
+.conform:hover {
+    background-color: #ba3537;
+    text-decoration: none;
+}
+
+.reset:hover {
+    background-color: #9b9b9b;
+}
+
+#left-menu {
+    width: 200px;
+    height: 816px;
+    float: left;
+    margin-top: -16px;
+    text-align: center;
+    display: inline-block;
+    background-color: #313a46;
+}
+
+#left-menu a {
+    color: #8391a2;
+    text-decoration: none;
+    padding: 0 60px 0 60px;
+}
+
+#left-menu a:hover {
+    color: #ffffff;
+}
+
+div ul {
+    padding-left: 20px;
+    list-style-type: none;
+    /*list-style: decimal;
+    列表数字编号*/
+}
+
+#mus li, #music li {
+    padding: 20px 0 20px 0;
+    /*列表内容*/
+}
+
+.set-color-button {
+    background: none;
+    width: 25px;
+    margin: auto auto auto -36px;
+    border: none;
+    /*颜色选择按钮*/
+}
+
+.set-color-text {
+    height: 30px;
+    width: 140px;
+    background-color: #cef7ff;
+    /*颜色设置文本框*/
+}
+
+.set-color-text:hover {
+    background-color: #b1dbf6;
+}
+
+.music-name {
+    color: #ff9900;
+    /*歌名*/
+}
+
+.artist {
+    margin-left: 10px;
+    color: #7a7a7a;
+    /*歌手*/
+}
+
+#uls li {
+    height: 90px;
+    margin-top: 20px;
+}
+
+.base {
+    height: 30px;
+    width: 150px;
+    border: none;
+    outline: 0;
+    transition: .2s ease-out;
+    white-space: nowrap;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+    font-family: "微软雅黑", serif;
+    border-radius: 2px;
+    /*基础样式*/
+}
+
+.input-number {
+    width: 75px;
+}
+
+#display-css {
+    border-image: url("/static/images/newcat-bag.png") stretch;
+    border-image-slice: 160 fill;
+    border-image-width: 160px;
+    border-image-outset: 111px;
+}

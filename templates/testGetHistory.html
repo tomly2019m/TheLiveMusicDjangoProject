@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/static/js/others/jquery-3.4.1.min.js"></script>
+    <script src="/static/js/others/vue.js"></script>
+    <title>测试获取弹幕</title>
+</head>
+<body>
+<div id="app">
+    <p v-on:click="change_to_123()">dian</p><br>
+    <p v-on:click="change_to_456()">ji</p>
+    <p onclick="vm.$data.my_value = '123'">dian</p>
+    <p onclick="vm.$data.my_value = '456'">ji</p>
+</div>
+<script>
+    let vm = new Vue({
+        el: '#app',
+        data: {
+            my_value: '123'
+        },
+        methods: {
+            change_to_123() {
+                this.my_value = '123'
+            },
+            change_to_456() {
+                this.my_value = '456'
+            }
+        },
+        computed: {
+            test_change() {
+                const {my_value,} = this;
+                return {};
+            }
+        },
+        watch: {
+            test_change() {
+                console.log('my_value is change to: ' + this.my_value)
+            }
+        }
+    })
+</script>
+
+</body>
+</html>

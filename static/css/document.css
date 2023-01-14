@@ -1,0 +1,222 @@
+
+html {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    height: calc(100% - 60px);
+    font-family: "Microsoft YaHei", serif;
+}
+
+/*导航边栏*/
+aside {
+    top: 60px;
+    left: 0;
+    bottom: 0;
+    width: 300px;
+    display: block;
+    position: fixed;
+    background-color: #ffffff;
+    box-shadow: 1px 3px 6px rgb(0 0 0 / 12%), 0 3px 2px rgb(0 0 0 / 24%);
+}
+
+ul {
+    padding: 5px 20px;
+}
+
+li {
+    padding: 2px;
+    list-style-type: none;
+}
+
+/*标题下的线*/
+hr {
+    width: 100%;
+    opacity: 0.3;
+    margin-left: 1em;
+}
+
+/*使用弹性布局并让子元素居中*/
+.flex-center {
+    display: flex;
+    align-items: center;
+}
+
+/*导航栏标题*/
+.sidebar-title {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.side-link {
+    color: #000000;
+    /*font-size: 0.9em;*/
+    text-decoration: none;
+}
+
+.side-link:hover {
+    color: #ff778f;
+}
+
+.on-view {
+    color: #ff778f;
+    font-weight: 500;
+}
+
+.mainly {
+    display: flex;
+    flex-direction: column;
+    /*padding-left: 146px;*/
+    align-items: center;
+}
+
+.cell {
+    width: 90%;
+    display: flex;
+    margin: 20px 0 0 0;
+    align-items: center;
+    flex-direction: row;
+    padding: 0 10px 0 10px;
+    /*background-color: #ffffff;*/
+    /*!*transition: all 0.4s ease;*!*/
+    /*justify-content: space-between;*/
+    /*box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);*/
+}
+
+.core {
+    width: 90%;
+}
+
+.core-content {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.toggle-core {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.toggle-box {
+}
+
+.toggle-text {
+    padding: 5px;
+    display: flex;
+    color: #ff778f;
+    cursor: pointer;
+    align-items: center;
+}
+
+.course-title {
+    width: 100%;
+    padding-bottom: 12px;
+}
+
+.course-title:hover {
+    opacity: 1;
+}
+
+.jump-link {
+    color: #ff778f;
+}
+
+.jump-mark {
+    opacity: 0;
+}
+
+.jump-mark:hover {
+    opacity: 1;
+}
+
+.second-indent {
+    margin-left: 8em;
+    padding-bottom: 12px;
+}
+
+.third-indent {
+    margin-left: 12em;
+    padding-bottom: 12px;
+}
+
+.forth-indent {
+    margin-left: 16em;
+    padding-bottom: 12px;
+}
+
+.fifth-indent {
+    margin-left: 20em;
+    padding-bottom: 12px;
+}
+
+.course-img {
+    width: 70%;
+    padding-bottom: 12px;
+}
+
+.img-text {
+    color: #6b757b;
+    font-size: 12px;
+}
+
+.fluorescent {
+    background-color: rgb(255, 183, 0);
+}
+
+.root-ul {
+    font-size: 20px;
+}
+
+.child-ul {
+    font-size: .85em;
+}
+
+.child-el {
+    margin-left: 2em;
+}
+
+.padding-child-div div {
+    padding-bottom: 12px;
+}
+
+.break-padding-child-div div {
+    padding-bottom: 0;
+}
+
+.tip {
+    width: 80%;
+    margin: 1rem 0;
+    padding: .1rem 1.5rem;
+    border-color: #ffa400;
+    border-left-width: .5rem;
+    border-left-style: solid;
+    background-color: #f3f5f7;
+}
+
+.tip div {
+    margin: 1em 0 1em 0;
+}
+
+.tip h4 {
+    margin: 0 0 .5em 0;
+}
+
+.box {
+    height: 100%;
+}
+
+#app {
+    height: calc(100% - 60px);
+}
+
+#content {
+    height: 100%;
+}
+
+#footer {
+    margin-left: 0;
+}

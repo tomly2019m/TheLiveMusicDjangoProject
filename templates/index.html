@@ -1,0 +1,47 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Live Music</title>
+    <link rel="stylesheet" href="{% static "css/index.css" %}">
+    <link rel="icon" href="{% static "images/favicon.ico" %}">
+    <script src="{% static "js/jquery-3.4.1.min.js" %}"></script>
+    <script src="{% static "js/trianglify.js" %}"></script>
+</head>
+<body>
+<script>
+    $(document).ready(function () {
+        const pattern = trianglify({
+            cellSize: 100,
+            width: window.innerWidth,
+            height: document.body.offsetHeight,
+            xColors: ['#ff6138', '#f5a70b', '#f5860b', '#f5d80b'],
+            colorFunction: trianglify.colorFunctions.sparkle(0.13)
+        })
+
+        // Render to SVG
+        // document.body.appendChild(pattern.toSVG())
+        // Render to Canvas
+        document.body.appendChild(pattern.toCanvas())
+    });
+
+</script>
+<div id="index">
+    <img src="{% static "images/logo.png" %}" id="logo" width="230" alt="logo">
+    <p>仅需几项设置，即可获取弹幕的点歌并自动播放歌曲</p>
+    <p>你还可以设计自己的样式添加到OBS或直播姬中</p>
+    <p>
+        <a href="https://play-live.bilibili.com/details/1649539569084">
+            <button id="start_use">去饭贩商店使用</button>
+        </a>
+    </p>
+</div>
+<div id="footer">
+    <p>Copyright © TLittlePrince. All rights reserved.</p>
+    <p>
+        <a href="https://beian.miit.gov.cn/" target="_blank">粤ICP备2022013625号</a>
+    </p>
+</div>
+</body>
+</html>

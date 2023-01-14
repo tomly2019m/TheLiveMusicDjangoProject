@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block mainbody %}
+    <form action="../register_request" method="get">
+        <label>
+            <a>用户名:</a><br/>
+            <input type="text" name="user"><br/>
+            <a>密码:</a><br/>
+            <input type="text" name="pass"><br/>
+            <a>确认密码:</a><br/>
+            <input type="text" name="re_pass"><br/>
+            <input type="submit" value="确定">
+        </label>
+    </form>
+{% endblock %}

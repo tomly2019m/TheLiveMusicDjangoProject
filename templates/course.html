@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% load static %}
+{% block mainbody %}
+    <script>
+        function dh_item(select_obj_text) {
+            $(select_obj_text).toggle(500);
+        }
+    </script>
+    <div id="course">
+        <h2>如何使用LiveMusic？</h2>
+        <div id="course1">
+            <div class="cell" onclick="dh_item('#content1')">
+                <h3 id="format">点歌格式<a href="#format"></a></h3>
+
+                <div class="course_content" id="content1">
+                    <h4>弹幕发送</h4>
+                    <p>点歌 <span class="bold">歌曲名</span></p>
+                    <h4>如需指定歌手，请按照以下格式发送弹幕</h4>
+                    <p>点歌 <span class="bold">歌曲名</span>&<span class="bold">歌手</span></p>
+                </div>
+            </div>
+            <div class="cell" onclick="dh_item('#content2')">
+                <h3 id="login-register">登录及注册<a href="#login-register"></a></h3>
+                <div class="course_content" id="content2">
+                    <p>请先
+                        <a href="../register">注册</a>
+                        一个账号。点击右上方导航栏的
+                        <a href="../login">登录</a>
+                        按钮，在登录界面找到注册账号，注册完成后再次登录即可。
+                    </p>
+                </div>
+            </div>
+            <div class="cell" onclick="dh_item('#content3')">
+                <h3 id="music-set">歌名样式设置<a href="#music-set"></a></h3>
+                <div class="course_content" id="content3">
+                    <p>点击<a href="../music_display">歌名显示</a>, 输入<span class="bold">房间地址</span>。
+                        <span class="bold">房间地址</span>指直播间网页的网址最后几位数字（红框），地址为网页网址（棕框）。
+                        可以按自己喜好随便复制其中一个就好。</p>
+                    <img src="{% static "images/url.png" %}" width="678" alt="url">
+
+                    <p>将地址粘贴到。<span class="bold">房间地址</span>输入框内，单击空白部分完成输入。</p>
+                    <p>接下来设置样式，以下是对各项设置的说明 </p>
+                    <h4>宽、高</h4>
+                    <p>设置歌名展示的宽和高</p>
+                    <img src="{% static "images/width_height.png" %}" width="678" alt="width_height">
+                    <h4>歌名、歌手颜色</h4>
+                    <p>设置歌名、歌手显示的文本颜色</p>
+                    <h4>歌名、歌手字体</h4>
+                    <p>设置歌名、歌手显示的字体。请直接将字体名键入或粘贴在文本框中，设置后右边预览若未更改，请确认电脑内是否安装了次字体或检查拼写</p>
+                    <h4>歌名、歌手字体大小</h4>
+                    <p>设置歌名、歌手显示的字体大小</p>
+                    <img src="{% static "images/setting.png" %}" width="678" alt="setting">
+                    <h4>保存并应用</h4>
+                    <p>请按红色确定键。注意！必须按下确定键歌名显示页面的插件地址才会生效！</p>
+                </div>
+            </div>
+            <div class="cell" onclick="dh_item('#content4')">
+                <h3 id="lyric-set">歌词样式设置<a href="#lyric-set"></a></h3>
+                <div class="course_content" id="content4">
+                    <p>点击<a href="../music_display">歌词显示</a>, 在歌名样式设置中已经详细的描述了房间地址改如何设置，这里不再赘述。</p>
+                    <p>接下来设置样式，以下是对各项设置的说明 </p>
+                    <h4>宽、高</h4>
+                    <p>设置歌词展示的宽和高，和歌名显示中的宽、高用途一致</p>
+                    <h4>首行、其他颜色</h4>
+                    <p>设置首行和其他行(翻译)显示的文本颜色</p>
+                    <h4>首行、其他字体</h4>
+                    <p>设置首行、其他行(翻译)显示的字体。请直接将字体名键入或粘贴在文本框中，设置后右边预览若未更改，请确认电脑内是否安装了次字体或检查拼写
+                    </p>
+                    <h4>首行、其他字体大小</h4>
+                    <p>设置首行、其他行(翻译)显示的字体大小</p>
+                    <img src="{% static "images/setting2.png" %}" width="678" alt="setting2">
+                    <h4>保存并应用</h4>
+                    <p>请按红色确定键。注意！必须按下确定键歌词显示页面的插件地址才会生效！</p>
+                </div>
+            </div>
+            <div class="cell" onclick="dh_item('#content5')">
+                <h3 id="obs">部署到OBS Studio<a href="#obs"></a></h3>
+                <div class="course_content" id="content5">
+                    <p>这里以<span class="bold">歌词显示(其他同理)</span>为例。复制插件地址，打开OBS Studio，在左下角
+                        <span class="bold">来源面板</span>添加浏览器
+                    </p>
+                    <img src="{% static "images/obs2.png" %}" width="678" alt="obs2">
+                    <p>将插件地址复制到url输入框，宽度和高度设置为先前在歌词显示界面的宽和高(或自行调整到所需的尺寸)，勾选通过OBS控制音频，点击确定。</p>
+                    <img src="{% static "images/obs3.png" %}" width="678" alt="obs3">
+                    <p>显示同下图一致则设置成功。</p>
+                    <img src="{% static "images/obs4.png" %}" WIDTH="678" alt="obs4">
+                </div>
+            </div>
+            <div class="cell" onclick="dh_item('#content6')">
+                <h3 id="play">开始统计及播放音乐<a href="#play"></a></h3>
+                <div class="course_content"  id="content6">
+                    <p>点击左边菜单中的控制台，以下是对各项设置的说明</p>
+                    <h4>开始统计/结束统计</h4>
+                    <p>开始获取直播间弹幕符合<a href="#">点歌格式</a>的歌曲</p>
+                    <h4>由歌词界面播放/由歌名界面播放</h4>
+                    <p>设置歌曲音频由哪个界面播放。注意，当设置为由歌名界面播放时，歌词界面的歌词将不会滚动。</p>
+                    <h4 style="color: #fc5531">注意</h4>
+                    <p><span class="bold" style="color: #fc5531">请在直播开始前检查“开始统计”按钮的状态，并在直播结束后结束统计</span>(节约服务器性能)</p>
+                    <p><span class="bold" style="color: #fc5531">对歌曲的操作时有5-6秒的延迟是正常现象，请不要频繁点击</span> </p>
+                    <img src="{% static "images/console.png" %}" width="678" alt="console">
+                </div>
+            </div>
+
+            </div>
+            <div class="cell" onclick="dh_item('#content7')">
+                <h3 id="feedback">反馈及建议<a href="#feedback"></a></h3>
+                <div class="course_content"  id="content7">
+                    <h4>QQ群：686885374</h4>
+                    <p>来聊天也好呀~</p>
+                    <img src="{% static "images/QQ_QR.png" %}" alt="console">
+                    <h4>支持作者</h4>
+                    <img src="{% static "images/afdian.png" %}" alt="pic" style="height: 600px">
+                </div>
+            </div>
+        </div>
+{% endblock %}

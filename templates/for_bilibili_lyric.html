@@ -1,0 +1,622 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" xmlns:v-bind="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Live Music 弹幕点歌(歌词)</title>
+    <link rel="icon" href="{% static "images/favicon.ico" %}">
+    <script src="{% static "js/others/jquery-3.4.1.min.js" %}"></script>
+    {% if dev %}
+        <link rel="stylesheet" href="{% static "css/bili.css" %}">
+        <link rel="stylesheet" href="{% static "css/sheet.css" %}">
+        <link rel="stylesheet" href="{% static "css/iconfont.css" %}">
+        <link rel="stylesheet" href="{% static "css/mask_panel.css" %}">
+        <script src="{% static "js/myUtils.js" %}"></script>
+        <script src="{% static "js/dan_mu_ku.js" %}"></script>
+        <script src="{% static "js/others/vue.js" %}"></script>
+        <script src="{% static "js/array_equals.js" %}"></script>
+        <script src="{% static "js/wss_for_bili.js" %}"></script>
+        <script src="{% static "js/display_setting.js" %}"></script>
+        <script src="{% static "js/for_bilibili_lyric.js" %}"></script>
+    {% else %}
+        <link rel="stylesheet" href="{% static "css/bili.min.css" %}">
+        <link rel="stylesheet" href="{% static "css/sheet.min.css" %}">
+        <link rel="stylesheet" href="{% static "css/iconfont.min.css" %}">
+        <link rel="stylesheet" href="{% static "css/mask_panel.min.css" %}">
+        <script src="{% static "js/myUtils.min.js" %}"></script>
+        <script src="{% static "js/dan_mu_ku.min.js" %}"></script>
+        <script src="{% static "js/others/vue.min.js" %}"></script>
+        <script src="{% static "js/array_equals.min.js" %}"></script>
+        <script src="{% static "js/wss_for_bili.min.js" %}"></script>
+        <script src="{% static "js/display_setting.min.js" %}"></script>
+        <script src="{% static "js/for_bilibili_lyric.min.js" %}"></script>
+    {% endif %}
+    <script>
+
+        let stop_flag = true;
+        let p = new MyUtils();
+        let vm;
+        let black_list = {{ global_setting|safe }};
+        let auth_str = '{{ auth|safe }}';
+        let room_id = auth_str === '' ? '' : JSON.parse(auth_str).roomid;
+            window.onload = () => {
+                vm = load_for_bili_lyric_vue(
+                    {
+                        url: '{{ url }}',
+                        secret: '{{ secret }}',
+                        set_flag: {{ set_flag }},
+                        room_id: room_id,
+                        theme_id: {{ theme_id }},
+                        div_width: {{ div_width }},
+                        div_height: {{ div_height }},
+                        black_user_list: black_list.black_user_list,
+                        black_music_list: black_list.black_music_list,
+                        original_text_color: '{{ original_text_color }}',
+                        original_text_font: '{{ original_text_font }}',
+                        original_text_font_size: {{ original_text_font_size }},
+                        translation_color: '{{ translation_color }}',
+                        translation_font: '{{ translation_font }}',
+                        translation_font_size: {{ translation_font_size }},
+                        now_color: '{{ now_color }}',
+                        now_font: '{{ now_font }}',
+                        now_font_size: '{{ now_font_size }}',
+                        v_li_margin: {{ v_li_margin }},
+                        now_shadow_num: {{ now_shadow_num }},
+                        now_shadow_blur: {{ now_shadow_blur }},
+                        now_shadow_color: '{{ now_shadow_color }}',
+                        original_shadow_num: {{ original_shadow_num }},
+                        original_shadow_blur: {{ original_shadow_blur }},
+                        original_shadow_color: '{{ original_shadow_color }}',
+                        translation_shadow_num: {{ translation_shadow_num }},
+                        translation_shadow_blur: {{ translation_shadow_blur }},
+                        translation_shadow_color: '{{ translation_shadow_color }}'
+                    },
+                    p
+                )
+                {% if not set_flag %}
+                    new BiliBili_WEBSocket(vm, '{{ auth|safe }}', p, p.on_wss, [vm, '{{ url }}', 'lyric_url'])
+                    p.get_union_data(vm, p, [p.get_base_control, p.get_lyric, p.get_music_info_list, p.get_is_running])
+                    setInterval(() => {
+                        p.get_union_data(vm, p, [p.get_base_control, p.get_music_info_list, p.get_is_running]);
+                        {#p.from_sever_get_data(vm, 'lyric')#}
+                    }, 5000)
+                {% else %}
+                    p.test_lyric(vm)
+                {% endif %}
+            }
+    </script>
+</head>
+<body>
+<div class="app">
+    <div class="root-div" v-bind:style="{backgroundImage: set_style}">
+
+        <div class="show-div">
+            <div class="head-title" v-bind:style="{display: set_style}">
+                <div class="h-t-text">Live 效果预览</div>
+            </div>
+            <div id="display-css" class="base plug-in back_img" v-bind:style="display_style">
+                <template v-if="now_view == 'music_lyric'">
+                    <ul id="uls" v-bind:style="multi_lyric_li">
+                        {% verbatim %}
+                        <li class="item" v-for="(value, key) in lyric_info" v-bind:id="value.id"
+                            v-bind:style="li_style+'transition: .2s ease-out;'">
+                        <span class="lyric original" v-bind:key="key + first_style" v-bind:style="first_style">
+                            {{ value.original }}
+                            <!--height: 90px;padding-top: 20px;position: relative;-->
+                        </span>
+                            <span class="translation" v-bind:key="key + second_style" v-bind:style="second_style"><br/>
+                                {{ value.translation }}
+                            </span>
+                        </li>
+                        {% endverbatim %}
+                    </ul>
+                </template>
+                <template v-if="now_view == 'msg'">
+                    <p class="show-msg" v-bind:key="now_view" v-bind:style="first_style" v-text="information"></p>
+                </template>
+            </div>
+        </div>
+
+        <div class="set-div" v-bind:style="{display: set_style}">
+            <div class="set-title">
+                <div class="s-t-text">设置</div>
+            </div>
+            <div class="load-info" v-if="load_info_flag">
+                <div class="v-line"></div>
+                <div class="info-content">
+                    <i class="element-icons icon-size el-icon-loading" v-if="load_info_icon==='loading'"></i>
+                    <i class="element-icons icon-size el-icon-check" v-if="load_info_icon==='check'"></i>
+                    <i class="element-icons icon-size el-icon-close" v-if="load_info_icon==='close'"></i>
+                    <div v-text="load_info"></div>
+                </div>
+            </div>
+            <div style="background-color: rgb(233 104 107 / 10%);">
+                <a href="/for-bili-setting?lyric={{ url }}&{{ params }}">
+                    <p class="base conform" style="float: right;margin: 5px;text-decoration: none;color: #ffffff;text-align: center;
+    padding: 5px 0 0 0;font-family: Microsoft YaHei, Microsoft Sans Serif, Microsoft SanSerf, 微软雅黑, serif">转到歌曲控制台</p>
+                </a>
+                <a href="/for-bili?{{ params }}">
+                    <p class="base conform" style="float: right;margin: 5px;text-decoration: none;color: #ffffff;text-align: center;
+    padding: 5px 0 0 0;font-family: Microsoft YaHei, Microsoft Sans Serif, Microsoft SanSerf, 微软雅黑, serif">转到歌名设置</p>
+                </a>
+
+                <p class="base conform" style="float: right;margin: 5px;text-decoration: none;color: #ffffff;text-align: center;
+    padding: 5px 0 0 0;font-family: Microsoft YaHei, Microsoft Sans Serif, Microsoft SanSerf, 微软雅黑, serif"
+                   onclick="p.copy_content(vm, '#copy-url', 'https://live-music.the-little-princes.com/for-bili-lyric?plug_env=0&{{ params }}')">
+                    <i class="element-icons el-icon-link"></i>复制歌词插件地址
+                </p>
+                <p class="base conform" style="display: none;float: right;margin: 5px;text-decoration: none;color: #ffffff;text-align: center;padding: 5px 0 0 0;font-family: Microsoft YaHei, Microsoft Sans Serif, Microsoft SanSerf, 微软雅黑, serif"
+                   v-on:click="login_mask = true">
+                    登录到音乐账户
+                </p>
+                <input type="text" id="copy-url" style="width: 1px;opacity: 0"
+                       value="https://live-music.the-little-princes.com/for-bili-lyric?plug_env=0&{{ params }}">
+
+            </div>
+            <div class="set-content">
+                <div class="attribute-set">
+                    <div class="block-title">
+                        基本设置
+                        <i class="bcc-iconfont bcc-icon-ic_help" style="font-size: 14px;color: #0064c8"
+                           title="调整插件的宽高&#10;保证文字不会溢出到边界外&#10;设置完成后请将宽高应用到浏览器源中"></i>
+                    </div>
+                    <div class="base-block">
+                        <div class="width-height">
+                            <div class="text-input first-text-input">
+                                <label for="width" class="margin-label">宽:</label>
+                                <input type="range" name="div_width" id="width"
+                                       class="input-number set-color-text"
+                                       min="0" max="3000" step="1"
+                                       v-model="v_div_width">
+                            </div>
+
+                            <div class="text-input first-text-input">
+                                <label for="height" class="margin-label">高:</label>
+                                <input type="range" name="div_height" id="height"
+                                       class="input-number set-color-text"
+                                       min="0" max="1000" step="1"
+                                       v-model="v_div_height">
+                            </div>
+                        </div>
+                        {% verbatim %}
+                        <span style="color: #7a7a7a; float: right;"
+                              v-text="parseInt(v_div_width) + 130 + 'px × ' + (parseInt(v_div_height) + 130) + 'px'"></span>
+                        {% endverbatim %}
+                    </div>
+                    <div class="block-title">字体</div>
+                    <div class="base-block">
+                        <div class="text-input first-text-input">
+                            <label for="text_size1" class="adjust-label">原文字体大小:</label>
+                            <input type="range"
+                                   class="set-color-text bili_base"
+                                   id="text_size1"
+                                   min="10" max="75"
+                                   v-model="v_first_font_size">
+                        </div>
+                        <div class="text-input">
+                            <label for="text_size2" class="adjust-label">翻译字体大小:</label>
+                            <input type="range"
+                                   class="set-color-text bili_base"
+                                   id="text_size2"
+                                   min="10" max="75"
+                                   v-model="v_second_font_size">
+                        </div>
+                        <div class="text-input">
+                            <label for="text_size3" class="adjust-label">当前句字体大小:</label>
+                            <input type="range"
+                                   class="set-color-text bili_base"
+                                   id="text_size3"
+                                   min="10" max="75"
+                                   v-model="v_now_font_size">
+                        </div>
+                        <div class="text-input">
+                            <label for="text_font1" class="adjust-label">原文字体:</label>
+                            <input type="text"
+                                   class="set-color-text bili_base base"
+                                   id="text_font1"
+                                   v-model="v_first_font">
+                        </div>
+                        <div class="text-input">
+                            <label for="text_font2" class="adjust-label">翻译字体:</label>
+                            <input type="text"
+                                   class="set-color-text bili_base base"
+                                   id="text_font2"
+                                   v-model="v_second_font">
+                        </div>
+                        <div class="text-input">
+                            <label for="text_font3" class="adjust-label">当前句字体:</label>
+                            <input type="text"
+                                   class="set-color-text bili_base base"
+                                   id="text_font3"
+                                   v-model="v_now_font">
+                        </div>
+                    </div>
+                    <div class="block-title">颜色</div>
+                    <div class="base-block">
+                        <div class="text-input first-text-input">
+                            <label for="text_color1" class="adjust-label">原文颜色:</label>
+                            <input type="text"
+                                   class="set-color-text bili_base base"
+                                   id="text_color1"
+                                   v-model="v_first_color">
+                            <label for="color1"></label>
+                            <input type="color" class="set-color-button" id="color1" value="#ff9900"
+                                   v-model="v_first_color">
+                        </div>
+                        <div class="text-input">
+                            <label for="text_color2" class="adjust-label">翻译颜色:</label>
+                            <input type="text"
+                                   class="set-color-text bili_base base"
+                                   id="text_color2"
+                                   v-model="v_second_color">
+                            <label for="color2"></label>
+                            <input type="color" class="set-color-button" id="color2" value="#7a7a7a"
+                                   v-model="v_second_color">
+                        </div>
+                        <div class="text-input">
+                            <label for="now_text_color" class="adjust-label">当前句颜色:</label>
+                            <input type="text"
+                                   class="set-color-text bili_base base"
+                                   id="now_text_color"
+                                   v-model="v_now_color">
+                            <label for="color1"></label>
+                            <input type="color" class="set-color-button" id="color1" value="#ff9900"
+                                   v-model="v_now_color">
+                        </div>
+                    </div>
+
+                    <div class="block-title">文字描边</div>
+                    <div class="base-block">
+                        <div class="text-input first-text-input">
+                            <label for="text_shadow_size" class="margin-label">原文大小:</label>
+                            <input type="range"
+                                   class="set-color-text"
+                                   min="0" max="10"
+                                   id="text_shadow_size"
+                                   v-model="first_shadow_num"
+                            >
+                            {% verbatim %}
+                            <span class="margin-label">{{ first_shadow_num }}px</span>
+                            {% endverbatim %}
+                        </div>
+                        <div class="text-input">
+                            <label for="text_shadow_size2" class="margin-label">翻译大小:</label>
+                            <input type="range"
+                                   class="set-color-text"
+                                   min="0" max="10"
+                                   id="text_shadow_size2"
+                                   v-model="second_shadow_num"
+                            >
+                            {% verbatim %}
+                            <span class="margin-label">{{ second_shadow_num }}px</span>
+                            {% endverbatim %}
+                        </div>
+                        <div class="text-input">
+                            <label for="text_shadow_size3" class="margin-label">当前句大小:</label>
+                            <input type="range"
+                                   class="set-color-text"
+                                   min="0" max="10"
+                                   id="text_shadow_size3"
+                                   v-model="now_shadow_num"
+                            >
+                            {% verbatim %}
+                            <span class="margin-label">{{ now_shadow_num }}px</span>
+                            {% endverbatim %}
+                        </div>
+                        <div class="text-input">
+                            <label for="text_shadow_blur" class="margin-label">原文模糊:</label>
+                            <input type="range"
+                                   class="set-color-text"
+                                   min="0" max="10"
+                                   id="text_shadow_blur"
+                                   v-model="first_shadow_blur"
+                            >
+                            {% verbatim %}
+                            <span class="margin-label">{{ first_shadow_blur }}px</span>
+                            {% endverbatim %}
+                        </div>
+                        <div class="text-input">
+                            <label for="text_shadow_blur2" class="margin-label">翻译模糊:</label>
+                            <input type="range"
+                                   class="set-color-text"
+                                   min="0" max="10"
+                                   id="text_shadow_blur2"
+                                   v-model="second_shadow_blur"
+                            >
+                            {% verbatim %}
+                            <span class="margin-label">{{ second_shadow_blur }}px</span>
+                            {% endverbatim %}
+                        </div>
+                        <div class="text-input">
+                            <label for="text_shadow_blur3" class="margin-label">当前句模糊:</label>
+                            <input type="range"
+                                   class="set-color-text"
+                                   min="0" max="10"
+                                   id="text_shadow_blur3"
+                                   v-model="now_shadow_blur"
+                            >
+                            {% verbatim %}
+                            <span class="margin-label">{{ now_shadow_blur }}px</span>
+                            {% endverbatim %}
+                        </div>
+                        <div class="text-input">
+                            <label for="shadow_color" class="adjust-label">原文颜色:</label>
+                            <input type="text"
+                                   id="shadow_color"
+                                   class="set-color-text bili_base base"
+                                   v-model="first_shadow_color">
+                            <label for="color1"></label>
+                            <input type="color" class="set-color-button" id="color1" value="#ff9900"
+                                   v-model="first_shadow_color">
+                        </div>
+                        <div class="text-input">
+                            <label for="shadow_color2" class="adjust-label">翻译颜色:</label>
+                            <input type="text"
+                                   class="set-color-text bili_base base"
+                                   id="shadow_color2"
+                                   v-model="second_shadow_color">
+                            <label for="color2"></label>
+                            <input type="color" class="set-color-button" id="color2" value="#7a7a7a"
+                                   v-model="second_shadow_color">
+                        </div>
+                        <div class="text-input">
+                            <label for="shadow_color3" class="adjust-label">当前句颜色:</label>
+                            <input type="text"
+                                   class="set-color-text bili_base base"
+                                   id="shadow_color3"
+                                   v-model="now_shadow_color">
+                            <label for="color2"></label>
+                            <input type="color" class="set-color-button" id="color2" value="#7a7a7a"
+                                   v-model="now_shadow_color">
+                        </div>
+                    </div>
+
+                    <div class="block-title">列表</div>
+                    <div class="base-block">
+                        <div class="text-input first-text-input">
+                            <div class="margin-label">
+                                <label for="text_shadow_size2" class="margin-label">行间距:</label>
+                                <i class="bcc-iconfont bcc-icon-ic_help" style="font-size: 14px;color: #0064c8"
+                                   title="调整 原文-翻译 组合的间距"></i>
+                            </div>
+                            <input type="range" name="second_font_size"
+                                   class="set-color-text"
+                                   min="0" max="50"
+                                   id="text_shadow_blur2"
+                                   v-model="v_li_margin">
+                            {% verbatim %}
+                            <span class="margin-label">{{ v_li_margin }}px</span>
+                            {% endverbatim %}
+                        </div>
+                    </div>
+
+                    <div class="block-title" style="display: none">待机</div>
+                    <div class="base-block" style="display: none">
+                        <div class="text-input first-text-input">
+                            <div class="margin-label">
+                                <label for="text_shadow_size2" class="margin-label">待机文字:</label>
+                                <i class="bcc-iconfont bcc-icon-ic_help" style="font-size: 14px;color: #0064c8"
+                                   title="自定义无歌曲时显示在插件中的提示"></i>
+                            </div>
+                            <textarea class="set-text-area" v-model="v_nothing">\1暂无歌曲\2无</textarea>
+                            {% verbatim %}
+                            <span class="margin-label">{{ v_li_margin }}px</span>
+                            {% endverbatim %}
+                        </div>
+                    </div>
+
+                    <div class="block-title" style="">黑名单</div>
+                    <div class="base-block" style="margin-bottom: 30px;">
+                        <div class="width-height first-text-input">
+                            <button class="base conform" v-on:click="mask1 = true" type="button">用户</button>
+                            <button class="base conform" v-on:click="mask2 = true" type="button">歌曲</button>
+                            <!--
+                            <button class="base conform" onclick="show_page_mask('#mask2')" type="button">用户列表</button>
+                            <button class="base conform" onclick="show_page_mask('#mask2')" type="button">歌曲列表</button>
+                            -->
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="draw-line"></div>
+
+                <div class="theme-set">
+                    <div class="block-title">主题</div>
+                    <div class="base-block">
+                        <div class="theme-item">
+
+                            <img class="img-item" alt="brown_cat" onclick="p.change_theme(vm, 0)"
+                                 src={% static "images/brown_cat_1.png" %}>
+                            <img class="img-item" alt="purple_neko_1" onclick="p.change_theme(vm, 1)"
+                                 src={% static "images/blue_window_1.png" %}>
+                            <img class="img-item" alt="purple_neko_1" onclick="p.change_theme(vm, 2)"
+                                 src={% static "images/new.png" %}>
+
+                            <div class="img-item" onclick="p.change_theme(vm, 3, 'lyric')" style="text-align: center">
+                                透明背景
+                            </div>
+                            <div class="img-item" style="text-align: center">更多主题正在制作中~</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-mask" v-show="mask1">
+        <div class="black-user-panel place-center">
+            <div class="panel-content">
+                {% verbatim %}
+                <ul>
+                    <transition-group mode="out-in">
+                        <li v-for="(value, key) in black_user_list"
+                            v-bind:key="'thi' + key" v-bind:id="'li'+value">
+                            <div style="display: flex;flex-direction: column-reverse">
+                                <span v-bind:key="'uid' + key">uid: {{ value.uid }}</span>
+                                <span v-bind:key="'nick' + key">用户: {{ value.nick }}</span>
+                            </div>
+                            <div style="display: flex;flex-direction: row;width: 40%;justify-content: center;/*justify-content: flex-end;*/">
+                                <button class="delete conform" v-on:click="black_user_list.splice(key, 1)">删除</button>
+                                <!--<button class="delete conform">修改</button>-->
+                            </div>
+                        </li>
+                    </transition-group>
+                </ul>
+                {% endverbatim %}
+            </div>
+            <div class="close-button control-button" v-on:click="mask1 = false"
+                 onclick="$('#music_name').val('');$('#artist').val('')"
+                 title="关闭">
+                <span>✕</span>
+            </div>
+            <div class="add-button control-button" title="添加" v-on:click="mask1_1 = true">
+                <span>┼</span>
+            </div>
+            <!--
+            <div class="control-button upper-toggle">
+                <input type="checkbox" name="switch" v-model="upper_flag">
+                <span>不匹配大小写</span>
+            </div>
+            -->
+            <div class="panel-title">黑名单用户</div>
+        </div>
+    </div>
+
+    <div class="page-mask" v-show="mask1_1">
+        <div class="add-panel place-center">
+            <div class="panel-content">
+                <div class="flex-center">
+                    <label>
+                        <span>
+                            uid:
+                            <i class="bcc-iconfont bcc-icon-ic_help" style="font-size: 14px;color: #0064c8"
+                               title="把用户主页的链接直接复制过来就好啦"></i>
+                             <input type="text" v-model.trim="black_user.uid" class="set-color-text base"
+                                    placeholder="填写此项后面就不用填啦">
+                        </span>
+                        <span>
+                            用户名:
+                            <input type="text" v-model.trim="black_user.nick" class="set-color-text base"
+                                   placeholder="不想找uid就只填名字吧~">
+                        </span>
+
+                    </label>
+
+                    <input type="submit" class="base conform" value="提交"
+                           onclick="p.push_black(vm, 'user')">
+                </div>
+            </div>
+            <div class="close-button control-button" v-on:click="mask1_1 = false"
+                 onclick="$('#music_name').val('');$('#artist').val('')"
+                 title="关闭">
+                <span>✕</span>
+            </div>
+            <div class="panel-title">添加</div>
+        </div>
+    </div>
+
+    <div class="page-mask" v-show="mask2">
+        <div class="black-user-panel place-center">
+            <div class="panel-content">
+                {% verbatim %}
+                <ul>
+                    <transition-group mode="out-in">
+                        <li v-for="(value, key) in black_music_list"
+                            v-bind:key="'thi' + key" v-bind:id="'li'+value">
+                            <div style="display: flex;flex-direction: column-reverse">
+                                <span v-bind:key="'artist' + key">歌手: {{ value.artist }}</span>
+                                <span v-bind:key="'music_name' + key">歌曲名: {{ value.music_name }}</span>
+                            </div>
+                            <div style="display: flex;flex-direction: row;width: 40%;justify-content: center;/*justify-content: flex-end;*/">
+                                <button class="delete conform" v-on:click="black_music_list.splice(key, 1)">删除</button>
+                                <!--<button class="delete conform">修改</button>-->
+                            </div>
+                        </li>
+                    </transition-group>
+                </ul>
+                {% endverbatim %}
+            </div>
+            <div class="close-button control-button" v-on:click="mask2 = false"
+                 onclick="$('#music_name').val('');$('#artist').val('')"
+                 title="关闭">
+                <span>✕</span>
+            </div>
+            <div class="add-button control-button" title="添加" v-on:click="mask2_1 = true">
+                <span>┼</span>
+            </div>
+            <div class="panel-title">黑名单歌曲</div>
+        </div>
+    </div>
+
+    <div class="page-mask" v-show="mask2_1">
+        <div class="add-panel place-center">
+            <div class="panel-content">
+                <div class="flex-center">
+                    <label>
+                        <span>
+                            歌曲名:
+                            <i class="bcc-iconfont bcc-icon-ic_help" style="font-size: 14px;color: #0064c8"
+                               title=""></i>
+                        </span>
+                        <input type="text" v-model.trim="black_music.music_name" class="set-color-text base"
+                               placeholder="">
+                        <span>歌手:</span>
+                        <input type="text" v-model.trim="black_music.artist" class="set-color-text base"
+                               placeholder="">
+                    </label>
+                    <input type="submit" class="base conform" value="提交"
+                           onclick="p.push_black(vm, 'music')">
+                </div>
+            </div>
+            <div class="close-button control-button" v-on:click="mask2_1 = false"
+                    {#                 onclick="$('#music_name').val('');$('#artist').val('')"#}
+                 title="关闭">
+                <span>✕</span>
+            </div>
+            <div class="panel-title">添加</div>
+        </div>
+    </div>
+
+    <div class="page-mask" v-show="login_mask">
+        <div class="add-panel place-center">
+            {% verbatim %}
+            <div class="flex-center">
+                <aside class="QRCode-aside">
+                    <ul>
+                        <li v-bind:style="QRCCode_selected_style['qq']" onclick="p.change_QRCode(vm, 'qq')">QQ音乐</li>
+                        <li style="display: none" v-bind:style="QRCCode_selected_style['ku_wo']" onclick="p.change_QRCode(vm, 'ku_wo')">酷我音乐</li>
+                        <li v-bind:style="QRCCode_selected_style['cloud']" onclick="p.change_QRCode(vm, 'cloud')">网易云音乐</li>
+                    </ul>
+                </aside>
+                <div class="QRCode">
+                    <div class="QRCode-show" v-bind:style="QRCode_b64_style">
+                        <i class="element-icons el-icon-loading" v-show="QRCode_load_flag&&QRCode_key!==''"></i>
+                        <div style="font-size: 16px" v-show="QRCode_key==''">请选择平台</div>
+                        <div class="QRCode-logged" v-show="QRCode_login_status[QRCode_key]">
+                            <i class="element-icons el-icon-success"></i>
+                            <div>已登录</div>
+                        </div>
+                    </div>
+                    <div class="QRCode-refresh" onclick="p.load_QRCode_b64(vm)" v-show="!QRCode_login_status[QRCode_key]&&QRCode_key!==''">
+                        <i class="element-icons el-icon-refresh-left"></i>
+                        刷新二维码
+                    </div>
+                    <div class="QRCode-refresh" onclick="p.set_login_status(vm)" v-show="QRCode_login_status[QRCode_key]">
+                        <i class="element-icons el-icon-switch-button"></i>
+                        退出登录
+                    </div>
+                </div>
+            </div>
+
+            <div class="close-button control-button" v-on:click="login_mask = false" title="关闭">
+                <span>✕</span>
+            </div>
+
+            <div class="panel-title">登录到&nbsp;{{ QRCode_where }}</div>
+            {% endverbatim %}
+        </div>
+    </div>
+</div>
+</body>
+</html>

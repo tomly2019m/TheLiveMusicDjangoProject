@@ -1,0 +1,1 @@
+pip3 install pycryptodome Django==3.2.10 requests atexit

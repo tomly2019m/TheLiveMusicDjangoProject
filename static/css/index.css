@@ -1,0 +1,74 @@
+html {
+    font-family: "Microsoft YaHei UI", serif;
+}
+
+body {
+    margin: 0;
+}
+
+div {
+    display: block;
+}
+
+h2 {
+    color: #a4ed30;
+}
+
+canvas {
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: -1;
+    position: absolute;
+}
+
+#index {
+    width: 400px;
+    margin: auto;
+    padding: 200px 0 400px 0;
+    text-align: center;
+}
+
+#logo {
+}
+
+#index p {
+    margin: 10px auto 10px auto;
+    font-size: 16px;
+    font-weight: 600;
+    color: rgba(42, 42, 42, 0.73);
+}
+
+#start_use {
+    margin: auto;
+    height: 30px;
+    width: 100px;
+    border: none;
+    outline: 0;
+    transition: .2s ease-out;
+    white-space: nowrap;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+    font-family: '微软雅黑', serif;
+    border-radius: 2px;
+    /*基础样式*/
+    color: #f6f6f6;
+    background-image: linear-gradient(120deg, #ffb14e 0%, #fc8e8e 100%);
+}
+
+#start_use:hover {
+    background-color: #313a46;
+}
+
+#footer{
+    float: bottom;
+    color: #7a7a7a;
+    padding: 20px 0;
+    font-size: 8px;
+    text-align: center;
+    /*脚注*/
+}
+#footer a{
+    color: #7a7a7a;
+    text-decoration-line: none;
+    /*脚注超链接*/
+}

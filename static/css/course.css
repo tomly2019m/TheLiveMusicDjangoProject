@@ -1,0 +1,39 @@
+body {
+    font-family: "Microsoft YaHei UI", serif;
+}
+
+#course {
+    width: 1000px;
+    margin: auto;
+}
+
+#course1 {
+
+}
+
+.cell {
+    margin: 10px;
+    padding: 5px;
+    background-color: rgba(255, 202, 0, 0.16);
+}
+
+.cell:hover {
+    cursor: pointer;
+    background-color: rgba(141, 114, 0, 0.16);
+}
+
+#course p {
+    text-indent: 2em;
+}
+
+h2 {
+    text-align: center;
+}
+
+.course_content {
+    margin: 0 2em 0 2em;
+}
+
+.bold {
+    font-weight: bold;
+}

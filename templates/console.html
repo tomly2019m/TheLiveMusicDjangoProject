@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% load static %}
+{% block mainbody %}
+    <script xmlns:v-bind="http://www.w3.org/1999/xhtml">
+        window.onload = function () {
+            load_console('{{ url }}')
+        }
+    </script>
+    <div id="left-menu">
+        <p>
+            <a href="../console/" style="color: #ffffff;background-color: #37414f">控制台</a>
+        </p>
+        <p>
+            <a href="../base_setting">基本设置</a>
+        </p>
+        <p>
+            <a href="../music_display">歌名显示</a>
+        </p>
+        <p>
+            <a href="../lyric_display">歌词显示</a>
+        </p>
+    </div>
+    <div class="panel">
+        <div class="music-panel">
+            <ul id="u" style="padding-top: 15px">
+                <li>
+                    <span class="music-name">暂无歌曲</span>
+                    <span class="artist">暂无</span>
+                </li>
+            </ul>
+            <hr>
+            <div class="music-info">
+                <a id="is_running">
+                    <p class="base conform" id="start_dan_mu" style="padding: 5px 0 0 0" v-on:click="start_dan_mu()">
+                        开始统计</p>
+                </a>
+
+                <a id="who_play">
+                    <div class="toggle-button-wrapper">
+                        <input type="checkbox" id="toggle-button" name="switch" v-on:click="sql_who_play()">
+                        <label for="toggle-button" class="button-label">
+                            <span class="circle"></span>
+                            <span class="text on">由歌名界面播放</span>
+                            <span class="text off">由歌词界面播放</span>
+                        </label>
+                    </div>
+                </a>
+
+                <a id="add_music">
+                    <p class="base reset" id="add_m" style="padding: 5px 0 0 0" onclick="show_page_mask('.page_mask')">
+                        添加歌曲</p>
+                </a>
+            </div>
+            <div class="music-control">
+                <img src="{% static "images/replay.png" %}" alt="left" width="40px" height="40px"
+                     v-on:click="sql_replay()"
+                     onmousedown="this.src = '{% static "images/replay_clicked.png" %}'"
+                     onmouseup="this.src = '{% static "images/replay.png" %}'">
+                <img src="{% static "images/play.png" %}" alt="center" width="60px" height="60px" id="play_pause"
+                     v-on:click="sql_play()" onmousedown="this.src = '{% static "images/play_clicked.png" %}'"
+                     onmouseup="this.src = '{% static "images/play.png" %}'">
+                <img src="{% static "images/next.png" %}" alt="right" width="40px" height="40px" v-on:click="sql_next()"
+                     onmousedown="this.src = '{% static "images/next_clicked.png" %}'"
+                     onmouseup="this.src = '{% static "images/next.png" %}'">
+            </div>
+        </div>
+        {% verbatim %}
+        <div class="dan-mu-panel" onmouseenter="display_item('.delete')" onmouseleave="(hidden_item('.delete'))">
+            <ul id="music">
+                <transition-group mode="out-in">
+                    <li v-for="(value, key) in music_info" v-bind:key="'thi' + key"><span
+                            v-bind:key="m_num" v-html="value"></span></li>
+                </transition-group>
+            </ul>
+            <span>点歌信息</span>
+            <ul id="console-info" onmouseenter="change_scroll_flag(0)" onmouseleave="change_scroll_flag(1)">
+                <transition-group mode="out-in">
+                    <li v-for="(value, key) in console_info" v-bind:key="'thi'+ key"><span
+                            v-bind:key="c_num">{{ value }}</span></li>
+                </transition-group>
+            </ul>
+        </div>
+        {% endverbatim %}
+        <div id="for-user-info">
+            注: 在此页面的操作有4~5秒延迟属于正常现象, 请勿频繁操作
+        </div>
+    </div>
+    <div class="page-mask">
+        <div class="add-music-panel">
+            <div class="panel-content">
+
+                <p><label>
+                    歌名:
+                    <input type="text" name="music_name" id="music_name" class="set-color-text base">
+                </label></p>
+                <p><label>
+                    歌手:
+                    <input type="text" name="artist" id="artist" class="set-color-text base">
+                    <input type="text" name="index" value="-1" style="display: none">
+                </label></p>
+                <div>
+                    <input type="submit" class="base conform" value="提交"
+                           onclick="$.get('/move_music?music_name=' + $('#music_name').val() + '&artist=' + $('#artist').val() + '&index=-1');close_music_panel();$('#music_name').val('');$('#artist').val('')">
+                    <input type="reset" class="base reset" value="清空"
+                           onclick="$('#music_name').val('');$('#artist').val('')">
+                </div>
+            </div>
+            <div class="close-button" onclick="close_music_panel();$('#music_name').val('');$('#artist').val('')">×
+            </div>
+        </div>
+    </div>
+    <div class="page_mask_on">
+        <div class="add_music_panel_on">
+            <div class="panel-content">
+                <h1>此页面已不再支持<br>请转到<a href="https://play-live.bilibili.com/details/1649539569084">饭贩商店</a>使用</h1>
+            </div>
+        </div>
+    </div>
+{% endblock %}

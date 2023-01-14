@@ -1,0 +1,628 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" xmlns:v-bind="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>使用文档</title>
+    <script src="{% static "js/others/jquery-3.4.1.min.js" %}"></script>
+    {% if dev %}
+        <script src="{% static "js/others/vue.js" %}"></script>
+        <link rel="stylesheet" href="{% static "css/iconfont.css" %}">
+        <link rel="stylesheet" href="{% static "/css/document.css" %}">
+    {% else %}
+        <script src="{% static "js/others/vue.min.js" %}"></script>
+        <link rel="stylesheet" href="{% static "css/iconfont.min.css" %}">
+        <link rel="stylesheet" href="{% static "/css/document.min.css" %}">
+    {% endif %}
+    <link rel="icon" href="{% static "images/favicon.ico" %}">
+    <link rel="stylesheet" href="/static/css/base.css">
+    <script>
+        let vm
+        window.onload = () => {
+            vm = new Vue({
+                el: '#app',
+                data: {
+                    last_key_name: [],
+                    dom_id_map: [],
+                    toggle_status: {
+                        '\u6559\u7a0b': 0,
+                        '\u63d2\u4ef6\u7684\u83b7\u53d6\u4e0e\u6dfb\u52a0': 0,
+                        '\u8bbe\u7f6e\u6837\u5f0f': 0,
+                        '\u9ed1\u540d\u5355\u8bbe\u7f6e': 0,
+                        '\u5f00\u59cb\u4f7f\u7528\u70b9\u6b4c': 0,
+                        'Q&A': 0
+                    },  // 1 is display, 0 is hidden
+                    toggle_key: {
+                        '\u6559\u7a0b': ['\u6559\u7a0b'],
+                        '\u63d2\u4ef6\u7684\u83b7\u53d6\u4e0e\u6dfb\u52a0': ['\u6559\u7a0b', '\u63d2\u4ef6\u7684\u83b7\u53d6\u4e0e\u6dfb\u52a0'],
+                        '\u63d2\u4ef6\u7684\u83b7\u53d6\u4e0e\u6dfb\u52a0-\u901a\u8fc7\u7f51\u9875': ['\u6559\u7a0b', '\u63d2\u4ef6\u7684\u83b7\u53d6\u4e0e\u6dfb\u52a0'],
+                        '\u63d2\u4ef6\u7684\u83b7\u53d6\u4e0e\u6dfb\u52a0-\u901a\u8fc7\u76f4\u64ad\u59ec': ['\u6559\u7a0b', '\u63d2\u4ef6\u7684\u83b7\u53d6\u4e0e\u6dfb\u52a0'],
+                        '\u8bbe\u7f6e\u6837\u5f0f': ['\u6559\u7a0b', '\u8bbe\u7f6e\u6837\u5f0f'],
+                        '\u8bbe\u7f6e\u6837\u5f0f-\u901a\u8fc7\u7f51\u9875': ['\u6559\u7a0b', '\u8bbe\u7f6e\u6837\u5f0f'],
+                        '\u8bbe\u7f6e\u6837\u5f0f-\u901a\u8fc7\u76f4\u64ad\u59ec': ['\u6559\u7a0b', '\u8bbe\u7f6e\u6837\u5f0f'],
+                        '\u9ed1\u540d\u5355\u8bbe\u7f6e': ['\u6559\u7a0b', '\u9ed1\u540d\u5355\u8bbe\u7f6e'],
+                        '\u9ed1\u540d\u5355\u8bbe\u7f6e-\u7528\u6237\u9ed1\u540d\u5355': ['\u6559\u7a0b', '\u9ed1\u540d\u5355\u8bbe\u7f6e'],
+                        '\u9ed1\u540d\u5355\u8bbe\u7f6e-\u6b4c\u66f2\u9ed1\u540d\u5355': ['\u6559\u7a0b', '\u9ed1\u540d\u5355\u8bbe\u7f6e'],
+                        '\u9ed1\u540d\u5355\u8bbe\u7f6e-\u9644: \u5982\u4f55\u627e\u5230uid\uff1f': ['\u6559\u7a0b', '\u9ed1\u540d\u5355\u8bbe\u7f6e'],
+                        '\u5f00\u59cb\u4f7f\u7528\u70b9\u6b4c': ['\u6559\u7a0b', '\u5f00\u59cb\u4f7f\u7528\u70b9\u6b4c'],
+                        'Q&A': ['\u6559\u7a0b', 'Q&A'],
+                        'Q&A-\u4e3a\u4ec0\u4e48\u89c2\u4f17\u53d1\u9001\u70b9\u6b4c\u5f39\u5e55\u63d2\u4ef6\u6ca1\u6709\u53cd\u5e94\uff1f': ['\u6559\u7a0b', 'Q&A'],
+                        'Q&A-\u4e3a\u4ec0\u4e48\u76f4\u64ad\u95f4\u91cc\u6709\u58f0\u97f3\u800c\u6211\u81ea\u5df1\u542c\u4e0d\u5230\uff1f': ['\u6559\u7a0b', 'Q&A'],
+                        'Q&A-\u4e3a\u4ec0\u4e48\u6211\u6ca1\u6709\u6b4c\u8bcd\u754c\u9762\uff1f': ['\u6559\u7a0b', 'Q&A'],
+                        'Q&A-\u4e3a\u4ec0\u4e48\u6211\u7684\u6b4c\u8bcd\u4e0d\u4f1a\u6eda\u52a8\uff1f': ['\u6559\u7a0b', 'Q&A'],
+                        '\u8bbe\u7f6e\u6837\u5f0f-\u9644\uff1a\u5b57\u4f53\u8bbe\u7f6e\u65b9\u6cd5': ['\u6559\u7a0b', '\u8bbe\u7f6e\u6837\u5f0f'],
+                    },
+                    on_view_class: ['', 'on-view'],
+                    on_view_status: {
+                        '\u63d2\u4ef6\u7684\u83b7\u53d6\u4e0e\u6dfb\u52a0-\u901a\u8fc7\u7f51\u9875': 0,
+                        '\u63d2\u4ef6\u7684\u83b7\u53d6\u4e0e\u6dfb\u52a0-\u901a\u8fc7\u76f4\u64ad\u59ec': 0,
+                        '\u8bbe\u7f6e\u6837\u5f0f-\u901a\u8fc7\u7f51\u9875': 0,
+                        '\u8bbe\u7f6e\u6837\u5f0f-\u901a\u8fc7\u76f4\u64ad\u59ec': 0,
+                        '\u8bbe\u7f6e\u6837\u5f0f-\u9644\uff1a\u5b57\u4f53\u8bbe\u7f6e\u65b9\u6cd5': 0,
+                        '\u5f00\u59cb\u4f7f\u7528\u70b9\u6b4c': 0,
+                        '\u9ed1\u540d\u5355\u8bbe\u7f6e-\u7528\u6237\u9ed1\u540d\u5355': 0,
+                        '\u9ed1\u540d\u5355\u8bbe\u7f6e-\u6b4c\u66f2\u9ed1\u540d\u5355': 0,
+                        '\u9ed1\u540d\u5355\u8bbe\u7f6e-\u9644: \u5982\u4f55\u627e\u5230uid\uff1f': 0,
+                        'Q&A-\u4e3a\u4ec0\u4e48\u89c2\u4f17\u53d1\u9001\u70b9\u6b4c\u5f39\u5e55\u63d2\u4ef6\u6ca1\u6709\u53cd\u5e94\uff1f': 0,
+                        'Q&A-\u4e3a\u4ec0\u4e48\u76f4\u64ad\u95f4\u91cc\u6709\u58f0\u97f3\u800c\u6211\u81ea\u5df1\u542c\u4e0d\u5230\uff1f': 0,
+                        'Q&A-\u4e3a\u4ec0\u4e48\u6211\u6ca1\u6709\u6b4c\u8bcd\u754c\u9762\uff1f': 0,
+                        'Q&A-\u4e3a\u4ec0\u4e48\u6211\u7684\u6b4c\u8bcd\u4e0d\u4f1a\u6eda\u52a8\uff1f': 0,
+                    },
+                    // toggle_text: ['收起', '展开'],
+                },
+                methods: {
+                    /**
+                     * 检测元素是否滚动到可视范围
+                     * @param {*} el
+                     */
+                    is_element_not_in_viewport: (el) => {
+                        if (el) {
+                            let rect = el.getBoundingClientRect()
+                            let top = rect.top
+                            let innerHeight = window.innerHeight
+                            let clientHeight = document.documentElement.clientHeight
+                            let bottom = rect.bottom
+                            console.log('\ntop: %d, innerHeight: %d, clientHeight: %d, bottom: %d', top, innerHeight, clientHeight, bottom)
+                            return (top >= (innerHeight || clientHeight) || bottom <= 0)
+                            // return (rect.top >= (window.innerHeight || document.documentElement.clientHeight) || rect.bottom <= 0)
+                        }
+                    },
+
+                    /**
+                     * 改状态
+                     * @param {Number} key
+                     */
+                    change_status(key) {
+                        this.toggle_status[key] = Number(!this.toggle_status[key])
+
+                    },
+
+                    change_click_status(key) {
+                        for (const status_key in this.on_view_status) {
+                            this.on_view_status[status_key] = 0
+                        }
+                        this.on_view_status[key] = 1
+                        console.log('\n' + key)
+                    },
+
+                    who_on_view() {
+                        for (let on_view_status_key in this.on_view_status) {
+                            let status = !this.is_element_not_in_viewport(this.$refs[on_view_status_key])
+                            console.log(on_view_status_key)
+                            console.log(status)
+                            if (status && "undefined" !== on_view_status_key) {
+                                // this.change_click_status(on_view_status_key)
+                                // this.last_key_name = on_view_status_key
+                                this.display_menu(on_view_status_key)
+                                history.pushState({}, on_view_status_key, '#' + on_view_status_key)
+                                break
+                            }
+                        }
+                    },
+
+                    display_menu(id) {
+                        let id_status_key = this.toggle_key[id]
+                        console.log(id)
+                        console.log(id_status_key)
+                        if (this.on_view_status[id] !== undefined) {
+                            this.change_click_status(id)
+                        }
+                        this.toggle_status[id_status_key[0]] = 1
+                        this.toggle_status[id_status_key[1]] = 1
+                    }
+                },
+                mounted() {
+                    this.$refs.scroll_div.addEventListener('scroll', this.who_on_view)
+                },
+                created() {
+                    /**
+                     for (let i = 0; i < 5; i++) {
+                        this.dom_id_map.push('#course' + i)
+                        this.toggle_status.push(0)
+                    }*/
+                    let now_url = window.location.href
+                    let loc_id = decodeURI(now_url.split('#').reverse()[0])
+                    this.display_menu(loc_id)
+                    setTimeout(() => {
+                        document.getElementById(loc_id).scrollIntoView()
+                    }, 500)
+                }
+            })
+        }
+
+    </script>
+</head>
+<body>
+<div class="box">
+    <div id="header">
+        <a href="../">
+            <img src="{% static "images/LiveMusic.png" %}" height="64" width="128" alt="" id="left_logo"/>
+        </a>
+        <div id="menu">
+            <a href="/course" target="_blank">教程</a>
+        </div>
+    </div>
+    <div id="content">
+        <div id="app">
+            <aside>
+                <ul class="root-ul">
+                    <li>
+                        <section>
+                            <div class="sidebar-title" v-on:click="change_status('教程')">
+                                <span>教程</span>
+                                <i class="element-icons el-icon-caret-right" v-show="!toggle_status['教程']"></i>
+                                <i class="element-icons el-icon-caret-bottom" v-show="toggle_status['教程']"></i>
+                            </div>
+                            <ul class="child-ul" v-show="toggle_status['教程']">
+                                <li>
+                                    <section>
+                                        <div class="flex-center" v-on:click="change_status('插件的获取与添加')">
+                                            <a class="side-link" href="#插件的获取与添加">插件的获取与添加</a>
+                                            <i class="element-icons el-icon-caret-right"
+                                               v-show="!toggle_status['插件的获取与添加']"></i>
+                                            <i class="element-icons el-icon-caret-bottom"
+                                               v-show="toggle_status['插件的获取与添加']"></i>
+                                        </div>
+
+                                        <ul class="child-ul" v-show="toggle_status['插件的获取与添加']">
+                                            <li>
+                                                <a class="side-link"
+                                                   v-bind:class="on_view_class[on_view_status['插件的获取与添加-通过网页']]"
+                                                   v-on:click="change_click_status('插件的获取与添加-通过网页')"
+                                                   href="#插件的获取与添加-通过网页">通过网页</a>
+                                            </li>
+                                            <li>
+                                                <a class="side-link"
+                                                   v-bind:class="on_view_class[on_view_status['插件的获取与添加-通过直播姬']]"
+                                                   v-on:click="change_click_status('插件的获取与添加-通过直播姬')"
+                                                   href="#插件的获取与添加-通过直播姬">通过直播姬</a>
+                                            </li>
+                                        </ul>
+                                    </section>
+                                </li>
+                                <li>
+                                    <section>
+                                        <div class="flex-center" v-on:click="change_status('设置样式')">
+                                            <a class="side-link" href="#设置样式">设置样式</a>
+                                            <i class="element-icons el-icon-caret-right"
+                                               v-show="!toggle_status['设置样式']"></i>
+                                            <i class="element-icons el-icon-caret-bottom"
+                                               v-show="toggle_status['设置样式']"></i>
+                                        </div>
+                                        <ul class="child-ul" v-show="toggle_status['设置样式']">
+                                            <li>
+                                                <a class="side-link"
+                                                   v-bind:class="on_view_class[on_view_status['设置样式-通过网页']]"
+                                                   v-on:click="change_click_status('设置样式-通过网页')"
+                                                   href="#设置样式-通过网页">通过网页</a>
+                                            </li>
+                                            <li>
+                                                <a class="side-link"
+                                                   v-bind:class="on_view_class[on_view_status['设置样式-通过直播姬']]"
+                                                   v-on:click="change_click_status('设置样式-通过直播姬')" href="#设置样式-通过直播姬">通过直播姬</a>
+                                            </li>
+                                            <li>
+                                                <a class="side-link"
+                                                   v-bind:class="on_view_class[on_view_status['设置样式-附：字体设置方法']]"
+                                                   v-on:click="change_click_status('设置样式-附：字体设置方法')"
+                                                   href="#设置样式-附：字体设置方法">附：字体设置方法</a>
+                                            </li>
+                                        </ul>
+                                    </section>
+                                </li>
+                                <li>
+                                    <section>
+                                        <div class="flex-center" v-on:click="change_status('黑名单设置')">
+                                            <a class="side-link" href="#黑名单设置">黑名单设置</a>
+                                            <i class="element-icons el-icon-caret-right"
+                                               v-show="!toggle_status['黑名单设置']"></i>
+                                            <i class="element-icons el-icon-caret-bottom"
+                                               v-show="toggle_status['黑名单设置']"></i>
+                                        </div>
+                                        <ul class="child-ul" v-show="toggle_status['黑名单设置']">
+                                            <li>
+                                                <a class="side-link"
+                                                   v-bind:class="on_view_class[on_view_status['黑名单设置-用户黑名单']]"
+                                                   v-on:click="change_click_status('黑名单设置-用户黑名单')" href="#黑名单设置-用户黑名单">用户黑名单</a>
+                                            </li>
+                                            <li>
+                                                <a class="side-link"
+                                                   v-bind:class="on_view_class[on_view_status['黑名单设置-歌曲黑名单']]"
+                                                   v-on:click="change_click_status('黑名单设置-歌曲黑名单')" href="#黑名单设置-歌曲黑名单">歌曲黑名单</a>
+                                            </li>
+                                            <li>
+                                                <a class="side-link"
+                                                   v-bind:class="on_view_class[on_view_status['黑名单设置-附: 如何找到uid？']]"
+                                                   v-on:click="change_click_status('黑名单设置-附: 如何找到uid？')"
+                                                   href="#黑名单设置-附: 如何找到uid？">附: 如何找到uid？</a>
+                                            </li>
+                                        </ul>
+                                    </section>
+                                </li>
+                                <li>
+                                    <section>
+                                        <a class="side-link" href="#开始使用点歌">开始使用点歌</a>
+                                    </section>
+                                </li>
+                                <li>
+                                    <section>
+                                        <div class="flex-center" v-on:click="change_status('Q&A')">
+                                            <a class="side-link">Q&A</a>
+                                            <i class="element-icons el-icon-caret-right"
+                                               v-show="!toggle_status['Q&A']"></i>
+                                            <i class="element-icons el-icon-caret-bottom"
+                                               v-show="toggle_status['Q&A']"></i>
+                                        </div>
+                                        <ul class="child-ul" v-show="toggle_status['Q&A']">
+                                            <li>
+                                                <a class="side-link"
+                                                   v-bind:class="on_view_class[on_view_status['Q&A-为什么观众发送点歌弹幕插件没有反应？']]"
+                                                   v-on:click="change_click_status('Q&A-为什么观众发送点歌弹幕插件没有反应？')"
+                                                   href="#Q&A-为什么观众发送点歌弹幕插件没有反应？">为什么观众发送点歌弹幕插件没有反应？</a>
+                                            </li>
+                                            <li>
+                                                <a class="side-link"
+                                                   v-bind:class="on_view_class[on_view_status['Q&A-为什么直播间里有声音而我自己听不到？']]"
+                                                   v-on:click="change_click_status('Q&A-为什么直播间里有声音而我自己听不到？')"
+                                                   href="#Q&A-为什么直播间里有声音而我自己听不到？">为什么直播间里有声音而我自己听不到？</a>
+                                            </li>
+                                            <li>
+                                                <a class="side-link"
+                                                   v-bind:class="on_view_class[on_view_status['Q&A-为什么我没有歌词界面？']]"
+                                                   v-on:click="change_click_status('Q&A-为什么我没有歌词界面？')"
+                                                   href="#Q&A-为什么我没有歌词界面？">为什么我没有歌词界面？</a>
+                                            </li>
+                                            <li>
+                                                <a class="side-link"
+                                                   v-bind:class="on_view_class[on_view_status['Q&A-为什么我的歌词不会滚动？']]"
+                                                   v-on:click="change_click_status('Q&A-为什么我的歌词不会滚动？')"
+                                                   href="#Q&A-为什么我的歌词不会滚动？">为什么我的歌词不会滚动？</a>
+                                            </li>
+                                        </ul>
+                                    </section>
+                                </li>
+                            </ul>
+                        </section>
+                    </li>
+                </ul>
+            </aside>
+            <div ref="scroll_div"
+                 style="margin: 0;padding: 0 0 0 300px;width: calc(100% - 300px);height: calc(100% + 58px);overflow-y: scroll;">
+                <div class="mainly">
+                    <div class="cell" ref="course0">
+                        <div class="core">
+                            <h2 class="core-title" id="插件的获取与添加">
+                                <a class="jump-link jump-mark" href="#插件的获取与添加">#</a>
+                                一、插件的获取与添加
+                            </h2>
+                            <hr>
+                            <div class="core-content" ref="插件的获取与添加-通过网页">
+                                <h3 class="course-title second-indent" id="插件的获取与添加-通过网页">通过网页</h3>
+                                <div class="course-title third-indent">打开B站 直播中心，在右上角找到饭盒-饭贩</div>
+                                <img class="course-img" src="{% static "images/course/image001.png" %}" alt="">
+                                <div class="course-title third-indent">点击H5插件，找到弹幕点歌，点击获取后点击复制H5插件链接</div>
+                                <img class="course-img" src="{% static "images/course/image002.png" %}" alt="">
+                                <div class="course-title third-indent" id="插件的获取与添加-歌名界面">打开obs，在 "来源" 里添加浏览器源 (歌名界面)
+                                </div>
+                                <img class="course-img" src="{% static "images/course/image003.png" %}" alt="">
+                                <img class="course-img" src="{% static "images/course/image004.png" %}" alt="">
+                                <div class="course-title third-indent">将链接粘贴到url栏中，并勾选“通过OBS控制音频”，确定</div>
+                                <img class="course-img" src="{% static "images/course/image005.png" %}" alt="">
+                                <div class="course-title third-indent">现在你已经添加好了“歌名界面”</div>
+                                <img class="course-img" src="{% static "images/course/image006.png" %}" alt="">
+                                <div class="course-title third-indent" id="转到插件的获取与添加-通过网页-添加歌词界面">
+                                    现在添加“歌词界面”，
+                                    <span class="fluorescent">无歌词显示需求的可以跳过</span>
+                                </div>
+                                <div class="course-title third-indent">回到饭贩-H5插件界面，点击项目名进入项目详情</div>
+                                <img class="course-img" src="{% static "images/course/image007.png" %}" alt="">
+                                <div class="course-title third-indent">在H5插件配置里，点击“转到歌词设置”，点击“复制歌词插件链接”</div>
+                                <img class="course-img" src="{% static "images/course/image008.png" %}" alt="">
+                                <img class="course-img" src="{% static "images/course/image009.png" %}" alt="">
+                                <div class="course-title third-indent">
+                                    再次添加浏览器源，将链接粘贴到url栏中，设置同
+                                    <a class="jump-link" href="#插件的获取与添加-歌名界面">歌名界面</a>
+                                </div>
+                                <div class="course-title third-indent">现在你已经添加好“歌词界面”</div>
+                                <img class="course-img" src="{% static "images/course/image010.png" %}" alt="">
+                            </div>
+                            <div class="core-content" ref="插件的获取与添加-通过直播姬">
+                                <h3 class="course-title second-indent" id="插件的获取与添加-通过直播姬">2. 通过直播姬</h3>
+                                <div class="course-title third-indent">打开直播姬，找到H5插件，进入</div>
+                                <img class="course-img" src="{% static "images/course/image011.png" %}" alt="">
+                                <div class="course-title third-indent">找到“弹幕点歌“</div>
+                                <img class="course-img" src="{% static "images/course/image012.png" %}" alt="">
+                                <div class="course-title third-indent">您可以选择直接添加也可以点击描述进入饭贩详情页</div>
+                                <img class="course-img" src="{% static "images/course/image013.png" %}" alt="">
+                                <div class="course-title third-indent">点击添加使用，现在你已经添加好“歌名界面”</div>
+                                <img class="course-img" src="{% static "images/course/image014.png" %}" alt="">
+                                <div class="course-title third-indent" id="转到插件的获取与添加-通过直播姬-添加歌词界面">
+                                    （5） 现在添加“歌词界面”，
+                                    <span class="fluorescent">无歌词显示需求的可以跳过</span>
+                                </div>
+                                <div class="course-title third-indent">回到第2步的界面，点击描述进入饭贩详情页</div>
+                                <img class="course-img" src="{% static "images/course/image015.png" %}" alt="">
+                                <div class="course-title third-indent">浏览器将自动弹出项目详情</div>
+                                <img class="course-img" src="{% static "images/course/image007.png" %}" alt="">
+                                <div class="course-title third-indent">在H5插件配置里，点击“转到歌词设置”，点击“复制歌词插件链接”</div>
+                                <img class="course-img" src="{% static "images/course/image008.png" %}" alt="">
+                                <img class="course-img" src="{% static "images/course/image009.png" %}" alt="">
+                                <div class="course-title third-indent">回到直播姬，在左侧的场景中添加素材，选择浏览器</div>
+                                <img class="course-img" src="{% static "images/course/image016.png" %}" alt="">
+                                <img class="course-img" src="{% static "images/course/image017.png" %}" alt="">
+                                <div class="course-title third-indent">将链接粘贴到url栏中，监听设置为“仅监听，声音输出到系统声音”，点击确定</div>
+                                <img class="course-img" src="{% static "images/course/image018.png" %}" alt="">
+                                <div class="course-title third-indent">现在你已经添加好“歌词界面”</div>
+                                <img class="course-img" src="{% static "images/course/image019.png" %}" alt="">
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="cell" ref="course1">
+                        <div class="core">
+                            <h2 class="core-title" id="设置样式">
+                                <a class="jump-link jump-mark" href="#设置样式">#</a>
+                                二、设置样式
+                            </h2>
+                            <hr>
+                            <div class="core-content" ref="设置样式-通过网页">
+                                <h3 class="course-title second-indent" id="设置样式-通过网页">1. 通过网页</h3>
+                                <div class="course-title third-indent">进入详情页，找到H5配置页面</div>
+                                <img class="course-img" src="{% static "images/course/image020.png" %}" alt="">
+                                <img class="course-img" src="{% static "images/course/image021.png" %}" alt="">
+                                <div class="course-title third-indent">调整完后右上角会出现保存中的提示，请等待提示变化为已保存</div>
+                                <img class="course-img" src="{% static "images/course/image022.png" %}" alt="">
+                                <div class="course-title third-indent">歌词样式设置，先切换到“歌词设置”界面</div>
+                                <img class="course-img" src="{% static "images/course/image023.png" %}" alt="">
+                                <img class="course-img" src="{% static "images/course/image024.png" %}" alt=""></div>
+                            <div class="core-content" ref="设置样式-通过直播姬">
+                                <h3 class="course-title second-indent" id="设置样式-通过直播姬">2. 通过直播姬</h3>
+                                <div class="course-title third-indent">在右边的场景中找到弹幕点歌的浏览器源，点击编辑</div>
+                                <img class="course-img" src="{% static "images/course/image025.png" %}" alt="">
+                                <div class="course-title third-indent">在弹出的插件设置窗口中即可设置样式</div>
+                            </div>
+                            <div class="core-content" ref="设置样式-附：字体设置方法">
+                                <h3 class="course-title second-indent" id="设置样式-附：字体设置方法">3. 附：字体设置方法</h3>
+                                <div class="course-title third-indent">字体设置的字体名称为自己系统内字体名称，以下是查看本地系统安装字体的方法</div>
+                                <img class="course-img" src="{% static "images/course/image026.png" %}" alt="">
+                                <div class="course-title third-indent">在任务栏的搜索框里搜索“字体设置”，打开。（或打开设置-个性化-字体）</div>
+                                <img class="course-img" src="{% static "images/course/image027.png" %}" alt="">
+                                <div class="course-title third-indent">可用字体下面就是本地系统安装的字体，设置字体时请输入蓝色字体名称。</div>
+                                <img class="course-img" src="{% static "images/course/image028.png" %}" alt="">
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="cell" ref="course2">
+                        <div class="core">
+                            <h2 class="core-title" id="黑名单设置">
+                                <a class="jump-link jump-mark" href="#黑名单设置">#</a>
+                                三、黑名单设置
+                            </h2>
+                            <hr>
+                            <div class="core-content" ref="黑名单设置-用户黑名单">
+                                <h3 class="course-title second-indent" id="黑名单设置-用户黑名单">用户黑名单</h3>
+                                <div class="course-title third-indent">打开任意设置界面，在设置中往下翻到最底，点击“用户”</div>
+                                <img class="course-img" src="{% static "images/course/image029.png" %}" alt="">
+                                <div class="course-title third-indent">点击右上角的加号</div>
+                                <img class="course-img" src="{% static "images/course/image030.png" %}" alt="">
+                                <div class="course-title third-indent">填好信息按“提交即可”</div>
+                                <img class="course-img" src="{% static "images/course/image031.png" %}" alt="">
+                                <img class="course-img" src="{% static "images/course/image032.png" %}" alt="">
+                            </div>
+                            <div class="core-content" ref="黑名单设置-歌曲黑名单">
+                                <h3 class="course-title second-indent" id="黑名单设置-歌曲黑名单">歌曲黑名单</h3>
+                                <div class="course-title third-indent">点击歌曲黑名单</div>
+                                <img class="course-img" src="{% static "images/course/image033.png" %}" alt="">
+                                <div class="course-title third-indent">
+                                    同上
+                                    <a class="jump-link" href="#黑名单设置-用户黑名单">用户黑名单</a>
+                                </div>
+                            </div>
+                            <div class="core-content" ref="黑名单设置-附: 如何找到uid？">
+                                <h3 class="course-title second-indent" id="黑名单设置-附: 如何找到uid？">附:
+                                    如何找到uid？</h3>
+                                <div class="course-title third-indent">打开直播间评论区，找到想要屏蔽的用户，点击名称-去TA的个人空间</div>
+                                <img class="course-img" src="{% static "images/course/image034.png" %}" alt="">
+                                <div class="course-title third-indent">双击网址中的数字部分，复制数字</div>
+                                <img class="course-img" src="{% static "images/course/image035.png" %}" alt="">
+                                <div class="img-text">（这只猫猫狐超可爱快关注他（）</div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="cell" ref="course3">
+                        <div class="core">
+                            <h2 class="core-title" id="开始使用点歌">
+                                <a class="jump-link jump-mark" ref="开始使用点歌" href="#开始使用点歌">#</a>
+                                四、开始使用点歌
+                            </h2>
+                            <hr>
+                            <div class="core-content child-el padding-child-div" id="course3">
+                                <div class="course-title child-el">进入详情页，找到H5配置页面，点开“转到歌曲控制台“</div>
+                                <img class="course-img" src="{% static "images/course/image036.png" %}" alt="">
+                                <img class="course-img" src="{% static "images/course/image037.png" %}" alt="">
+
+                                <div class="padding-child-div" style="width: 70%">
+                                    <div>①.返回之前的界面</div>
+                                    <div>②.自助修复问题</div>
+                                    <div>③.当前歌曲信息</div>
+                                    <div>④.开始/停止统计弹幕指令。按“开始统计”后，直播间的点歌才会起效。按“停止统计”后，插件不再响应直播间的点歌指令，但已经收集的歌曲仍会按序播放。
+                                    </div>
+                                    <div id="开始使用点歌-如何设置此开关">⑤.切换歌曲的播放位置</div>
+                                    <div class="tip child-el break-padding-child-div">
+                                        <div>
+                                            <h4>解释和设置起来有些麻烦，以下总结了几种情况的设置：</h4>
+                                            <div>a) 直播界面里只展示“歌名界面”时，开关应该设置为“由歌名界面播放”</div>
+                                            <div>b) 直播界面里只展示“歌词界面”时，开关应该设置为“由歌词界面播放”</div>
+                                            <div>c) 直播界面里展示“歌词界面”和“歌名界面”时，开关应该设置为“由歌词界面播放“</div>
+                                        </div>
+                                    </div>
+                                    <div class="child-el padding-child-div">
+
+                                    </div>
+                                    <div>⑥.直接添加一首歌曲</div>
+                                </div>
+                                <img class="course-img" src="{% static "images/course/image038.png" %}" alt="">
+                                <div class="padding-child-div" style="width: 70%">
+                                    <div class="padding-child-div child-el">
+                                        <div>
+                                            a) 要添加的歌曲名字
+                                            <div class="tip child-el break-padding-child-div">
+                                                <div>
+                                                    <h4>注意</h4>
+                                                    请准确填写歌曲原名，外语请不要用中文代替
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div>b) 指定是谁唱的这首歌</div>
+                                        <div>c) 提交歌曲到播放列表</div>
+                                    </div>
+                                    <div>⑦. 重新播放当前播放的歌曲</div>
+                                    <div>⑧. 播放/暂停当前歌曲</div>
+                                    <div>⑨. 播放下一首歌曲</div>
+                                    <div>⑩. 下一首要播放的歌曲信息（等待播放列表的第一项）</div>
+                                    <div>⑪. 下下首要播放的歌曲信息（等待播放列表的第二项）</div>
+                                    <div>⑫. 从列表里删除此歌曲</div>
+                                    <div>⑬. 立即播放此歌曲（移除当前正在播放的歌曲，播放选择的歌曲）</div>
+                                    <div>⑭. 将此歌曲设为下一首播放（移动此歌曲到等待列表的第一项）</div>
+                                    <div>⑮. 获取歌曲时产生的成功和失败信息</div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="cell" ref="course4">
+                        <div class="core">
+                            <h2 class="core-title" id="Q&A">
+                                <a class="jump-link jump-mark" href="#Q&A">#</a>
+                                Q&A
+                            </h2>
+                            <hr>
+                            <div class="core-content child-el" ref="Q&A-为什么观众发送点歌弹幕插件没有反应？">
+                                <h3 class="course-title child-el" id="Q&A-为什么观众发送点歌弹幕插件没有反应？">
+                                    为什么观众发送点歌弹幕插件没有反应？
+                                </h3>
+                                <div class="course-title child-el">
+                                    <div class="child-el">A:</div>
+                                    <div class="child-el">
+                                        （1）请先检查“歌曲控制台”中“开始统计”按钮是否按下变成了“停止统计”
+                                        <a class="jump-link" href="#开始使用点歌">跳转开始使用点歌位置</a>
+                                    </div>
+                                    <div class="child-el">
+                                        （2）确定控制台中间的“由歌名界面播放/由歌词界面播放”开关是否处于正确的状态
+                                        <a class="jump-link" href="#开始使用点歌-如何设置此开关">如何设置此开关？</a>。
+                                        <div class="tip child-el">
+                                            <div>
+                                                <h4>注意</h4>
+                                                更改“由歌名界面播放/由歌词界面播放”开关状态后, 请刷新OBS/直播姬中的浏览器源。
+                                            </div>
+                                        </div>
+                                        <div class="padding-child-div">
+                                            <div>（3）检查播放按钮是否处于播放状态，按钮样式为双竖线时为播放状态</div>
+                                            <div>（4）检查“点歌信息”是否提示歌曲获取失败。（此问题一般是因为歌曲为vip或无版权歌曲，请尝试更换歌曲）</div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="core-content child-el" ref="Q&A-为什么直播间里有声音而我自己听不到？">
+                                <h3 class="course-title child-el" id="Q&A-为什么直播间里有声音而我自己听不到？">
+                                    为什么直播间里有声音而我自己听不到？
+                                </h3>
+                                <div class="course-title child-el">
+                                    <div class="child-el">A:</div>
+                                    <div class="padding-child-div course-title child-el">
+                                        <div>请为浏览器源设置监听</div>
+                                        <div class="padding-child-div child-el">
+                                            <h4>Obs设置监听</h4>
+                                            <div class="padding-child-div child-el">
+                                                <div>找到需要设置监听的浏览器源，右键-属性</div>
+                                                <img class="course-img" src="{% static "images/course/image039.png" %}"
+                                                     alt="">
+                                                <div>勾选“使用OBS控制音频”，点击确定</div>
+                                                <img class="course-img" src="{% static "images/course/image040.png" %}"
+                                                     alt="">
+                                                <div>在混音器中找到相同名字的音轨，点击对应的设置齿轮-高级音频设置</div>
+                                                <img class="course-img" src="{% static "images/course/image041.png" %}"
+                                                     alt="">
+                                                <div>找到需要设置监听的浏览器源，将“音频监听”设置为“仅监听(输出静音)”</div>
+                                                <img class="course-img" src="{% static "images/course/image042.png" %}"
+                                                     alt="">
+
+                                            </div>
+                                            <h4>直播姬设置监听</h4>
+                                            <div class="padding-child-div child-el">
+                                                <div>找到需要设置监听的浏览器源，右键-属性</div>
+                                                <img class="course-img" src="{% static "images/course/image043.png" %}"
+                                                     alt="">
+                                                <div>将“音频监听”设置为“仅监听，声音输出到系统声音”</div>
+                                                <img class="course-img" src="{% static "images/course/image044.png" %}"
+                                                     alt="">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="core-content child-el" ref="Q&A-为什么我没有歌词界面？">
+                                <h3 class="course-title child-el" id="Q&A-为什么我没有歌词界面？">
+                                    为什么我没有歌词界面？
+                                </h3>
+                                <div class="course-title child-el">
+                                    详见
+                                    <div>
+                                        <a class="jump-link" href="#转到插件的获取与添加-通过网页-添加歌词界面">转到插件的获取与添加-通过网页-添加歌词界面</a>
+                                    </div>
+                                    <div>
+                                        <a class="jump-link" href="#转到插件的获取与添加-通过直播姬-添加歌词界面">转到插件的获取与添加-通过直播姬-添加歌词界面</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="core-content child-el" ref="Q&A-为什么我的歌词不会滚动？">
+                                <h3 class="course-title child-el" id="Q&A-为什么我的歌词不会滚动？">
+                                    为什么我的歌词不会滚动？
+                                </h3>
+                                <div class="course-title child-el">
+                                    一般是“由歌名界面播放/由歌词界面播放”开关未处于正确状态导致的，详见
+
+                                    <a class="jump-link" href="#开始使用点歌-如何设置此开关">如何设置此开关？</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="footer">
+                    <p>Copyright © TLittlePrince. All rights reserved.</p>
+                    <p>
+                        <a href="https://beian.miit.gov.cn/" target="_blank">粤ICP备2022013625号</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+</body>
+</html>

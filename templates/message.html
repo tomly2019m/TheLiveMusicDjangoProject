@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% load static %}
+{% block mainbody %}
+    <script>
+        $(document).ready(function () {
+            const pattern = trianglify({
+                cellSize: 100,
+                width: window.innerWidth,
+                height: document.body.offsetHeight,
+                xColors: ['#ff6138', '#f5a70b', '#f5860b', '#f5d80b'],
+                colorFunction: trianglify.colorFunctions.sparkle(0.13)
+            })
+
+            // Render to SVG
+            // document.body.appendChild(pattern.toSVG())
+            // Render to Canvas
+            document.body.appendChild(pattern.toCanvas())
+        });
+
+    </script>
+    <div class="center-message">
+        <div class="space-left">
+            <div class="side-bar">
+                <div class="right-title">
+                    <span>消息中心</span>
+                </div>
+                <ul class="ul-list">
+                    <li class="li-item">
+                        <a id="{{ global }}" href="global">系统通知</a>
+                    </li>
+                    <li class="li-item">
+                        <a id="{{ my }}" href="my">我的消息</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="space-right">
+            <div class="title">
+                <div><span>我的消息</span></div>
+            </div>
+            <div class="messages">
+
+                <div class="messages-item">
+                <div class="basic-list-item">
+                    <div class="left-box">
+                        <img src="/static/images/favicon.ico" alt="icon" class="h-icon">
+                    </div>
+                    <div class="center-box">
+                        <div class="line-one">
+                            <span class="nick-name">开发者</span>
+                            <span class="desc-msg">给你发了一条消息</span>
+                        </div>
+                        <div class="line-two">
+                            <span class="message-content">
+                                <p>谢谢您使用咱的点歌机啦~ 使用前请先看看<a href="/course" target="_blank" id="click_i">使用教程</a>~ 如果遇到了什么奇怪的问题一定要和咱说哦, 当然有什么好的建议也可以提出来。
+                                因为只有一个人在维护和更新, 所以建议会采纳的比较慢, 请多多谅解...
+                                </p>
+                                <p>Bug反馈/建议群: 686885374</p>
+                            </span>
+                        </div>
+                        <div class="line-three">
+                            <div class="time-filed">
+                                <span class="time-span">2022年4月3日 22:34</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="divider"></div>
+
+            </div>
+
+        </div>
+    </div>
+{% endblock %}

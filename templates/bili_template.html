@@ -1,0 +1,113 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" xmlns:v-bind="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+    {% block head %}
+        {# 填充头部内容 #}
+        <meta charset="UTF-8">
+        <link rel="icon" href="{% static "images/favicon.ico" %}">
+        {# <link rel="stylesheet" href="{% static "css/console.css" %}"> #}
+        <link rel="stylesheet" href="{% static "css/sheet.css" %}">
+        <link rel="stylesheet" href="{% static "css/bili.css" %}">
+        <link rel="stylesheet" href="{% static "css/iconfont.css" %}">
+        <title>模板未成功加载</title>
+    {% endblock %}
+</head>
+<body>
+<div class="app">
+    <div class="root-div" v-bind:style="{backgroundImage: set_style}">
+
+        <div class="show-div">
+            <div class="head-title" v-bind:style="{display: set_style}">
+                <div class="h-t-text">Live 效果预览</div>
+            </div>
+            <div id="display-css" class="base plug-in back_img" v-bind:style="display_style">
+                {% block main_plug_in %}
+                    {# 插件显示区域 #}
+                    模板未成功加载
+                {% endblock %}
+            </div>
+        </div>
+
+        <div class="set-div" v-bind:style="{display: set_style}">
+            <div class="set-title">
+                <div class="s-t-text">设置</div>
+            </div>
+            <div>
+                <a href="/for-bili-setting?lyric={{ url }}">
+                    <p class="base conform" style="float: right;margin: 5px;text-decoration: none;color: #ffffff;text-align: center;
+    padding: 5px 0 0 0;font-family: Microsoft YaHei, Microsoft Sans Serif, Microsoft SanSerf, 微软雅黑, serif">转到歌曲控制台</p>
+                </a>
+                {% block link_button %}
+                    {# 设置区域顶部的跳转按钮 #}
+                {% endblock %}
+            </div>
+            <div class="set-content">
+                <div class="attribute-set">
+                    <div class="block-title">基本设置</div>
+                    <div class="base-block">
+                        <div class="width-height">
+                            <div class="text-input first-text-input">
+                                <label for="width" class="margin-label">宽:</label>
+                                <input type="range" name="div_width" id="width"
+                                       class="input-number set-color-text"
+                                       min="0" max="1000" step="1"
+                                       v-model="v_div_width">
+                            </div>
+
+                            <div class="text-input first-text-input">
+                                <label for="height" class="margin-label">高:</label>
+                                <input type="range" name="div_height" id="height"
+                                       class="input-number set-color-text"
+                                       min="0" max="1000" step="1"
+                                       v-model="v_div_height">
+                            </div>
+                        </div>
+                        {% verbatim %}
+                        <span style="color: #7a7a7a; float: right;"
+                              v-text="parseInt(v_div_width) + 30 + 'px × ' + (parseInt(v_div_height) + 30) + 'px'"></span>
+                        {% endverbatim %}
+                    </div>
+                    {% block other_setting %}
+                        {# 其他设置内容 #}
+                    {% endblock %}
+
+                    <div class="block-title" style="">黑名单</div>
+                    <div class="base-block" style="margin-bottom: 30px;">
+                        <div class="width-height first-text-input">
+                            <button class="base conform" v-on:click="mask1 = true" type="button">用户</button>
+                            <button class="base conform" onclick="show_page_mask('#mask2')" type="button">歌曲</button>
+                            <button class="base conform" onclick="show_page_mask('#mask2')" type="button">用户列表</button>
+                            <button class="base conform" onclick="show_page_mask('#mask2')" type="button">歌曲列表</button>
+                        </div>
+                    </div>
+
+                    <div class="draw-line"></div>
+
+                    <div class="theme-set">
+                        <div class="block-title">主题</div>
+                        <div class="base-block">
+                            <div class="theme-item">
+
+                                <img class="img-item" alt="brown_cat" onclick="p.change_theme(vm, 0, 'lyric')"
+                                     src={% static "images/brown_cat_1.png" %}>
+                                <img class="img-item" alt="purple_neko_1" onclick="p.change_theme(vm, 1, 'lyric')"
+                                     src={% static "images/blue_window_1.png" %}>
+                                <img class="img-item" alt="purple_neko_1" onclick="p.change_theme(vm, 2, 'lyric')"
+                                     src={% static "images/new.png" %}>
+
+                                <div class="img-item" onclick="p.change_theme(vm, 3, 'lyric')"
+                                     style="text-align: center">
+                                    透明背景
+                                </div>
+                                <div class="img-item" style="text-align: center">更多主题正在制作中~</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

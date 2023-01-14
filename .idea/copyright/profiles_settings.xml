@@ -1,0 +1,10 @@
+<component name="CopyrightManager">
+  <settings default="Little Prince">
+    <module2copyright>
+      <element module="Project Files" copyright="Little Prince" />
+    </module2copyright>
+    <LanguageOptions name="ActionScript">
+      <option name="fileTypeOverride" value="3" />
+    </LanguageOptions>
+  </settings>
+</component>

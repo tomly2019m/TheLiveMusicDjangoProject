@@ -1,0 +1,133 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    transition: .2s ease-out;
+    font-family: "微软雅黑", serif;
+}
+
+form {
+    width: 100%;
+    height: 100%;
+}
+
+#app {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-panel {
+    width: 400px;
+    height: 250px;
+    display: flex;
+    background-color: white;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: center;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+    justify-content: space-around;
+}
+
+.title {
+    font-size: 20px;
+    color: #ff6699;
+    margin: 10px;
+}
+
+.group {
+    display: flex;
+    flex-direction: column;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: row;
+    align-content: center;
+    align-items: center;
+}
+
+.text-label {
+    display: flex;
+    align-content: center;
+    flex-direction: row;
+    padding: 5px;
+    height: 21px;
+    font-size: 14px;
+    border: 1px solid #e3e5e7;
+    border-radius: 5px 0 0 5px;
+    background-color: #f6f7f8;
+}
+
+#code {
+    width: 240px;
+    height: 29px;
+    border-left: none;
+    border-top: 1px solid #e3e5e7;
+    border-right: 1px solid #e3e5e7;
+    border-bottom: 1px solid #e3e5e7;
+    border-radius: 0 5px 5px 0;
+}
+
+#code:focus-visible {
+    outline: none;
+}
+
+.clear-button {
+    left: -24px;
+    color: #c9ccd0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    position: relative;
+}
+
+.get-auth-button {
+    color: #ff6699;
+    cursor: pointer;
+    margin-right: 12px;
+}
+
+.info-group {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-size: 12px;
+    padding: 5px;
+    justify-content: space-between;
+}
+
+.info {
+    display: flex;
+    color: #a1a4a8;
+    flex-direction: row;
+    align-items: center;
+}
+
+.info i {
+    margin-right: 5px;
+}
+
+.submit-button {
+    width: 120px;
+    height: 36px;
+    display: flex;
+    border-radius: 5px;
+    background-color: #ff6699;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+    color: #ffffff;
+    cursor: pointer;
+    border: none;
+    transition: .2s ease-out;
+}
+
+.submit-button:hover {
+    background-color: #d34c79;
+}

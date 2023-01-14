@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% block mainbody %}
+    <script>
+        function set() {
+            set_color_input_change('text_color1_1', 'color1_1', 'lyric', false)
+            set_color_input_change('text_color2', 'color2', 'translation', false);
+            set_color_input_change('text_color1', 'color1', 'lyric1', false);
+            set_font_family('text_font1', 'lyric');
+            set_font_family('text_font2', 'translation');
+            set_font_size('text_size1', 'lyric');
+            set_font_size('text_size2', 'translation');
+            set_height();
+            set_width();
+        }
+
+        $(document).ready(function () {
+            set();
+        });
+    </script>
+    <div id="left-menu">
+        <p>
+            <a href="../console">控制台</a>
+        </p>
+        <p>
+            <a href="../base_setting">基本设置</a>
+        </p>
+        <p>
+            <a href="../music_display">歌名显示</a>
+        </p>
+        <p>
+            <a href="../lyric_display" style="color: #ffffff;background-color: #37414f">歌词显示</a>
+        </p>
+    </div>
+    <p>
+        <label id="url" class="base" style="background-color: #a4ed30;border-radius: 3px;padding: 5px;">
+            <span style="">插件地址: </span>
+            <input type="text" style="border: none;padding-bottom: 5px;padding-top: 10px;font-size: 16px"
+                   id="copy-input" value="{{ lyric_link|default:"请登陆后获取" }}">
+            <input type="button" value="复制" style="border: none;background-color: #a4ed30;font-size: 16px"
+                   onclick="copy_url()">
+        </label>
+    </p>
+    <div id="display-css" class="base" onmouseenter="display_item('#change_button')"
+         onmouseleave="hidden_item('#change_button')">
+        <input type="button" value="更换预览背景" class="base" id="change_button" onclick="change_background()">
+        <ul id="uls"
+            style="list-style: none;overflow: hidden;word-break: keep-all;transition: 700ms;padding: 0; margin: 0;text-align: center">
+            <li class="item" id="26.368" style="height: 90px;padding-top: 20px;position: relative;"><span class="lyric lyric1"
+                                                                                                          style="font-size: 36px;color: rgba(0,0,0,0.51);"> きらり空に響く星の声</span><span
+                    class="translation"
+                    style="margin-left: 10px;color: #7a7a7a;font-size: 16px;"><br/>晶莹闪烁在夜空 星星的声音</span></li>
+            <li class="item" id="45.625" style="height: 90px;padding-top: 20px;position: relative;"><span class="lyric"
+                                                                                                          style="font-size: 36px;color: #7a7a7a;"> ああ海を照らす 光を辿れたら</span><span
+                    class="translation"
+                    style="margin-left: 10px;color: #7a7a7a;font-size: 16px;"><br/>啊 徇着照亮海面的那道光芒探寻</span></li>
+            <li class="item" id="49.977" style="height: 90px;padding-top: 20px;position: relative;"><span class="lyric"
+                                                                                                          style="font-size: 36px;color: #7a7a7a;"> 流れた星はどこへ行く？</span><span
+                    class="translation"
+                    style="margin-left: 10px;color: #7a7a7a;font-size: 16px;"><br/>划过夜空的流星将去往哪里？</span></li>
+            <li class="item" id="53.572" style="height: 90px;padding-top: 20px;position: relative;"><span class="lyric"
+                                                                                                          style="font-size: 36px;color: #7a7a7a;"> きっと何かがそこで待ってる</span><span
+                    class="translation"
+                    style="margin-left: 10px;color: #7a7a7a;font-size: 16px;"><br/>那里一定有什么在等待着</span></li>
+            <li class="item" id="58.315" style="height: 90px;padding-top: 20px;position: relative;"><span class="lyric"
+                                                                                                          style="font-size: 36px;color: #7a7a7a;"> 旗を掲げ進もう</span><span
+                    class="translation" style="margin-left: 10px;color: #7a7a7a;font-size: 16px;"><br/>扬起旗帜出发吧</span>
+            </li>
+            <li class="item" id="61.821" style="height: 90px;padding-top: 20px;position: relative;"><span class="lyric"
+                                                                                                          style="font-size: 36px;color: #7a7a7a;"> いつでも月は歌い 旅人を導いて</span><span
+                    class="translation"
+                    style="margin-left: 10px;color: #7a7a7a;font-size: 16px;"><br/>月亮轻唱着歌谣，为旅人指引方向</span></li>
+            <li class="item" id="70.856" style="height: 90px;padding-top: 20px;position: relative;"><span class="lyric"
+                                                                                                          style="font-size: 36px;color: #7a7a7a;"> 「もう迷わなくていいから」</span><span
+                    class="translation" style="margin-left: 10px;color: #7a7a7a;font-size: 16px;"><br/>「再也不必犹豫迷茫」</span>
+            </li>
+        </ul>
+    </div>
+    <div id="setting-label">
+        <form action="/get_lyric_post" method="post">
+            <p>
+                <label>房间地址:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <input type="text" name="room" class="set-color-text base"
+                           id="room_url" value="{{ room|default:"######" }}" onchange="get_room_number()">
+                </label>
+            </p>
+            <p>
+                <label style="margin: 0 38px 0 0">
+                    宽:
+                    <input type="text" name="div_width" id="width" class="input-number set-color-text base"
+                           value="{{ div_width|default:"1200" }}" onchange="set_width()">
+                </label>
+                <label>
+                    高:
+                    <input type="text" name="div_height" id="height" class="input-number set-color-text base"
+                           value="{{ div_height|default:"255" }}" onchange="set_height()">
+                </label>
+            </p>
+            <p>
+                <label>首行颜色:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <input type="text" name="first_line_color" class="set-color-text base"
+                           id="text_color1" value="{{ first_line_color|default:"#ff9900" }}"
+                           onchange="set_color_input_change('text_color1', 'color1', 'lyric1', false)">
+                    <input type="color" class="set-color-button" id="color1" value="#ff9900"
+                           onchange="set_color_input_change('color1', 'text_color1', 'lyric1', true)">
+                </label>
+            </p>
+            <p>
+                <label>原文颜色:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <input type="text" name="original_text_color" class="set-color-text base"
+                           id="text_color1_1" value="{{ original_text_color|default:"#ff9900" }}"
+                           onchange="set_color_input_change('text_color1_1', 'color1_1', 'lyric', false)">
+                    <input type="color" class="set-color-button" id="color1_1" value="#ff9900"
+                           onchange="set_color_input_change('color1_1', 'text_color1_1', 'lyric', true);set_color_input_change('color1', 'text_color1', 'lyric1', true)">
+                </label>
+            </p>
+            <p>
+                <label>原文字体:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <input type="text" name="original_text_font" class="set-color-text base"
+                           id="text_font1" value="{{ first_line_font|default:"Microsoft YaHei" }}"
+                           onchange="set_font_family('text_font1', 'lyric')">
+                </label>
+            </p>
+            <p>
+                <label>原文字体大小:
+                    <input type="text" name="original_text_font_size" class="set-color-text base"
+                           id="text_size1" value="{{ first_line_font_size|default:"36" }}"
+                           onchange="set_font_size('text_size1', 'lyric')">
+                </label>
+            </p>
+            <p>
+                <label>翻译颜色:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <input type="text" name="translation_color" class="set-color-text base"
+                           id="text_color2" value="{{ translation_color|default:"#7a7a7a" }}"
+                           onchange="set_color_input_change('text_color2', 'color2', 'translation', false)">
+                    <input type="color" class="set-color-button" id="color2" value="#7a7a7a"
+                           onchange="set_color_input_change('color2', 'text_color2', 'translation', true)">
+                </label>
+            </p>
+            <p>
+                <label>翻译字体:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <input type="text" name="translation_font" class="set-color-text base"
+                           id="text_font2" value="{{ translation_font|default:"Microsoft YaHei" }}"
+                           onchange="set_font_family('text_font2', 'translation')">
+                </label>
+            </p>
+            <p>
+                <label>翻译字体大小:
+                    <input type="text" name="translation_font_size" class="set-color-text base"
+                           id="text_size2" value="{{ translation_font_size|default:"16" }}"
+                           onchange="set_font_size('text_size2', 'translation')">
+                </label>
+            </p>
+            {% csrf_token %}
+            <input type="submit" value="确定" class="base conform">
+            <input type="reset" value="重置" class="base reset" id="reset" onclick="set()">
+        </form>
+    </div>
+    <div class="page_mask_on">
+        <div class="add_music_panel_on">
+            <div class="panel-content">
+                <h1>此页面已不再支持<br>请转到<a href="https://play-live.bilibili.com/details/1649539569084">饭贩商店</a>使用</h1>
+            </div>
+        </div>
+    </div>
+{% endblock %}

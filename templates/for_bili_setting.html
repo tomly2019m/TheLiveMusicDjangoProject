@@ -1,0 +1,301 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" xmlns:v-bind="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+  <title>Live Music 控制台</title>
+  <link rel="icon" href="{% static "images/favicon.ico" %}">
+  <link rel="stylesheet" href="{% static "css/base.css" %}">
+  <link rel="stylesheet" href="{% static "css/sheet.css" %}">
+  <link rel="stylesheet" href="{% static "css/console.css" %}">
+  <link rel="stylesheet" href="{% static "css/iconfont.css" %}">
+  <link rel="stylesheet" href="{% static "css/mask_panel.css" %}">
+
+  <script src="{% static "js/others/jquery-3.4.1.min.js" %}"></script>
+  {% if dev %}
+    <script src="{% static "js/myUtils.js" %}"></script>
+    <script src="{% static "js/others/vue.js" %}"></script>
+    <script src="{% static "js/array_equals.js" %}"></script>
+    <script src="{% static "js/display_setting.js" %}"></script>
+    <script src="{% static "js/for_bili_setting.js" %}"></script>
+  {% else %}
+    <script src="{% static "js/myUtils.min.js" %}"></script>
+    <script src="{% static "js/others/vue.min.js" %}"></script>
+    <script src="{% static "js/for_bilibili.min.js" %}"></script>
+    <script src="{% static "js/array_equals.min.js" %}"></script>
+    <script src="{% static "js/display_setting.min.js" %}"></script>
+    <script src="{% static "js/for_bili_setting.min.js" %}"></script>
+  {% endif %}
+  <script>
+      let vm
+      let p = new MyUtils()
+      const url = '{{ url }}'
+      const where = '{{ where }}'
+
+      window.onload = function () {
+          {#vm = load_for_bili_setting_vue(url, where)#}
+          vm = load_for_bili_setting({url: url, where: where}, p)
+          p.get_union_data(vm, p, [p.get_base_control, p.get_music_info_list, p.get_who_play, p.get_is_running, p.get_console_info])
+          setInterval(() => {
+              p.get_union_data(vm, p, [p.get_base_control, p.get_music_info_list, p.get_who_play, p.get_is_running, p.get_console_info])
+          }, 5000);
+      }
+  </script>
+</head>
+<body>
+<div id="app">
+  <div style="width: 100%">
+    <a href="/for-bili?{{ params }}" style="text-decoration: none;">
+      <p class="base conform left-top-button" style="margin: 0 0 8px 0;">返回设置</p>
+    </a>
+    <p class="base conform left-top-button" v-on:click="mask2 = true">遇到问题？</p>
+  </div>
+  {% verbatim %}
+  <div class="panel">
+    <div class="music-panel">
+      <ul id="u">
+        <li>
+          <span class="music-name">{{ now_play[0] }}</span>
+          <span class="artist">{{ now_play[1] }}</span>
+        </li>
+      </ul>
+      <hr>
+      <div class="music-info">
+        <div>
+          <p class="base conform" id="start_dan_mu" style="padding: 5px 0 0 0" onclick="p.start_getting(vm)">{{
+            start_getting_text }}</p>
+        </div>
+
+        <div id="who_play" style="display: flex;align-items: center;">
+          <div class="toggle-button-wrapper">
+            <input type="checkbox" id="toggle-button" name="switch" onclick="p.change_who_play(vm)">
+            <label for="toggle-button" class="button-label">
+              <span class="circle"></span>
+              <span class="text on">由歌名界面播放</span>
+              <span class="text off">由歌词界面播放</span>
+            </label>
+          </div>
+          <i class="bcc-iconfont bcc-icon-ic_help" style="font-size: 14px;color: #c2c2c2;margin-left: 4px;"
+             title="取决于你的使用方式&#10;如果只使用和展示歌曲名，请将此项选为由歌名界面播放&#10;如果使用和展示歌词，请将此项选为由歌词界面播放&#10;(注: 两页面同时存在时，若希望歌词滚动，请将此项选为由歌词界面播放)"></i>
+        </div>
+
+        <div>
+          <p class="base reset" id="add_m" style="padding: 5px 0 0 0" v-on:click="mask1 = true">添加歌曲</p>
+        </div>
+      </div>
+      <div style="display: flex;align-items: center;justify-content: center;">
+        <div class="music-control">
+          <div class="replay-music" onclick="p.replay_music(vm)" title="重播">
+            <svg v-if="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+              <title>重播</title>
+              <path
+                  d="M20.229 24.343l-10.286-6.171c-0.914-0.571-1.486-1.371-1.486-2.171s0.571-1.714 1.486-2.171l10.286-6.171c0.914-0.571 1.829-0.686 2.629-0.229 0.686 0.457 1.143 1.257 1.143 2.286v12.571c0 1.029-0.457 1.943-1.143 2.286-0.343 0.229-0.686 0.229-1.029 0.229-0.457 0.114-1.029-0.114-1.6-0.457zM21.143 9.143l-10.286 6.171c-0.343 0.229-0.571 0.457-0.571 0.686s0.229 0.571 0.571 0.686l10.286 6.171c0.457 0.229 0.686 0.229 0.914 0.229 0.229-0.114 0.229-0.457 0.229-0.8v-12.571c0-0.457-0.114-0.686-0.229-0.8 0 0-0.114 0-0.229 0-0.229-0.114-0.457 0-0.686 0.229z"></path>
+              <path
+                  d="M8.229 7.771v16.571c0 0.457 0.343 0.914 0.914 0.914v0c0.457 0 0.914-0.343 0.914-0.914v-16.571c0-0.457-0.343-0.914-0.914-0.914v0c-0.457 0-0.914 0.343-0.914 0.914z"></path>
+            </svg>
+          </div>
+          <div class="play-music" onclick="p.play_pause(vm)">
+            <i class="iconfont" v-bind:class="play_icon[play_icon_flag]"></i>
+          </div>
+          <div class="next-music" onclick="p.next_music(vm)" title="下一首">
+            <svg v-if="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+              <title>下一首</title>
+              <path
+                  d="M10.514 24.914c-0.343 0-0.686-0.114-1.029-0.229-0.686-0.457-1.143-1.257-1.143-2.286v-12.571c0-1.029 0.457-1.943 1.143-2.286 0.686-0.457 1.714-0.343 2.629 0.229l10.286 6.171c0.914 0.571 1.486 1.371 1.486 2.171s-0.571 1.714-1.486 2.171l-10.286 6.171c-0.571 0.229-1.143 0.457-1.6 0.457zM10.514 8.8c-0.114 0-0.114 0-0.229 0-0.229 0.114-0.229 0.457-0.229 0.8v12.571c0 0.457 0.114 0.686 0.229 0.8s0.457 0.114 0.914-0.229l10.286-6.171c0.343-0.229 0.571-0.457 0.571-0.686s-0.229-0.457-0.571-0.686l-10.286-6.171c-0.343-0.114-0.571-0.229-0.686-0.229z"></path>
+              <path
+                  d="M23.086 6.857v0c-0.457 0-0.914 0.343-0.914 0.914v16.571c0 0.457 0.343 0.914 0.914 0.914v0c0.457 0 0.914-0.343 0.914-0.914v-16.571c0-0.571-0.343-0.914-0.914-0.914z"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!--<div class="dan-mu-panel" onmouseenter="display_item('.delete')" onmouseleave="(hidden_item('.delete'))">-->
+    <div class="dan-mu-panel">
+      <div class="operation-bar">
+        <div class="operation-bar-item" v-on:click="playlist_mask = true;" onclick="p.get_qq_playlist(vm)">我的歌单</div>
+        <div class="operation-bar-item" v-on:click="music_mask = true;playlist_overwrite=0;">空闲歌单</div>
+        <!--<div class="operation-bar-item" v-on:click="music_mask = true;playlist_overwrite=1;">停止空闲单</div>-->
+      </div>
+      <ul id="music">
+        <transition-group mode="out-in">
+          <li v-for="(value, key) in wait_to_play" v-bind:key="'thi' + key" v-bind:id="'li'+key"
+              v-on:mouseenter="utils.display_operation('#o' + key)"
+              v-on:mouseleave="utils.hidden_operation('#o' + key)">
+            <!--<span v-bind:key="m_num" v-html="value"></span>-->
+            <div class="music-name">{{ value[0] }}</div>
+            <div class="artist">{{ value[1] }}</div>
+            <div class="operation" mode="out-in" v-bind:id="'o' + key">
+              <div style="display: inline-flex">
+                <button class="delete conform" v-on:click="delete_music('#li' + key, value[0], value[1])">
+                  删除
+                </button>
+                <button class="delete conform" style="margin-right: 5px;"
+                        v-on:click="move_music('#li' + key, value[0], value[1], 1)">
+                  播放
+                </button>
+              </div>
+              <button class="delete conform" style="margin: 5px 5px 5px 0;"
+                      v-on:click="move_music('#li' + key, value[0], value[1], 2)">
+                下一首播放
+              </button>
+            </div>
+          </li>
+        </transition-group>
+      </ul>
+      <span>点歌信息</span>
+      <ul id="console-info" onmouseenter="p.change_bili_scroll_flag(vm, 0)"
+          onmouseleave="p.change_bili_scroll_flag(vm, 1)">
+        <transition-group mode="out-in">
+          <li v-for="(value, key) in console_info" v-bind:key="'thi'+ key"
+              style="display: flex;flex-direction: row;justify-content: space-between;">
+            <span v-bind:key="c_num">{{ value.info }}</span>
+            <span style="color: #7a7a7a;font-size: 8px;float: right">{{ value.time }}</span>
+          </li>
+        </transition-group>
+      </ul>
+    </div>
+    {% endverbatim %}
+    <div id="for-user-info">
+      注: 在此页面的操作有4~5秒延迟属于正常现象, 请勿频繁操作
+    </div>
+  </div>
+
+  <div class="page-mask" v-show="mask1">
+    <div class="add-music-panel place-center">
+      <div class="panel-content">
+        <div class="flex-center">
+          <label>
+            <span>
+              歌曲名:
+              <i class="bcc-iconfont bcc-icon-ic_help" style="font-size: 14px;color: #0064c8" title=""></i>
+              <input type="text" id="music_name" class="set-color-text base" placeholder="">
+            </span>
+            <span>歌手:<input type="text" id="artist" class="set-color-text base" placeholder=""></span>
+          </label>
+          <input type="submit" class="base conform" value="提交"
+                 onclick="$.get('/move_music?where_url={{ where }}_url&url={{ url }}&music_name=' + $('#music_name').val() + '&artist=' + $('#artist').val() + '&index=-1');$('#music_name').val('');$('#artist').val('')"
+                 v-on:click="mask1 = false">
+        </div>
+      </div>
+      <div class="panel-title">添加</div>
+      <div class="close-button control-button" v-on:click="mask1 = false"
+           onclick="$('#music_name').val('');$('#artist').val('')"
+           title="关闭">
+        <span>✕</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-mask-on" v-show="mask2">
+    <div class="question-panel place-center">
+      <div class="panel-content">
+        设置改不了？歌曲删不掉？试试重置个人数据吧~
+        <p class="base conform" style="float: right;margin: 5px;text-decoration: none;color: #ffffff;text-align: center;
+    padding: 5px 0 0 0;font-family: Microsoft YaHei, Microsoft Sans Serif, Microsoft SanSerf, 微软雅黑, serif"
+           onclick="p.reset_own_database(vm, '{{ where }}_url')">重置个人数据</p>
+      </div>
+      <div class="close-button control-button" v-on:click="mask2 = false"
+           onclick="$('#music_name').val('');$('#artist').val('')"
+           title="关闭">
+        <span>✕</span>
+      </div>
+    </div>
+  </div>
+  <div class="page-mask-on" v-show="mask2_1">
+    <div class="add-music-panel place-center">
+      <div class="panel-content">
+        个人数据已重置
+      </div>
+      <div class="close-button control-button" v-on:click="music_mask = false"
+           onclick="$('#music_name').val('');$('#artist').val('')"
+           title="关闭">
+        <span>✕</span>
+      </div>
+    </div>
+  </div>
+  <div class="page-mask-on" v-show="mask2_2">
+    <div class="add-music-panel place-center">
+      <div class="panel-content">
+        执行失败！请联系作者
+      </div>
+      <div class="close-button control-button" v-on:click="mask2_2 = false"
+           onclick="$('#music_name').val('');$('#artist').val('')"
+           title="关闭">
+        <span>✕</span>
+      </div>
+    </div>
+  </div>
+
+  {% verbatim %}
+  <div class="page-mask" v-show="playlist_mask">
+    <div class="question-panel place-center" style="width: 510px">
+      <div style="margin: 40px 20px 20px 20px;">
+        <ul>
+          <li class="playlist-info" v-for="(playlist_info, key) in playlist_name"
+              v-on:mouseenter="utils.display_operation('#k' + key)"
+              v-on:mouseleave="utils.hidden_operation('#k' + key)">
+            <img v-bind:src="playlist_info.cover" v-bind:alt="playlist_info.name" height="60px">
+            <div class="playlist-info-desc">
+              <div class="playlist-info-text" style="margin: 0">{{ playlist_info.name }}</div>
+              <div class="playlist-info-text" style="margin: 0">曲目:&nbsp;{{ playlist_info.song_count }}</div>
+              <div class="playlist-info-text" style="margin: 0">来源:&nbsp;{{ playlist_info.platform_text }}</div>
+            </div>
+            <div class="operation" v-bind:id="'k' + key">
+              <button class="delete conform"
+                      v-on:click="playlist_id = playlist_info.tid; playlist_platform = playlist_info.platform; playlist_overwrite = 0;"
+                      onclick="p.load_playlist_to_database(vm)">追加
+              </button>
+              <button class="delete conform"
+                      v-on:click="playlist_id = playlist_info.tid; playlist_platform = playlist_info.platform; playlist_overwrite = 1;">
+                覆盖
+              </button>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="panel-title">登录账号里的歌单(未完成)</div>
+      <div class="close-button control-button" v-on:click="playlist_mask = false; playlist_name = []" title="关闭">
+        <span>✕</span>
+      </div>
+      <div class="add-button control-button" title="添加" v-on:click="choose_overwrite = true">
+        <span>┼</span>
+        <div class="mini-panel" v-show="choose_overwrite">
+          <div class="mini-panel-button" v-on:click="music_mask=true;choose_overwrite=false;playlist_overwrite=0;">追加</div>
+          <div class="mini-panel-button" v-on:click="music_mask=true;choose_overwrite=false;playlist_overwrite=1;">覆盖</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endverbatim %}
+
+  <div class="page-mask-on" v-show="music_mask">
+    <div class="add-music-panel place-center">
+      <div class="panel-content" style="width: 100%;margin: 0">
+        <div class="QRCode-panel">
+          <div class="add-playlist flex-center" v-show="add_playlist">
+            <div style="display: flex;align-items: center;justify-content: center;">
+              <select class="short-select" v-model="playlist_platform">
+                <option value="default">自动识别</option>
+                <option value="qq">QQ音乐</option>
+                <option value="cloud">网易云</option>
+                <option value="ku_wo">酷我</option>
+              </select>
+              <input class="base" type="text" v-model="playlist_raw"
+                     style="background-color: #cef7ff;"
+                     placeholder="粘贴歌单链接或id">
+            </div>
+            <input type="submit" class="base conform" style="width: 50px" value="提交"/>
+          </div>
+        </div>
+      </div>
+      <div class="close-button control-button" v-on:click="music_mask = false;choose_overwrite = false" title="关闭">
+        <span>✕</span>
+      </div>
+      <div class="panel-title" v-text="playlist_overwrite ? '覆盖现有歌单(未完成)' : '在现有歌单中追加歌单(未完成)'"></div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

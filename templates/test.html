@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:v-bind="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+    <style>
+        #te {
+            height: 100px;
+            width: 100px;
+        }
+
+        #te::-webkit-input-placeholder {
+            position: absolute;
+            top: 0;
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <form>
+        <div>Login</div>
+        <div class="inputs">
+            <div>Username</div>
+            <input id="te" type="text" placeholder="Please input username">
+        </div>
+        <div class="inputs">
+            <div>Password</div>
+            <input type="password" placeholder="Please input password">
+        </div>
+        <input type="submit" value="">
+    </form>
+</div>
+</body>
+</html>

@@ -1,0 +1,34 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>输入身份码</title>
+  <link rel="stylesheet" href="{% static "css/iconfont.css" %}">
+  <link rel="stylesheet" href="{% static "css/auth_code.css" %}">
+</head>
+<body>
+<form method="get" action="/lottery">
+  <div id="app">
+    <div class="auth-panel">
+      <div class="title">认证身份后可开启玩法</div>
+      <div class="group">
+        <div class="input-group">
+          <div class="text-label">身份码</div>
+          <input id="code" name="code" placeholder="请输入身份码">
+          <button type="reset" class="clear-button">✕</button>
+        </div>
+        <div class="info-group">
+          <div class="info">
+            <i class="bcc-iconfont bcc-icon-ic_help" v-show="QRCode_load_flag&&QRCode_key!==''"></i>
+            <div class="info-text">在获取推流地址处可获取身份码</div>
+          </div>
+          <div class="get-auth-button">去获取</div>
+        </div>
+      </div>
+      <button type="submit" class="submit-button">开启玩法</button>
+    </div>
+  </div>
+</form>
+</body>
+</html>

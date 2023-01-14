@@ -1,0 +1,121 @@
+.html, body {
+    margin: 0;
+    padding: 0;
+    background-color: #f6f6f6;
+    font-family: "Microsoft YaHei", serif;
+}
+
+.main-page {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.cell {
+    width: 80%;
+    display: flex;
+    margin: 20px 0 0 0;
+    align-items: center;
+    flex-direction: row;
+    padding: 0 10px 0 10px;
+    /*background-color: #ffffff;*/
+    /*!*transition: all 0.4s ease;*!*/
+    /*justify-content: space-between;*/
+    /*box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);*/
+}
+
+.core {
+    width: 90%;
+}
+
+.core-content {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.toggle-core {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.toggle-box {
+}
+
+.toggle-text {
+    padding: 5px;
+    display: flex;
+    color: #ff778f;
+    cursor: pointer;
+    align-items: center;
+}
+
+.fixed-toggle {
+    bottom: 0;
+    width: 100%;
+    height: 50px;
+    display: flex;
+    cursor: pointer;
+    position: sticky;
+    padding: 0 10px 0 10px;
+    justify-content: center;
+    background-color: #ffffff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+}
+
+.course-title {
+    width: 100%;
+    padding-bottom: 12px;
+}
+
+.course-title:hover {
+    opacity: 1;
+}
+
+.jump-link {
+    color: #ff778f;
+}
+
+.jump-mark {
+    opacity: 0;
+}
+
+.jump-mark:hover {
+    opacity: 1;
+}
+
+.second-indent {
+    margin-left: 4em;
+    padding-bottom: 12px;
+}
+
+.third-indent {
+    margin-left: 6em;
+    padding-bottom: 12px;
+}
+
+.forth-indent {
+    margin-left: 8em;
+    padding-bottom: 12px;
+}
+
+.fifth-indent {
+    margin-left: 10em;
+    padding-bottom: 12px;
+}
+
+.course-img {
+    width: 500px;
+    padding-bottom: 12px;
+}
+
+.img-text {
+    color: #6b757b;
+    font-size: 12px;
+}
+
+.fluorescent {
+    background-color: rgb(255, 183, 0);
+}

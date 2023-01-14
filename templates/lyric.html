@@ -1,0 +1,219 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>lyric</title>
+    <script src="{% static "js/jquery-3.4.1.min.js" %}"></script>
+    <script src="{% static "js/array_equals.js" %}"></script>
+    <script src="{% static "js/other/vue.min.js" %}"></script>
+    <script src="{% static "js/load_vue.js" %}"></script>
+    <script src="{% static "/js/wss_for_bili.js" %}"></script>
+
+    <script>
+        let i = 0;
+        let n = 110;
+        //let last = '';
+        let is_play = 0;
+        let htmlAudioElement;
+        let stop_flag = false;
+
+        function change() {
+            n -= 110;
+            document.getElementById('uls').style.transform = 'translateY(' + n + 'px)';
+        }
+
+        function music_play(music_url) {
+            htmlAudioElement = new Audio(music_url);
+            const lis = document.getElementsByClassName('item');
+            const lis_len = lis.length;
+            let time_list = [];
+            try {
+                while (i < lis_len) {
+                    console.log(i)
+                    try {
+                        let small_time_list = [];
+                        small_time_list[0] = lis[i].id;
+                        small_time_list[1] = lis[i + 1].id;
+                        time_list[i] = small_time_list;
+                        i++;
+                    } catch (e) {
+                        let small_time_list = [];
+                        small_time_list[0] = lis[i].id;
+                        small_time_list[1] = '86400';
+                        time_list[i] = small_time_list;
+                        break;
+                    }
+                }
+                let small_time_list = [];
+                small_time_list[0] = lis[i].id;
+                small_time_list[1] = '86400';
+                time_list[i] = small_time_list;
+                is_play = 1;
+                i = 0;
+                htmlAudioElement.addEventListener('timeupdate', function () {
+                    const curtime = this.currentTime;
+                    if (i < lis_len) {
+                        if (parseFloat(time_list[i][0]) <= curtime && curtime <= parseFloat(time_list[i][1]) + 1) {
+                            console.log(time_list[i]);
+                            const others = document.getElementsByClassName('item');
+                            for (let other of others) {
+                                other.getElementsByClassName('lyric')[0].style.color = '{{ original_text_color|default:'#7a7a7a'}}';
+                            }
+                            document.getElementById(time_list[i][0]).getElementsByClassName('lyric')[0].style.cssText =
+                                'color:{{ first_line_color|default:'#ff9900'}}';
+                            change();
+                            i++;
+                        }
+                    }
+                });
+                htmlAudioElement.play();
+            } catch (e) {
+                console.log('')
+            }
+            htmlAudioElement.addEventListener('ended', function () {
+                $.get('/next_music?url={{ url }}&where=lyric');
+                n = 220;
+                i = 0;
+                change();
+            })
+        }
+
+        function get_data() {
+            $.getJSON('/get_data?url={{ url }}&where=lyric', function (data) {
+                let now_music_name;
+                const lyric = data['data']['lyric_name'];  // 歌词
+                const music_url = data['data']['now_music_url'];  // 歌曲链接
+                const who_play = data['data']['who_play']  // 由谁播放
+                const play_ = data['data']['play_'];  // 播放还是暂停
+                const replay = data['data']['replay']  // 从头开始
+
+                if ((who_play === 0 && is_play)) {
+                    try {
+                        htmlAudioElement.pause();
+                        is_play = 0;
+                    } catch (e) {
+                    }
+                } else {
+                    if (data['data']['is_running'] && who_play === 1) {
+                        //get_dan_mu('{{ room }}', '{{ url }}', 'lyric_url')
+                        stop_flag = data['data']['is_running']
+                    }
+                    if (music_url == '') {
+                        try {
+                            htmlAudioElement.pause();
+                            is_play = 0;
+                            const f = document.getElementById('uls');
+                            const childs = f.childNodes;
+                            for (let i = childs.length - 1; i >= 0; i--) {
+                                f.removeChild(childs[i]);
+                            }
+                            f.innerHTML = '<li class="item" id="26.368"><span class="lyric">Lyric</span><span class="translation"><br/>暂无</span></li>';
+                        } catch (e) {
+                        }
+                    } else {
+                        if (play_ && !(is_play)) {
+                            try {
+                                htmlAudioElement.play();
+                                is_play = 1;
+                            } catch (e) {
+                            }
+                        }
+                    }
+                    if (!(play_)) {
+                        try {
+                            htmlAudioElement.pause();
+                            is_play = 0;
+                        } catch (e) {
+                        }
+                    }
+                    if (replay) {
+                        $.get('/play?where=replay&data=0&url={{ url }}&where_url=lyric_url');
+                        {#$.get('/play?where=play&data=1&url={{ url }}&where_url=lyric_url');#}
+                        htmlAudioElement.load();
+                        htmlAudioElement.play();
+                        is_play = 1;
+                        n = 220;
+                        i = 0;
+                        change();
+                    }
+                }
+                try {
+                    now_music_name = data['data']['music_name_list'][0]
+                } catch (e) {
+                    now_music_name = ''
+                }
+                console.log(now_music_name);
+                console.log(last);
+                // 数组不能用===比较
+                if (!(now_music_name.equals(last)) || (who_play === 1 && !(is_play) && play_)) {
+                    last = now_music_name;
+                    if ((last.equals([])) || (last.equals([''])) || (last.equals(['', '']))) {
+                        $.get('/next_music?url={{ url }}&where=lyric');
+                        n = 220;
+                        i = 0;
+                        change();
+                    } else {
+                        const f = document.getElementById('uls');
+                        const childs = f.childNodes;
+                        for (let i = childs.length - 1; i >= 0; i--) {
+                            f.removeChild(childs[i]);
+                        }
+                        f.innerHTML = lyric;
+                        try {
+                            htmlAudioElement.pause();
+                            is_play = 0;
+                        } catch (e) {
+                        }
+                        n = 220;
+                        i = 0;
+                        change();
+                        if (who_play === 1) {
+                            music_play(music_url);
+                        }
+                    }
+
+                }
+            });
+            // setInterval(get_data, 5000);
+        }
+
+        $(document).ready(function () {
+            setInterval(get_data, 5000);
+        });
+    </script>
+    <style>
+        ul li {
+            height: 90px;
+            padding-top: 20px;
+            position: relative;
+        }
+
+        ul li span {
+            margin: 0 0 0 0;
+        }
+
+        .lyric {
+            font-size: {{ original_text_font_size|default:36 }}px;
+            color: {{ original_text_color|default:'#7a7a7a' }};
+            font-family: {{ original_text_font|default:'微软雅黑' }};
+            /*歌名*/
+        }
+
+        .translation {
+            color: {{ translation_color|default:'#7a7a7a' }};
+            font-size: {{ translation_font_size|default:16 }}px;
+            font-family: {{ translation_font|default:'微软雅黑' }};
+            /*歌手*/
+        }
+    </style>
+</head>
+<body>
+<div id="display-css"
+     style="width: {{ div_width|default:500 }}px;height: {{ div_height|default:230 }}px;text-align: center;overflow: hidden;">
+    <ul id="uls" style="list-style: none;overflow: hidden;word-break: keep-all;transition: 700ms;padding: 0">
+        <li>0123456789</li>
+    </ul>
+</div>
+</body>
+</html>

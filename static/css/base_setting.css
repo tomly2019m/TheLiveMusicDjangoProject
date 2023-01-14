@@ -1,0 +1,9 @@
+.cell {
+    margin: 16px 220px 0 220px;
+    padding: 5px;
+    background-color: rgba(255, 202, 0, 0.16);
+}
+
+label {
+    margin-left: 2em;
+}

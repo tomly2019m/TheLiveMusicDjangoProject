@@ -1,0 +1,304 @@
+html {
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    height: 100%;
+    font-family: "Microsoft YaHei", serif;
+    /*background-size: 32px 32px;*/
+    /*background-position: 0 0, 16px 0, 16px -16px, 0 16px;*/
+    /*background-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.25, #eee), color-stop(.25, transparent)), -webkit-gradient(linear, 0 0, 100% 100%, color-stop(.25, #eee), color-stop(.25, transparent)), -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.75, transparent), color-stop(.75, #eee)), -webkit-gradient(linear, 0 0, 100% 100%, color-stop(.75, transparent), color-stop(.75, #eee));*/
+    /*!*background-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.25, #eee), color-stop(.25, transparent)), -webkit-gradient(linear, 0 0, 100% 100%, color-stop(.25, #eee), color-stop(.25, transparent)), -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.75, transparent), color-stop(.75, #eee)), -webkit-gradient(linear, 0 0, 100% 100%, color-stop(.75, transparent), color-stop(.75, #eee));*!*/
+
+}
+
+div ul li {
+    margin: 0 0 20px 0;
+}
+
+/*进入前*/
+.v-enter, .v-leave-to {
+    opacity: 0;
+    transform: translateY(80px);
+}
+
+/*结束后*/
+.v-enter-active, .v-leave-active {
+    transition: all 0.4s ease;
+}
+
+.app {
+    width: 100%;
+    height: 100%;
+}
+
+.root-div {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    background-size: 32px 32px;
+    background-position: 0 0, 16px 0, 16px -16px, 0 16px;
+    background-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.25, #eee), color-stop(.25, transparent)), -webkit-gradient(linear, 0 0, 100% 100%, color-stop(.25, #eee), color-stop(.25, transparent)), -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.75, transparent), color-stop(.75, #eee)), -webkit-gradient(linear, 0 0, 100% 100%, color-stop(.75, transparent), color-stop(.75, #eee));
+}
+
+.show-div {
+    flex: 1;
+    display: flex;
+    overflow: auto;
+    align-items: center;
+    flex-direction: column;
+}
+
+.head-title {
+    width: 100%;
+    height: 40px;
+    background-color: #006b9a;
+}
+
+.h-t-text {
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 600;
+    margin: 8px 20px;
+    line-height: 24px;
+    font-style: normal;
+}
+
+.plug-in {
+    flex: none;
+    width: 458px;
+    height: 500px;
+    margin: auto 0;
+    box-sizing: border-box;
+}
+
+.set-div {
+    height: 100%;
+    width: 360px;
+    display: flex;
+    overflow: hidden;
+    margin-left: auto;
+    flex-direction: column;
+    background-color: #ffffff;
+}
+
+.set-div ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+
+.set-div ::-webkit-scrollbar-track {
+    border-radius: 8px;
+    background: #f1f1f1;
+}
+
+.set-div ::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 8px;
+    transition: .2s ease-out;
+}
+
+.set-div ::-webkit-scrollbar-thumb:hover {
+    background: #959595;
+}
+
+.set-title {
+    height: 40px;
+    display: flex;
+    background: #dcdcdc;
+}
+
+.s-t-text {
+    color: #242f57;
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 25px;
+    margin: 10px 25px;
+    font-style: normal;
+}
+
+.set-content {
+    display: flex;
+    overflow-y: auto;
+    overflow-x: hidden;
+    flex-direction: column;
+}
+
+.attribute-set {
+    height: 60%;
+    padding: 0 8px;
+    margin: 0 1px;
+    overflow-y: auto;
+    /*border-bottom: 1px solid #c1c1c1;*/
+}
+
+.width-height {
+    display: grid;
+    row-gap: 18px;
+    column-gap: 10px;
+    grid-template-columns: repeat(2, 49%);
+}
+
+.margin-label {
+    margin: auto auto auto 0;
+}
+
+.text-input {
+    display: flex;
+    margin-top: 20px;
+}
+
+.first-text-input {
+    margin-top: 8px;
+}
+
+.adjust-label {
+    width: 38%;
+    margin: auto 0;
+}
+
+.bili_base {
+    width: 60%;
+}
+
+.input-number {
+    width: 106px;
+    margin-right: auto;
+}
+
+.base-block {
+    padding-left: 20px;
+}
+
+.block-title {
+    color: #747474;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.theme-set {
+    height: 40%;
+    margin: 0 10px;
+}
+
+.theme-item {
+    display: grid;
+    row-gap: 18px;
+    column-gap: 10px;
+    grid-template-columns: repeat(2, 49%);
+}
+
+.draw-line {
+    border-bottom: 1px solid #c1c1c1;
+}
+
+.img-item {
+    width: 100px;
+    height: 100px;
+    border: #c1c1c1 solid 1px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+}
+
+.img-item:hover {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24), 0 1px 2px rgba(0, 0, 0, 0.36), 0 1px 2px rgba(0, 0, 0, 0.48);
+    color: #7a7a7a;
+}
+
+#display-css {
+    background-color: transparent;
+    background-image: none;
+    border-image: url("/static/images/模板.png") stretch;
+    border-image-slice: 156 fill;
+    border-image-width: 160px;
+    border-image-outset: 111px;
+}
+
+#img1 {
+
+}
+
+.black-user-panel {
+    width: 400px;
+    height: 530px;
+    overflow: auto;
+    border-radius: 12px;
+    background-color: #ffffff;
+    transition: .3s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.black-user-panel::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+
+.base {
+    width: 155px;
+}
+
+.black-user-panel::-webkit-scrollbar-track {
+    border-radius: 8px;
+    background: #f1f1f1;
+}
+
+.black-user-panel::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 8px;
+}
+
+.black-user-panel::-webkit-scrollbar-thumb:hover {
+    background: #959595;
+}
+
+.add-panel {
+    width: 410px;
+    height: 210px;
+    border-radius: 12px;
+    background-color: #ffffff;
+    transition: .3s cubic-bezier(0.22, 0.61, 0.36, 1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24), 0 1px 2px rgba(0, 0, 0, 0.36), 0 1px 2px rgba(0, 0, 0, 0.48);
+}
+
+.add-panel input::placeholder {
+    font-size: 6px;
+}
+
+.flex-center span {
+    /*margin-bottom: 10px;*/
+}
+
+.set-text-area {
+    min-width: 130px;
+    max-width: 180px;
+}
+
+.load-info {
+    top: 0;
+    right: 0;
+    /*opacity: 0;*/
+    height: 40px;
+    width: 250px;
+    display: flex;
+    color: #ffffff;
+    position: fixed;
+    margin-top: 60px;
+    align-items: center;
+    background-color: #00a1d6;
+}
+
+.v-line {
+    width: 5px;
+    height: 100%;
+    background-color: #a2e3ff;
+}
+
+.info-content {
+    padding: 5px;
+    display: flex;
+    align-items: center;
+}
+
+.icon-size {
+    font-size: 20px;
+}

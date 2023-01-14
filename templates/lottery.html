@@ -1,0 +1,922 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" xmlns:v-bind="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+  <title>弹幕抽奖</title>
+  <script src="{% static "js/others/vue.js" %}"></script>
+  <script src="{% static "js/others/jquery-3.4.1.min.js" %}"></script>
+  <script src="{% static "/js/wss_for_bili.js" %}"></script>
+  <link rel="stylesheet" href="{% static "css/bili.css" %}">
+  <link rel="stylesheet" href="{% static "css/lottery.css" %}">
+  <link rel="stylesheet" href="{% static "css/iconfont.css" %}">
+  <link rel="stylesheet" href="{% static "css/mask_panel.css" %}">
+  <script>
+      class MyUtils {
+          post_flag = true;
+          gift_count = {};
+
+          /**
+           * 在对象的 key 和 value 里搜索传入的值
+           * @param {Object} obj
+           * @param {number | string} search_item
+           * @returns {boolean}
+           */
+          is_has_field(obj, search_item) {
+              let status = false;
+              if (typeof obj === 'object') {
+                  for (const objKey in obj) {
+                      if (objKey === search_item) {
+                          status = true;
+                          break;
+                      }
+                      if (obj[objKey] === search_item) {
+                          status = true;
+                          break;
+                      }
+                      status = this.is_has_field(obj[objKey], search_item);
+                  }
+              }
+              return status;
+          }
+
+          /**
+           *
+           * @param json_str
+           * @param {Object} extend 父类
+           * {% verbatim %}
+           * @param {{medal, guard, user_level}} vue 是否检查牌子，大航海，用户等级
+           * {% endverbatim %}
+           */
+          danmu_filter(json_str, extend, vue) {
+              let final_status = false;
+              const vm = vue[0];
+              const flags = vm.setting;
+              if (vm.start_getting && !extend.is_has_field(vm.people_info, json_str.data.uid)) {
+                  switch (json_str.cmd) {
+                      case "LIVE_OPEN_PLATFORM_DM":
+                          // JSONObj.data 内容
+                          // {
+                          //     "fans_medal_level": 21,
+                          //     "fans_medal_name": "黑喵姐",
+                          //     "fans_medal_wearing_status": false,
+                          //     "guard_level": 0,
+                          //     "msg": "你们谁扔个小心心呗",
+                          //     "timestamp": 1650717881,
+                          //     "uid": 3102384,
+                          //     "uname": "猫裙少年泽远喵",
+                          //     "uface": "http://i0.hdslb.com/bfs/face/7ced8612a3f3ef10e7238ee22b4c6948d3f53139.jpg",
+                          //     "room_id": 4639581}
+                          if (vm.send_msg_flag && json_str.data.msg === vm.setting.participation_ways.specific_condition) {
+
+                              if (vm.has_condition_flag && vm.medal_flag) {
+                                  if (json_str.data.fans_medal_level >= parseInt(vm.setting.medal_level) && json_str.data.fans_medal_wearing_status) {
+                                      final_status = true;
+                                  } else {
+                                      const participation_info = {
+                                          info: '不符合粉丝勋章条件',
+                                          status: false,
+                                          username: json_str.data.uname,
+                                      }
+                                      final_status = false;
+                                      vm.participation_info.push(participation_info);
+                                      break;
+                                  }
+                              }
+
+                              if (vm.has_condition_flag && vm.guard_flag) {
+                                  if (json_str.data.guard_level >= parseInt(vm.setting.guard_level)) {
+                                      final_status = true;
+                                  } else {
+                                      const participation_info = {
+                                          info: '不符合大航海等级条件',
+                                          status: false,
+                                          username: json_str.data.uname,
+                                      }
+                                      final_status = false;
+                                      vm.participation_info.push(participation_info);
+                                      break;
+                                  }
+                              }
+
+                              {% comment %}if (json_str.data.msg === vm.setting.participation_ways.specific_condition) {
+                                  final_status = true;
+                              } else {
+                                  final_status = false;
+                                  break;
+                              }{% endcomment %}
+                          }
+
+                          break;
+
+                      case"LIVE_OPEN_PLATFORM_SEND_GIFT":
+                          // Bilibili_PlayWithMe.NewGifts(JSONObj.data);
+                          if (vm.send_gift_flag) {
+                              if (vm.has_condition_flag && vm.medal_flag) {
+                                  if (json_str.data.fans_medal_level >= parseInt(vm.setting.medal_level) && json_str.data.room_id === parseInt(vm.room_id)) {
+                                      final_status = true;
+                                  } else {
+                                      const participation_info = {
+                                          info: '不符合粉丝勋章条件',
+                                          status: false,
+                                          username: json_str.data.uname,
+                                      }
+                                      final_status = false;
+                                      vm.participation_info.push(participation_info);
+                                      break;
+                                  }
+                              }
+
+                              if (vm.has_condition_flag && vm.guard_flag) {
+                                  if (json_str.data.guard_level >= parseInt(vm.setting.guard_level)) {
+                                      final_status = true;
+                                  } else {
+                                      const participation_info = {
+                                          info: '不符合大航海等级条件',
+                                          status: false,
+                                          username: json_str.data.uname,
+                                      }
+                                      final_status = false;
+                                      vm.participation_info.push(participation_info);
+                                      break;
+                                  }
+                              }
+
+                              if (json_str.data.gift_id === parseInt(vm.setting.participation_ways.gift_info.id)) {
+                                  extend.gift_count[json_str.data.uid] = (extend.gift_count[json_str.data.uid] === undefined ? 0 : extend.gift_count[json_str.data.uid]) + json_str.data.gift_num;
+                                  if (extend.gift_count[json_str.data.uid] >= vm.setting.participation_ways.gift_number) {
+                                      final_status = true;
+                                  } else {
+                                      const participation_info = {
+                                          info: `还差${vm.setting.participation_ways.gift_number - extend.gift_count[json_str.data.uid]}个${vm.setting.participation_ways.gift_info.name}`,
+                                          status: false,
+                                          username: json_str.data.uname,
+                                      }
+                                      vm.participation_info.push(participation_info);
+                                      final_status = false;
+                                  }
+                              } else {
+                                  final_status = false;
+                                  break;
+                              }
+                          }
+                          break;
+                  }
+                  if (final_status) {
+                      const info = {
+                          uid: json_str.data.uid,
+                          username: json_str.data.uname,
+                          user_face: json_str.data.uface,
+                      }
+                      const participation_info = {
+                          info: '参与成功',
+                          status: true,
+                          username: json_str.data.uname,
+                      }
+                      if (info.username !== undefined) {
+                          vm.people_info.push(info);
+                          vm.participation_info.push(participation_info)
+                      }
+                  }
+              }
+          }
+
+          /**
+           * 礼物列表过滤器
+           * @param {Object} json 源json
+           * @param {string} name 模糊查询礼物名
+           * @param {number} price 低于某价格
+           * @param {string} coin_type 金瓜子还是银瓜子 (gold/silver)
+           * @param {Object} room_gift_data 本房间礼物信息
+           */
+          gift_list_filter(json, name = '', price = 0, coin_type = '', room_gift_data = {}) {
+              const list = json.data.list;
+              let room_gift_list;
+              try {
+                  room_gift_list = room_gift_data.data.room_gift_list;
+              } catch (e) {
+                  room_gift_list = undefined;
+              }
+              let final_list = [];
+              let room_gift_list_id = []
+              if (room_gift_list !== undefined) {
+                  room_gift_list.gold_list.forEach(element => {
+                      room_gift_list_id.push(element.gift_id);
+                  });
+                  room_gift_list.silver_list.forEach(element => {
+                      room_gift_list_id.push(element.gift_id);
+                  });
+              }
+
+              list.forEach(element => {
+                  let flag
+                  if (room_gift_list_id.length > 0) {
+                      flag = false;
+                      for (let roomGiftListIdElement of room_gift_list_id) {
+                          if (roomGiftListIdElement === element.id) {
+                              flag = true;
+                              break;
+                          }
+                      }
+                  } else {
+                      flag = true
+                  }
+                  if (flag) {
+                      if (name || price || coin_type) {
+                          if ((name ? element.name.indexOf(name) !== -1 : true) && (price ? element.price <= price : true) && (coin_type ? element.coin_type === coin_type : true)) {
+                              const gift_info = {
+                                  id: element.id,                // 礼物id
+                                  gif: element.gif,              // 礼物gif图
+                                  name: element.name,            // 礼物名
+                                  desc: element.desc,            // 礼物描述
+                                  price: element.price,          // 礼物价格
+                                  coin_type: element.coin_type,  // 礼物是用金瓜子还是银瓜子
+                              };
+                              final_list.push(gift_info);
+                          }
+                      } else {
+                          const gift_info = {
+                              id: element.id,                // 礼物id
+                              gif: element.gif,              // 礼物gif图
+                              name: element.name,            // 礼物名
+                              desc: element.desc,            // 礼物描述
+                              price: element.price,          // 礼物价格
+                              coin_type: element.coin_type,  // 礼物是用金瓜子还是银瓜子
+                          };
+                          final_list.push(gift_info);
+                      }
+                  }
+              });
+              return final_list;
+          }
+
+
+          /**
+           * 显示右上角的提示
+           * @param {Vue} vm Vue实例
+           * @param {Number, boolean} show_flag
+           * @param {string} command 指令
+           * @param {string} detail 详细内容
+           */
+          change_load_info(vm, show_flag, command, detail = '') {
+              vm.$data.load_info_flag = show_flag
+              switch (command) {
+                  case 'sus':
+                      vm.$data.load_info_icon = 'check'
+                      vm.$data.load_info = '设置已保存'
+                      break
+                  case 'fail':
+                      vm.$data.load_info_icon = 'close'
+                      vm.$data.load_info = '提交失败 原因: ' + detail
+                      break
+                  case 'load':
+                      vm.$data.load_info_icon = 'loading'
+                      vm.$data.load_info = '正在提交设置，请勿切换页面'
+                      break
+                  case 'copy_sus':
+                      vm.$data.load_info_icon = 'check'
+                      vm.$data.load_info = '已复制到剪切板'
+                      break
+                  case 'copy_fail':
+                      vm.$data.load_info_icon = 'close'
+                      vm.$data.load_info = '复制失败'
+                      break
+              }
+              if (command) {
+                  this.delayTime(3000).then(() => {
+                      this.change_load_info(vm, false, '')
+                  })
+              }
+          }
+
+          /**
+           * 阻塞器
+           * @param {Number} num 阻塞时间 (毫秒)
+           * @returns {Promise}
+           */
+          delayTime(num) {
+              return new Promise((resolve, reject) => { // return / await 等待执行完
+                  setTimeout(() => {
+                      resolve('延迟');
+                      // console.log('延迟')
+                  }, num);
+              })
+          }
+
+          /**
+           * 延迟提交
+           * @param {Vue} vm Vue实例
+           * @param {number} sec 延迟时间(秒)
+           */
+          delay_post_setting(vm, sec) {
+              if (this.post_flag) {
+                  this.change_load_info(vm, true, 'load');
+                  this.delayTime(sec * 1000).then(() => {
+                      this.update_settings(vm)
+                      this.post_flag = true;
+                  })
+              }
+              this.post_flag = false;
+          }
+
+          /**
+           * 提交设置
+           * @param vm Vue实例
+           */
+          update_settings(vm) {
+              const params = {
+                  auth_code: vm.auth_code,
+                  start_getting: Number(vm.start_getting),
+                  send_msg_flag: Number(vm.send_msg_flag),     // 发弹幕参与?
+                  send_gift_flag: Number(vm.send_gift_flag),     // 送礼物参与?
+                  has_condition_flag: Number(vm.has_condition_flag),  // 有参与条件
+                  guard_flag: Number(vm.guard_flag),           // 条件是大航海等级
+                  medal_flag: Number(vm.medal_flag),          // 条件是牌子等级
+                  cheat_flag: Number(vm.cheat_flag),  // 是否黑幕（
+                  eliminate_half_flag: Number(vm.eliminate_half_flag),  // 响指一声
+                  direct_selection: Number(vm.direct_selection),  // 一发入魂
+
+                  plug_in_width: vm.plug_in_width,       // 插件宽
+                  plug_in_height: vm.plug_in_height,      // 插件高
+                  guard_level: vm.setting.guard_level,  // 大航海等级
+                  // user_level: 0,
+                  medal_level: vm.setting.medal_level,  // 牌子等级
+                  what_prize: vm.setting.what_prize,  // 抽的啥
+                  how_many_people: vm.setting.how_many_people,  // 抽几个人
+                  id: vm.setting.participation_ways.gift_info.id,
+                  gif: vm.setting.participation_ways.gift_info.gif,
+                  name: vm.setting.participation_ways.gift_info.name,
+                  desc: vm.setting.participation_ways.gift_info.desc,
+                  price: vm.setting.participation_ways.gift_info.price,
+                  coin_type: vm.setting.participation_ways.gift_info.coin_type,
+                  gift_number: vm.setting.participation_ways.gift_number,  // 动作执行数量
+                  specific_condition: vm.setting.participation_ways.specific_condition,  // 发送弹幕内容
+                  cheating_uid: vm.cheating_uid,
+                  csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
+              }
+              $.post('lottery-settings', params);
+              this.change_load_info(vm, true, 'sus');
+          }
+
+          /**
+           * 所有礼物信息
+           * @param vm Vue实例
+           */
+          get_gift_config(vm) {
+              $.getJSON('gift-config', {platform: 'pc', room_id: vm.room_id}, data => {
+                  vm.gift_list = data;
+                  vm.search_results = this.gift_list_filter(data, vm.search_name, vm.search_price, vm.search_coin_type);
+              });
+          }
+
+          /**
+           * 房间礼物
+           * @param vm Vue实例
+           */
+          get_room_gift_data(vm) {
+              $.getJSON('room-gift-data', {platform: 'pc', room_id: vm.room_id, source: 'live'}, data => {
+                  vm.room_gift_info = data;
+                  vm.search_results = this.gift_list_filter(vm.gift_list, vm.search_name, vm.search_price, vm.search_coin_type, vm.room_gift_info);
+              });
+          }
+
+          get_lottery_setting(vm) {
+              $.getJSON('get-lottery-setting', {code: vm.auth_code}, data => {
+                  vm.start_getting = Boolean(Number(data.start_getting))
+                  vm.send_msg_flag = Boolean(Number(data.send_msg_flag))    // 发弹幕参与?
+                  vm.send_gift_flag = Boolean(Number(data.send_gift_flag))    // 送礼物参与?
+                  vm.has_condition_flag = Boolean(Number(data.has_condition_flag)) // 有参与条件
+                  vm.guard_flag = Boolean(Number(data.guard_flag))         // 条件是大航海等级
+                  vm.medal_flag = Boolean(Number(data.medal_flag))          // 条件是牌子等级
+                  vm.cheat_flag = Boolean(Number(data.cheat_flag))  // 是否黑幕（
+
+                  vm.plug_in_width = data.plug_in_width      // 插件宽
+                  vm.plug_in_height = data.plug_in_height     // 插件高
+                  vm.setting.guard_level = data.guard_level  // 大航海等级
+                  // user_level: 0,
+                  vm.setting.medal_level = data.medal_level  // 牌子等级
+                  vm.setting.what_prize = data.what_prize  // 抽的啥
+                  vm.setting.how_many_people = data.how_many_people  // 抽几个人
+                  vm.setting.participation_ways.gift_info.id = data.id
+                  vm.setting.participation_ways.gift_info.gif = data.gif
+                  vm.setting.participation_ways.gift_info.name = data.name
+                  vm.setting.participation_ways.gift_info.desc = data.desc
+                  vm.setting.participation_ways.gift_info.price = data.price
+                  vm.setting.participation_ways.gift_info.coin_type = data.coin_type
+                  vm.setting.participation_ways.gift_number = data.gift_number  // 动作执行数量
+                  vm.setting.participation_ways.specific_condition = data.specific_condition // 发送弹幕内容
+                  vm.cheating_uid = data.cheating_uid
+
+                  // vm.random_list = data.random_list
+                  vm.people_info = JSON.parse(data.people_info)
+                  vm.participation_info = JSON.parse(data.participation_info)
+              })
+          }
+
+          get_random_range_integer(min, max) {
+              return Math.floor(Math.random() * (max - min)) + min;
+          }
+
+          cheating_uid_list(vm) {
+              let int_list = [];
+              vm.cheating_uid.split(';').forEach(element => {
+                  let int = parseInt(element);
+                  let a = isNaN(int) ? '' : int_list.push(int);
+              })
+
+              return int_list;
+          }
+
+          eliminate_half(vm) {
+              let half_people = Math.ceil(parseInt(vm.now_participation_people) / 2);
+              vm.random_list = this.create_random_list(vm, half_people);
+          }
+
+          direct_selection(vm) {
+              vm.random_list = this.create_random_list(vm, 1);
+          }
+
+          create_random_list(vm, len) {
+              let random_list = new Set();
+              const how_many = len < vm.setting.how_many_people ? parseInt(vm.setting.how_many_people) : len;
+              const cheating_uid_list = this.cheating_uid_list(vm);
+              console.log(cheating_uid_list);
+              while (random_list.size < how_many && parseInt(vm.setting.how_many_people) <= how_many) {
+                  const a = this.get_random_range_integer(0, parseInt(vm.now_participation_people))
+                  if (!this.is_has_field(cheating_uid_list, vm.people_info[a].uid)) {
+                      random_list.add(a)
+                  }
+              }
+              console.log(random_list);
+              return random_list;
+          }
+
+          scroll_content(css_select_text) {
+              let element = $(css_select_text);
+              element.animate({scrollTop: element.get(0).scrollHeight}, 1000);
+          }
+
+          clear_all(vm) {
+              vm.people_info = []
+              vm.participation_info = []
+          }
+
+          force_overload_data(vm) {
+              let people_info = vm.people_info;
+              let participation_info = vm.participation_info;
+              vm.people_info = []
+              vm.participation_info = []
+              setTimeout(() => {
+                  vm.people_info = [...people_info, ...vm.people_info];
+                  vm.participation_info = [...participation_info, ...vm.participation_info];
+              }, 5000);
+          }
+      }
+
+      const my_utils = new MyUtils();
+      let vm;
+      window.onload = () => {
+          vm = new Vue({
+              el: '#app',
+              data: {
+                  now_view: 'main',
+                  room_id: {{ room_id }},
+                  auth_code: '{{ auth_code }}',
+                  plug_env: Boolean({{ plug_env }}),
+                  set_style: Boolean({{ plug_env }}) ? '' : 'none',  // 控制设置界面是否显示
+                  start_getting: Boolean({{ start_getting }}),
+                  scroll_flag: true,
+
+                  load_info: '正在提交设置，请勿切换页面',
+                  load_info_flag: false,
+                  load_info_icon: 'loading',
+
+                  send_msg_flag: Boolean({{ send_msg_flag }}),     // 发弹幕参与?
+                  send_gift_flag: Boolean({{ send_gift_flag }}),     // 送礼物参与?
+                  has_condition_flag: Boolean({{ has_condition_flag }}),  // 有参与条件
+                  guard_flag: Boolean({{ guard_flag }}),           // 条件是大航海等级
+                  medal_flag: Boolean({{ medal_flag }}),          // 条件是牌子等级
+                  cheat_flag: Boolean({{ cheat_flag }}),  // 是否黑幕（
+
+                  gift_list: [],  // 原始礼物列表
+                  room_gift_info: {},  // 当前房间礼物
+                  select_gift_flag: false,  // 选择礼物面板是否显示
+                  participation_info: [],  // 成功，失败信息
+                  /* 数据示例
+                  * [{"info":"参与成功","status":true,"username":"虫草小王子"},{"info":"参与成功","status":true,"username":"虫草小王子"},{"info":"参与成功","status":true,"username":"虫草小王子"},{"info":"参与成功","status":true,"username":"虫草小王子"},{"info":"参与成功","status":true,"username":"虫草小王子"},{"info":"参与成功","status":true,"username":"虫草小王子"},{"info":"参与成功","status":true,"username":"虫草小王子"},{"info":"参与成功","status":true,"username":"虫草小王子"},{"info":"参与成功","status":true,"username":"虫草小王子"},{"info":"参与成功","status":true,"username":"虫草小王子"},{"info":"参与成功","status":true,"username":"虫草小王子"},{"info":"参与成功","status":true,"username":"虫草小王子"},{"info":"参与成功","status":true,"username":"虫草小王子"},{"info":"参与成功","status":true,"username":"虫草小王子"},{"info":"参与成功","status":true,"username":"虫草小王子"},{"info":"参与成功","status":true,"username":"虫草小王子"},{"info":"参与成功","status":true,"username":"虫草小王子"},{"info":"参与成功","status":true,"username":"虫草小王子"},{"info":"参与成功","status":true,"username":"虫草小王子"},{"info":"参与成功","status":true,"username":"虫草小王子"},{"info":"参与成功","status":true,"username":"虫草小王子"},{"info":"参与成功","status":true,"username":"虫草小王子"}]
+                  * */
+
+                  // 基本设置
+                  plug_in_width: {{ plug_in_width }},       // 插件宽
+                  plug_in_height: {{ plug_in_height }},      // 插件高
+
+                  // 抽奖设置
+                  setting: {
+                      guard_level: {{ guard_level }},  // 大航海等级
+                      // user_level: 0,
+                      medal_level: {{ medal_level }},  // 牌子等级
+                      what_prize: '{{ what_prize }}',  // 抽的啥
+                      how_many_people: {{ how_many_people }},  // 抽几个人
+                      // 参与方式
+                      participation_ways: {
+                          gift_info: {
+                              id: {{ id }},
+                              gif: '{{ gif }}',
+                              name: '{{ name }}',
+                              desc: '{{ desc }}',
+                              price: {{ price }},
+                              coin_type: '{{ coin_type }}',
+                          },
+                          gift_number: {{ gift_number }},  // 动作执行数量
+                          specific_condition: '{{ specific_condition }}'  // 发送弹幕内容
+                      },
+                      //participation_ways: {name: '弹幕', gift_image: '', gift_number: 0, specific_condition: '生日快乐！'},
+                  },
+
+                  // 搜索礼物
+                  search_name: '',       // 名字包含什么
+                  search_price: 0,       // 多少钱以下
+                  search_coin_type: '',  // 金还是银
+                  search_room_gift: false,
+                  search_results: [],    // 搜索结果
+
+                  now_participation_people: 0,  // 现在多少人参加了
+
+                  people_info: [],              // 参加人的信息
+                  /* 数据示例
+                  * [{"uid":0,"username":"虫草小王子","user_face":"http://i1.hdslb.com/bfs/face/310dbb9403a00c0251b638626c1285a127bbf7ab.jpg"},{"uid":1,"username":"虫草小王子","user_face":"http://i1.hdslb.com/bfs/face/310dbb9403a00c0251b638626c1285a127bbf7ab.jpg"},{"uid":2,"username":"虫草小王子","user_face":"http://i1.hdslb.com/bfs/face/310dbb9403a00c0251b638626c1285a127bbf7ab.jpg"},{"uid":3,"username":"虫草小王子","user_face":"http://i1.hdslb.com/bfs/face/310dbb9403a00c0251b638626c1285a127bbf7ab.jpg"},{"uid":4,"username":"虫草小王子","user_face":"http://i1.hdslb.com/bfs/face/310dbb9403a00c0251b638626c1285a127bbf7ab.jpg"}]
+                  * */
+
+                  random_list: [],  // 随机列表
+
+                  information: '',  // 显示弹幕服务器断开
+
+                  cheating_uid: '',
+              },
+              methods: {
+                  /**
+                   * 写入选择的礼物
+                   * @param search_result_element
+                   */
+                  write_gift_info(search_result_element) {
+                      const gift_info = this.setting.participation_ways.gift_info;
+                      gift_info.id = search_result_element.id;
+                      gift_info.desc = search_result_element.desc;
+                      gift_info.name = search_result_element.name;
+                      gift_info.gif = search_result_element.gif;
+                      gift_info.price = search_result_element.price;
+                      gift_info.coin_type = search_result_element.coin_type;
+                      this.select_gift_flag = false;
+                  },
+              },
+              computed: {
+                  gift_search() {
+                      const {search_name, search_price, search_coin_type,} = this;
+                      return {};
+                  },
+              },
+              watch: {
+                  people_info() {
+                      this.now_participation_people = this.people_info.length;
+                      if (this.plug_env) {
+                          setTimeout(() => {
+                              $.post('lottery-settings', {
+                                  auth_code: vm.auth_code,
+                                  people_info: JSON.stringify(this.people_info),
+                                  csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
+                              });
+                          }, 1000);
+                      }
+                      if (this.scroll_flag) {
+                          my_utils.scroll_content('.people-panel')
+                      }
+                  },
+                  participation_info() {
+                      if (this.plug_env) {
+                          setTimeout(() => {
+                              $.post('lottery-settings', {
+                                  auth_code: vm.auth_code,
+                                  participation_info: JSON.stringify(this.participation_info),
+                                  csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
+                              }, 1000);
+                          })
+                      }
+                      if (this.scroll_flag) {
+                          my_utils.scroll_content('.right-info-panel')
+                      }
+                  },
+                  gift_search() {
+                      this.search_results = my_utils.gift_list_filter(this.gift_list, this.search_name, this.search_price, this.search_coin_type, this.room_gift_info);
+                  },
+                  information() {
+                      this.now_view = 'msg';
+                  },
+                  search_room_gift() {
+                      if (this.search_room_gift) {
+                          my_utils.get_room_gift_data(this);
+                      } else {
+                          this.room_gift_info = {};
+                          this.search_results = my_utils.gift_list_filter(this.gift_list, this.search_name, this.search_price, this.search_coin_type, this.room_gift_info);
+                      }
+                  },
+                  random_list() {
+                      if (this.random_list.size) {
+                          let new_list = [];
+                          this.random_list.forEach(element => {
+                              new_list.push(vm.people_info[element]);
+                          });
+                          this.people_info = new_list;
+                      }
+                  },
+              },
+              created() {
+                  my_utils.get_gift_config(this);
+                  my_utils.get_lottery_setting(this);
+              }
+          });
+          {% if plug_env %}
+              new BiliBili_WEBSocket(vm, '{{ auth|safe }}', my_utils, my_utils.danmu_filter, [vm]);
+          {% else %}
+              setInterval(() => {
+                  my_utils.get_lottery_setting(vm)
+              }, 5000);
+              /*
+              * TODO
+              *  bug:
+              *   1.右边参与信息y轴超出
+              *   2.设置‘发送弹幕’用户发送无关弹幕也会在右边提示参与失败信息
+              *   3.参与成功的用户网页和obs里的部分不一样
+              *  新增:
+              *   1.超出自动滚动到最底
+              * */
+          {% endif %}
+      }
+  </script>
+</head>
+<body>
+<div id="app">
+  {% csrf_token %}
+  <div class="root-div" v-bind:style="{backgroundImage: set_style}">
+
+    <div class="show-div">
+
+      <div class="head-title" v-bind:style="{display: set_style}">
+        <div class="h-t-text">Live 效果预览</div>
+      </div>
+
+      {% verbatim %}
+      <div class="plug-in" style="width: 610px;display: flex;"
+           v-bind:style="{width: plug_in_width + 'px', height: plug_in_height + 'px'}">
+
+        <div class="main-panel" v-if="now_view == 'main'"
+             v-bind:style="{backgroundColor: plug_env ? '' : 'rgba(255, 255, 255, 1)'}">
+          <div class="main-font-style what-prize">{{ setting.what_prize }}</div>
+          <div class="main-font-style how-many-people">中奖人数&nbsp;×{{ setting.how_many_people }}</div>
+          <div class="main-font-style participation">
+            <div class="participation-cell">
+              <div class="main-font-style participation-title">参与方式</div>
+              <div class="describe" v-if="send_msg_flag">
+                发送弹幕:&nbsp;{{ setting.participation_ways.specific_condition }}
+              </div>
+              <div style="display: flex;flex-direction: column;align-items: center;" v-else>
+                <div class="describe">
+                  赠送
+                  <img v-bind:src="setting.participation_ways.gift_info.gif"
+                       v-bind:alt="setting.participation_ways.gift_info.name"
+                       height="40px">
+                  {{ setting.participation_ways.gift_info.name }}:&nbsp;×{{ setting.participation_ways.gift_number }}
+                </div>
+                <div class="describe">(可在统计时段内分多次赠送)</div>
+              </div>
+            </div>
+            <div class="participation-cell" v-if="has_condition_flag">
+              <div class="main-font-style participation-title">参与条件</div>
+
+              <div class="describe" v-if="medal_flag">
+                粉丝勋章等级&nbsp;&ge;&nbsp;{{ setting.medal_level }}
+              </div>
+
+              <div class="describe" v-if="guard_flag">
+                大航海等级&nbsp;&ge;&nbsp;{{ setting.guard_level }}
+              </div>
+
+            </div>
+          </div>
+          <div class="main-font-style how-many-people" v-show="!start_getting && (people_info.length === 0)">主播还未开始统计&nbsp;不要着急哦~</div>
+          <div class="main-font-style how-many-people" v-show="start_getting && (people_info.length >= 0)">正在统计中&nbsp;已有{{
+            now_participation_people }}人参与本次抽奖
+          </div>
+          <div class="main-font-style how-many-people"
+               v-show="!start_getting && (people_info.length > setting.how_many_people)">当前还有{{ now_participation_people
+            }}人在场
+          </div>
+          <div class="main-font-style how-many-people"
+               v-show="!start_getting && (people_info.length == setting.how_many_people)">恭喜以下用户中奖!
+          </div>
+
+          <div class="people-panel" v-on:mouseenter="scroll_flag = false" v-on:mouseleave="scroll_flag = true">
+            <a class="people-info" v-for="(value, key) in people_info" v-bind:href="`https://space.bilibili.com/${value.uid}`" v-bind:key="value.username + value.info + key"
+               target="_blank">
+              <img v-bind:src="value.user_face" v-bind:alt="value.username" height="40px">
+              <div class="info-group">
+                <div class="main-font-style username">{{ value.username }}</div>
+                <div style="font-weight: 500;font-size: 13px;color: #5c606c">已参与抽奖</div>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <div class="right-info-panel main-panel" v-on:mouseenter="scroll_flag = false" v-on:mouseleave="scroll_flag = true"
+             v-bind:style="{backgroundColor: plug_env ? '' : 'rgba(255, 255, 255, 1)'}">
+          <ul class="info-list">
+            <transition-group mode="in-out">
+              <li v-for="(value, key) in participation_info" v-bind:key="value.username + value.info + key">
+                <span v-bind:class="value.status ? 'susses-color' : 'fail-color'"
+                      v-bind:key="'music_name' + value.username + value.info + key">{{ value.username }}</span>
+                <span v-bind:key="'artist_name' + value.username + value.info + key">{{ value.info }}</span>
+              </li>
+            </transition-group>
+          </ul>
+        </div>
+
+        <div v-if="now_view == 'msg'">
+          <p class="show-msg" v-bind:key="now_view" v-bind:style="first_style" v-text="information"></p>
+        </div>
+      </div>
+      {% endverbatim %}
+
+    </div>
+
+    <div class="set-div" v-bind:style="{display: set_style}">
+      <div class="set-title" v-on:click="gift_config()">
+        <div class="s-t-text">设置</div>
+      </div>
+      <div class="load-info" v-if="load_info_flag">
+        <div class="v-line"></div>
+        <div class="info-content">
+          <i class="element-icons icon-size el-icon-loading" v-if="load_info_icon==='loading'"></i>
+          <i class="element-icons icon-size el-icon-check" v-if="load_info_icon==='check'"></i>
+          <i class="element-icons icon-size el-icon-close" v-if="load_info_icon==='close'"></i>
+          <div v-text="load_info"></div>
+        </div>
+      </div>
+      <div class="set-content">
+        <div class="attribute-set" style="height: 100%">
+          <div class="block-title">基本设置</div>
+          <div class="base-block">
+            <div class="width-height">
+              <div class="text-input first-text-input">
+                <label for="width" class="margin-label">宽:</label>
+                <input type="range" name="div_width" id="width"
+                       class="input-number set-color-text"
+                       min="0" max="1000" step="1"
+                       v-model="plug_in_width">
+              </div>
+
+              <div class="text-input first-text-input">
+                <label for="height" class="margin-label">高:</label>
+                <input type="range" name="div_height" id="height"
+                       class="input-number set-color-text"
+                       min="0" max="1000" step="1"
+                       v-model="plug_in_height">
+              </div>
+            </div>
+            <span style="color: #7a7a7a; float: right;" v-text="plug_in_width + 'px × ' + plug_in_height + 'px'"></span>
+          </div>
+          <div class="block-title">礼品</div>
+          <div class="base-block">
+            <div class="text-input first-text-input show-block">
+              <input type="text" v-model="setting.what_prize">
+              ×
+              <input type="number" step="1" min="1" style="width: 30px" v-model="setting.how_many_people">
+            </div>
+          </div>
+          <div class="block-title">参与方式</div>
+          <div class="base-block">
+            <div class="text-input first-text-input show-block">
+              <input type="checkbox" v-model="send_msg_flag" v-on:click="send_gift_flag = !send_gift_flag">
+              <label class="adjust-label">发送弹幕:</label>
+              <input class="set-color-text bili_base" type="text" v-bind:disabled="!send_msg_flag"
+                     v-model="setting.participation_ways.specific_condition">
+            </div>
+
+            <div class="text-input show-block">
+              <input type="checkbox" v-model="send_gift_flag" v-on:click="send_msg_flag = !send_msg_flag">
+              <label class="adjust-label">赠送礼物:</label>
+              <input type="button" v-on:click="select_gift_flag = true" v-bind:disabled="!send_gift_flag" value="选择">
+              <div v-text="setting.participation_ways.gift_info.name"></div>
+              <input type="number" step="1" min="1" style="width: 30px" v-bind:disabled="!send_gift_flag"
+                     v-model="setting.participation_ways.gift_number">
+            </div>
+
+            <div class="text-input show-block">
+              <input type="checkbox" v-model="has_condition_flag">
+              <div class="block-title">参与条件</div>
+              <div class="base-block">
+                <div class="text-input">
+
+                  <input type="checkbox" v-model="guard_flag" v-bind:disabled="!has_condition_flag"
+                         v-on:click="medal_flag = !medal_flag">
+                  <div>大航海等级(e.g 23=3):</div>
+                  <input type="number" step="1" min="1" style="width: 30px"
+                         v-bind:disabled="!guard_flag || !has_condition_flag" v-model="setting.guard_level">
+                  <input type="checkbox" v-model="medal_flag" v-bind:disabled="!has_condition_flag"
+                         v-on:click="guard_flag = !guard_flag">
+                  <div>勋章等级:</div>
+                  <input type="number" step="1" min="1" style="width: 30px"
+                         v-bind:disabled="!medal_flag || !has_condition_flag" v-model="setting.medal_level">
+                </div>
+              </div>
+            </div>
+
+
+            <div class="text-input">
+              <input type="button" value="提交" onclick="my_utils.delay_post_setting(vm, 2)">
+              <input type="button" value="开始统计" v-on:click="start_getting = true"
+                     onclick="$.get('lottery-settings', {start_getting: 1, auth_code: '{{ auth_code }}'})"
+                     v-if="!start_getting">
+              <input type="button" value="停止统计" v-on:click="start_getting = false"
+                     onclick="$.get('lottery-settings', {start_getting: 0, auth_code: '{{ auth_code }}'})" v-else>
+            </div>
+
+            <div class="block-title">控制</div>
+            <div class="text-input show-block" style="display: none;">
+              <input type="checkbox" v-model="cheat_flag">
+              <div class="block-title">黑幕</div>
+              <div class="base-block">
+                <div class="text-input">
+                  <label class="adjust-label">uid:</label>
+                  <input type="text" title="多个uid用 ; (英文分号)分隔"
+                         v-bind:disabled="!cheat_flag" v-model="cheating_uid">
+                </div>
+              </div>
+            </div>
+            <div class="base-block">
+              <div class="text-input first-text-input show-block">
+                <input type="button" value="响指一声" v-bind:title="start_getting ? '停止统计后才能使用' : '随机淘汰一半人'"
+                       v-bind:disabled="start_getting" onclick="my_utils.eliminate_half(vm)">
+                <input type="button" value="一发入魂" v-bind:title="start_getting ? '停止统计后才能使用' : '直接随机选出中奖者'"
+                       v-bind:disabled="start_getting" onclick="my_utils.direct_selection(vm)">
+                <input type="button" value="清空信息" v-bind:title="start_getting ? '停止统计后才能使用' : '清空参与用户和参与信息'"
+                       v-bind:disabled="start_getting" onclick="my_utils.clear_all(vm)">
+                <input type="button" value="强制重载数据" title="重新设置参与用户和参与信息, 可能会造成数据丢失, 不要在正在参与人数多的时候使用"
+                       onclick="my_utils.force_overload_data(vm)">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-mask" v-show="select_gift_flag">
+    <div class="gift-panel place-center">
+      {% verbatim %}
+      <div class="flex-center">
+        <div class="gift-search">
+          <div class="gift-search-cell">
+            <input type="checkbox" v-model="search_room_gift">
+            <div>只看本房间礼物</div>
+          </div>
+          <div class="gift-search-cell">
+            <div>礼物名</div>
+            <input type="text" v-model="search_name" style="width: 30%">
+          </div>
+          <div class="gift-search-cell">
+            <div>单位</div>
+            <select class="short-select" v-model="search_coin_type">
+              <option value="">---</option>
+              <option value="gold">金瓜子</option>
+              <option value="silver">银瓜子</option>
+            </select>
+          </div>
+          <div class="gift-search-cell">
+            <div>价格</div>
+            <input type="text" v-model="search_price" style="width: 20%">
+          </div>
+        </div>
+        <div class="people-panel">
+          <div class="people-info" v-for="value in search_results" v-on:click="write_gift_info(value)">
+            <img v-bind:src="value.gif" v-bind:alt="value.name" height="40px">
+            <div class="info-group" v-bind:title="'id: ' + value.id + ' ' + value.desc">
+              <div class="main-font-style username make-ellipse">{{ value.name }}</div>
+              <div class="gift-desc make-ellipse">{{ value.desc }}</div>
+              <div class="type-price">
+                <div class="svg-icon gold-seed" v-if="value.coin_type == 'gold'"></div>
+                <div class="svg-icon silver-seed" v-if="value.coin_type == 'silver'"></div>
+                <div class="price">{{ value.price }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="close-button control-button" v-on:click="select_gift_flag = false" title="关闭">
+        <span>✕</span>
+      </div>
+      <div class="panel-title">礼物列表</div>
+      {% endverbatim %}
+    </div>
+  </div>
+</div>
+</body>
+</html>

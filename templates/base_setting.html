@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block mainbody %}
+    <div id="left-menu">
+        <p>
+            <a href="../console">控制台</a>
+        </p>
+        <p>
+            <a href="../base_setting" style="color: #ffffff;background-color: #37414f">基本设置</a>
+        </p>
+        <p>
+            <a href="../music_display">歌名显示</a>
+        </p>
+        <p>
+            <a href="../lyric_display">歌词显示</a>
+        </p>
+    </div>
+    <form action="/get_base_setting_post" method="post">
+        <div id="who_can" class="cell">
+            <h3>谁能点歌?</h3>
+            <p>满足以下设定的条件的弹幕才能点歌(留空表示不设置此项)</p>
+            <p>
+                <label>
+                    佩戴的勋章名:
+                    <input type="text" name="medal_name" class="base" id="medal_name"
+                           value="{{ medal_name|default:'' }}"
+                           onchange="">
+                </label>
+            </p>
+            <p>
+                <label>
+                    勋章所属的主播:
+                    <input type="text" name="medal_of_user" id="medal_of_user" class="base"
+                           value="{{ medal_of_user|default:'' }}" onchange="">
+                </label>
+            </p>
+            <p>
+                <label>
+                    勋章等级大于:
+                    <input type="number" min="0" name="medal_level_less" id="medal_level_less" class="input-number base"
+                           value="{{ medal_level_less|default:"0" }}">
+                </label>
+            </p>
+            <p>
+                <label>
+                    直播用户等级大于:
+                    <input type="number" min="0" name="user_level_less" id="user_level_less" class="input-number base"
+                           value="{{ user_level_less|default:"0" }}">
+                </label>
+            </p>
+        </div>
+        <div class="cell">
+            <h3>冷却时间</h3>
+            <p>设置每个用户的点歌间隔&nbsp;&nbsp;在此时间段内点过歌的用户无法再次点歌</p>
+            <p>
+                <label>
+                    <input type="number" step="0.1" min="0" name="cold_time" id="cold_time" class="input-number base"
+                           value="{{ cold_time|default:"0" }}">
+                    分钟
+                </label>
+            </p>
+        </div>
+        <p>
+            <label>
+                {% csrf_token %}
+                <input type="submit" class="base conform" value="确认">
+                <input type="reset" class="base" value="重置">
+            </label>
+        </p>
+    </form>
+    <div class="page_mask_on">
+        <div class="add_music_panel_on">
+            <div class="panel-content">
+                <h1>此页面已不再支持<br>请转到<a href="https://play-live.bilibili.com/details/1649539569084">饭贩商店</a>使用</h1>
+            </div>
+        </div>
+    </div>
+{% endblock %}

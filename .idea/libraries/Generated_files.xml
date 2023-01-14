@@ -1,0 +1,35 @@
+<component name="libraryTable">
+  <library name="Generated files" type="javaScript">
+    <properties>
+      <sourceFilesUrls>
+        <item url="file://$PROJECT_DIR$/static/js/array_equals.min.js" />
+        <item url="file://$PROJECT_DIR$/static/js/dan_mu_ku.min.js" />
+        <item url="file://$PROJECT_DIR$/static/js/display_setting.min.js" />
+        <item url="file://$PROJECT_DIR$/static/js/for_bili_setting.min.js" />
+        <item url="file://$PROJECT_DIR$/static/js/for_bilibili.min.js" />
+        <item url="file://$PROJECT_DIR$/static/js/for_bilibili_lyric.min.js" />
+        <item url="file://$PROJECT_DIR$/static/js/load_vue.min.js" />
+        <item url="file://$PROJECT_DIR$/static/js/myUtils.min.js" />
+        <item url="file://$PROJECT_DIR$/static/js/others/qq_cookie.min.js" />
+        <item url="file://$PROJECT_DIR$/static/js/wss_for_bili.min.js" />
+      </sourceFilesUrls>
+    </properties>
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/liveMusicDjangoProject/n/qq_muisc_spider_master/others.min.js" />
+      <root url="file://$PROJECT_DIR$/liveMusicDjangoProject/n/qq_muisc_spider_master/pt_data.min.js" />
+      <root url="file://$PROJECT_DIR$/liveMusicDjangoProject/n/qq_muisc_spider_master/sign.min.js" />
+      <root url="file://$PROJECT_DIR$/static/js/array_equals.min.js" />
+      <root url="file://$PROJECT_DIR$/static/js/dan_mu_ku.min.js" />
+      <root url="file://$PROJECT_DIR$/static/js/display_setting.min.js" />
+      <root url="file://$PROJECT_DIR$/static/js/for_bili_setting.min.js" />
+      <root url="file://$PROJECT_DIR$/static/js/for_bilibili.min.js" />
+      <root url="file://$PROJECT_DIR$/static/js/for_bilibili_lyric.min.js" />
+      <root url="file://$PROJECT_DIR$/static/js/load_vue.min.js" />
+      <root url="file://$PROJECT_DIR$/static/js/myUtils.min.js" />
+      <root url="file://$PROJECT_DIR$/static/js/others/qq_cookie.min.js" />
+      <root url="file://$PROJECT_DIR$/static/js/wss_for_bili.min.js" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

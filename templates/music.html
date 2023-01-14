@@ -1,0 +1,175 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>music</title>
+    <script src="{% static "js/jquery-3.4.1.min.js" %}"></script>
+    <script src="{% static "js/array_equals.js" %}"></script>
+    <script src="{% static "js/other/vue.min.js" %}"></script>
+    <script src="{% static "js/load_vue.js" %}"></script>
+    <script src="{% static "/js/wss_for_bili.js" %}"></script>
+    <script>
+        //let last = [];
+        //let last_list = '';
+        let is_play = 0;
+        let htmlAudioElement;
+        let stop_flag = false;
+
+        function music_play(music_url) {
+            htmlAudioElement = new Audio(music_url);
+            htmlAudioElement.play();
+            is_play = 1;
+            htmlAudioElement.addEventListener('ended', function () {
+                $.get('/next_music?url={{ url }}&where=music');
+            })
+        }
+
+        function get_data() {
+            $.getJSON('/get_data?url={{ url }}&where=music', function (data) {
+                let now_music_name;  // 当前歌曲名
+                let html_music_name;  // 当前要插入HTML的歌曲名
+                const music_list = data['data']['music_name_list'];  // 歌曲列表
+                const music_url = data['data']['now_music_url'];  // 播放地址
+                const who_play = data['data']['who_play'];  // 由谁播放
+                const play_ = data['data']['play_'];  // 播放还是暂停
+                const replay = data['data']['replay']  // 从头开始
+                if (who_play === 1 && is_play) {
+                    try {
+                        htmlAudioElement.pause();
+                        is_play = 0;
+                    } catch (e) {
+                    }
+                } else {
+                    if (data['data']['is_running'] && who_play === 0) {
+                        // get_dan_mu('{{ room }}', '{{ url }}', 'music_url')
+                        stop_flag = data['data']['is_running']
+                    }
+                    if (music_url == '') {
+                        html_music_name = "<li><span class=\"music_name\">暂无歌曲</span>" +
+                            "<span class=\"artist\">无</span></li>";
+                        const f = document.getElementById('uls');
+                        const childs = f.childNodes;
+                        for (let i = childs.length - 1; i >= 0; i--) {
+                            f.removeChild(childs[i]);
+                        }
+                        f.innerHTML = html_music_name;
+                    } else {
+                        if (play_ && !(is_play) && !(who_play === 1)) {
+                            try {
+                                htmlAudioElement.play();
+                                is_play = 1;
+                            } catch (e) {
+                            }
+                        }
+                    }
+
+                    if (!(play_)) {
+                        try {
+                            htmlAudioElement.pause();
+                            is_play = 0;
+                        } catch (e) {
+                        }
+                    }
+                    if (replay) {
+                        $.get('/play?where=replay&data=0&url={{ url }}&where_url=music_url');
+                        {#$.get('/play/?where=replay&data=1&url={{ url }}&where_url=music_url');#}
+                        htmlAudioElement.load();
+                        htmlAudioElement.play();
+                        is_play = 1;
+                    }
+                }
+                try {
+                    now_music_name = [music_list[0]]
+                } catch (e) {
+                    now_music_name = []
+                }
+                if (now_music_name.equals([undefined]) && !(music_list.equals([]))) {
+                    now_music_name = [];
+                    $.get('/next_music?url={{ url }}&where=music');
+                }
+                if (!(music_list.equals(last_list))) {
+                    last_list = music_list;
+                    const f = document.getElementById('uls');
+                    const childs = f.childNodes;
+                    let html_list = [];
+                    let i = childs.length - 1;
+                    for (let j = i; j >= 0; j--) {
+                        f.removeChild(childs[j]);
+                    }
+                    for (let j = 0; j < music_list.length; j++) {
+                        html_list[j] = "<li><span class=\"music_name\">" + music_list[j][0] + "</span>" +
+                            "<span class=\"artist\">" + music_list[j][1] + "</span></li>";
+                    }
+                    f.innerHTML = html_list.join('');
+                }
+                console.log(now_music_name);
+                console.log(last);
+                // 数组不能用===比较
+                if (music_list.equals([])) {
+                    html_music_name = "<li><span class=\"music_name\">暂无歌曲</span>" +
+                        "<span class=\"artist\">无</span></li>";
+                    const f = document.getElementById('uls');
+                    const childs = f.childNodes;
+                    for (let i = childs.length - 1; i >= 0; i--) {
+                        f.removeChild(childs[i]);
+                    }
+                    f.innerHTML = html_music_name;
+                }
+                if (!(now_music_name.equals(last)) || (who_play === 0 && !(is_play) && play_)) {
+                    last = now_music_name;
+                    if ((last.equals([])) || (last.equals([''])) || (last.equals(['', '']))) {
+                        $.get('/next_music?url={{ url }}&where=music');
+                    } else {
+                        try {
+                            htmlAudioElement.pause();
+                            is_play = 0
+                        } catch (e) {
+                        }
+                        if (who_play === 0) {
+                            music_play(music_url);
+                        }
+                    }
+                }
+            });
+            // setInterval(get_data, 5000);
+        }
+
+        $(document).ready(function () {
+            setInterval(get_data, 5000);
+        });
+    </script>
+    <style>
+        ul li {
+            padding-top: 20px;
+            position: relative;
+        }
+
+        ul li span {
+            margin: 0 0 0 0;
+        }
+
+        .music-name {
+            font-size: {{ first_line_font_size|default:36 }}px;
+            color: {{ music_color|default:'#7a7a7a' }};
+            font-family: {{ first_line_font|default:'微软雅黑' }};
+            /*歌名*/
+        }
+
+        .artist {
+            color: {{ artist_color|default:'#7a7a7a' }};
+            font-size: {{ other_font_size|default:16 }}px;
+            font-family: {{ other_font|default:'微软雅黑' }};
+            /*歌手*/
+        }
+    </style>
+</head>
+<body>
+<div id="display-css"
+     style="width: {{ div_width|default:500 }}px;height: {{ div_height|default:230 }}px;overflow: hidden;">
+    <ul id="uls" style="list-style: none;overflow: hidden;word-break: keep-all;transition: 700ms;padding: 0">
+        <li>0123456789</li>
+    </ul>
+</div>
+</body>
+</html>

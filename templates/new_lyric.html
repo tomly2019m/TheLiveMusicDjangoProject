@@ -1,0 +1,109 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" xmlns:v-bind="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="{% static "js/jquery-3.4.1.min.js" %}"></script>
+    {% if dev %}
+    <script src="{% static "js/others/vue.js" %}"></script>
+{% else %}
+    <script src="{% static "js/others/vue.min.js" %}"></script>
+{% endif %}
+    <script src="{% static "js/load_vue.js" %}"></script>
+    <script src="{% static "js/array_equals.js" %}"></script>
+    <script src="{% static "/js/wss_for_bili.js" %}"></script>
+    <script src="{% static "js/display_setting.js" %}"></script>
+    <link rel="icon" href="{% static "images/favicon.ico" %}">
+    <link rel="stylesheet" href="{% static "css/sheet.css" %}">
+    <link rel="stylesheet" href="{% static "css/bili.css" %}">
+    <link rel="stylesheet" href="{% static "css/console.css" %}">
+    <script>
+        window.onload = () => {
+            new Vue({
+                el: '.app',
+                data: {
+                    lyric: false,
+                }
+            })
+        }
+    </script>
+</head>
+<body>
+<div class="app">
+    <div>
+        test
+        <button v-on:click="lyric = !lyric">切换</button>
+    </div>
+    <transition-group mode="out-in">
+
+        <template v-if="!lyric">
+            <div id="display-css" class="base plug-in back_img" v-bind:style="display_style" v-bind:key="lyric">
+
+                {% verbatim %}
+                <ul>
+                    <transition-group mode="in-out">
+                        <li v-for="(value, key) in music_info" v-bind:key="value[0]" v-bind:style="li_style">
+                        <span class="music-name"
+                              v-bind:style="music_style" v-bind:key="'music_name' + test_flag">{{ value[0] }}</span>
+                            <span class="artist"
+                                  v-bind:style="artist_style"
+                                  v-bind:key="'artist_name' + test_flag">{{ value[1] }}</span>
+                        </li>
+                    </transition-group>
+                </ul>
+                {% endverbatim %}
+
+            </div>
+        </template>
+
+        <template v-if="lyric">
+            <div id="display-css" class="base plug-in back_img" v-bind:style="display_style" v-bind:key="lyric">
+
+                <ul id="uls"
+                    style="list-style: none;overflow: hidden;word-break: keep-all;transition: 700ms;padding: 0; margin: 0;text-align: center">
+                    <li class="item" id="26.368" style="height: 90px;padding-top: 20px;position: relative;"><span
+                            class="lyric lyric1"
+                            style="font-size: 36px;color: rgba(0,0,0,0.51);"> きらり空に響く星の声</span><span
+                            class="translation"
+                            style="margin-left: 10px;color: #7a7a7a;font-size: 16px;"><br/>晶莹闪烁在夜空 星星的声音</span></li>
+                    <li class="item" id="45.625" style="height: 90px;padding-top: 20px;position: relative;"><span
+                            class="lyric"
+                            style="font-size: 36px;color: #7a7a7a;"> ああ海を照らす 光を辿れたら</span><span
+                            class="translation"
+                            style="margin-left: 10px;color: #7a7a7a;font-size: 16px;"><br/>啊 徇着照亮海面的那道光芒探寻</span></li>
+                    <li class="item" id="49.977" style="height: 90px;padding-top: 20px;position: relative;"><span
+                            class="lyric"
+                            style="font-size: 36px;color: #7a7a7a;"> 流れた星はどこへ行く？</span><span
+                            class="translation"
+                            style="margin-left: 10px;color: #7a7a7a;font-size: 16px;"><br/>划过夜空的流星将去往哪里？</span></li>
+                    <li class="item" id="53.572" style="height: 90px;padding-top: 20px;position: relative;"><span
+                            class="lyric"
+                            style="font-size: 36px;color: #7a7a7a;"> きっと何かがそこで待ってる</span><span
+                            class="translation"
+                            style="margin-left: 10px;color: #7a7a7a;font-size: 16px;"><br/>那里一定有什么在等待着</span></li>
+                    <li class="item" id="58.315" style="height: 90px;padding-top: 20px;position: relative;"><span
+                            class="lyric"
+                            style="font-size: 36px;color: #7a7a7a;"> 旗を掲げ進もう</span><span
+                            class="translation"
+                            style="margin-left: 10px;color: #7a7a7a;font-size: 16px;"><br/>扬起旗帜出发吧</span>
+                    </li>
+                    <li class="item" id="61.821" style="height: 90px;padding-top: 20px;position: relative;"><span
+                            class="lyric"
+                            style="font-size: 36px;color: #7a7a7a;"> いつでも月は歌い 旅人を導いて</span><span
+                            class="translation"
+                            style="margin-left: 10px;color: #7a7a7a;font-size: 16px;"><br/>月亮轻唱着歌谣，为旅人指引方向</span></li>
+                    <li class="item" id="70.856" style="height: 90px;padding-top: 20px;position: relative;"><span
+                            class="lyric"
+                            style="font-size: 36px;color: #7a7a7a;"> 「もう迷わなくていいから」</span><span
+                            class="translation" style="margin-left: 10px;color: #7a7a7a;font-size: 16px;"><br/>「再也不必犹豫迷茫」</span>
+                    </li>
+                </ul>
+
+            </div>
+        </template>
+
+    </transition-group>
+</div>
+</body>
+</html>

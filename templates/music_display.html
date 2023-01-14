@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block mainbody %}
+    <script>
+        function set() {
+            set_color_input_change('text_color1', 'color1', 'music_name', false);
+            set_color_input_change('text_color2', 'color2', 'artist', false);
+            set_font_family('text_font1', 'music_name');
+            set_font_family('text_font2', 'artist');
+            set_font_size('text_size1', 'music_name');
+            set_font_size('text_size2', 'artist');
+            set_height();
+            set_width();
+        }
+
+        $(document).ready(function () {
+            set();
+        });
+    </script>
+    <div id="left-menu">
+        <p>
+            <a href="../console">控制台</a>
+        </p>
+        <p>
+            <a href="../base_setting">基本设置</a>
+        </p>
+        <p>
+            <a href="../music_display" style="color: #ffffff;background-color: #37414f">歌名显示</a>
+        </p>
+        <p>
+            <a href="../lyric_display">歌词显示</a>
+        </p>
+    </div>
+    <p>
+        <label id="url" class="base" style="background-color: #ff9900;border-radius: 3px;padding: 5px;">
+            <span style="">插件地址: </span>
+            <input type="text" style="border: none;padding-bottom: 5px;padding-top: 10px;font-size: 16px"
+                   id="copy-input" value="{{ music_link|default:"请登陆后获取" }}">
+            <input type="button" value="复制" style="border: none;background-color: #ff9900;font-size: 16px"
+                   onclick="copy_url()">
+        </label>
+    </p>
+    <div id="display-css" class="base" onmouseenter="display_item('#change_button')"
+         onmouseleave="hidden_item('#change_button')">
+        <input type="button" value="更换预览背景" class="base" id="change_button" onclick="change_background()">
+        <ul id="mus">
+            <li id=item1>
+                <span class="music-name">Wonder Caravan</span>
+                <span class="artist">水瀬いのり</span>
+            </li>
+            <li id=item2>
+                <span class="music-name">Wasabi</span>
+                <span class="artist">Little Mix</span>
+            </li>
+            <li id=item3>
+                <span class="music-name">沈园外</span>
+                <span class="artist">阿YueYue, 戾格, 小田音乐社</span></li>
+            <li id=item4>
+                <span class="music-name">麻雀学校</span>
+                <span class="artist">群星</span>
+            </li>
+            <li id=item5>
+                <span class="music-name">群青</span>
+                <span class="artist">YOASOBI</span>
+            </li>
+        </ul>
+    </div>
+    <div id="setting-label">
+        <form action="/get_music_post" method="post">
+            <p>
+                <label>房间地址:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <input type="text" name="room" class="set-color-text base"
+                           id="room_url" value="{{ room|default:"#" }}" onchange="get_room_number()">
+                </label>
+            </p>
+            <p>
+                <label style="margin: 0 38px 0 0">
+                    宽:
+                    <input type="text" name="div_width" id="width" class="input-number set-color-text base"
+                           value="{{ div_width|default:"500" }}" onchange="set_width()">
+                </label>
+                <label>
+                    高:
+                    <input type="text" name="div_height" id="height" class="input-number set-color-text base"
+                           value="{{ div_height|default:"350" }}" onchange="set_height()">
+                </label>
+            </p>
+            <p>
+                <label>歌名颜色:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <input type="text" name="music_color" class="set-color-text base"
+                           id="text_color1" value="{{ music_color|default:"#ff9900" }}"
+                           onchange="set_color_input_change('text_color1', 'color1', 'music_name', false)">
+                    <input type="color" class="set-color-button" id="color1" value="#ff9900"
+                           onchange="set_color_input_change('color1', 'text_color1', 'music_name', true)">
+                </label>
+            </p>
+            <p>
+                <label>歌名字体:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <input type="text" name="music_font" class="set-color-text base"
+                           id="text_font1" value="{{ music_font|default:"Microsoft YaHei" }}"
+                           onchange="set_font_family('text_font1', 'music_name')">
+                </label>
+            </p>
+            <p>
+                <label>歌名字体大小:
+                    <input type="text" name="music_font_size" class="set-color-text base"
+                           id="text_size1" value="{{ music_font_size|default:"36" }}"
+                           onchange="set_font_size('text_size1', 'music_name')">
+                </label>
+            </p>
+            <p>
+                <label>歌手颜色:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <input type="text" name="artist_color" class="set-color-text base"
+                           id="text_color2" value="{{ artist_color|default:"#7a7a7a" }}"
+                           onchange="set_color_input_change('text_color2', 'color2', 'artist', false)">
+                    <input type="color" class="set-color-button" id="color2" value="#7a7a7a"
+                           onchange="set_color_input_change('color2', 'text_color2', 'artist', true)">
+                </label>
+            </p>
+            <p>
+                <label>歌手字体:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <input type="text" name="artist_font" class="set-color-text base"
+                           id="text_font2" value="{{ artist_font|default:"Microsoft YaHei" }}"
+                           onchange="set_font_family('text_font2', 'artist')">
+                </label>
+            </p>
+            <p>
+                <label>歌手字体大小:
+                    <input type="text" name="artist_font_size" class="set-color-text base"
+                           id="text_size2" value="{{ artist_font_size|default:"16" }}"
+                           onchange="set_font_size('text_size2', 'artist')">
+                </label>
+            </p>
+            {% csrf_token %}
+            <input type="submit" value="确定" class="base conform">
+            <input type="reset" value="重置" class="base reset" onclick="set()">
+        </form>
+    </div>
+    <div class="page_mask_on">
+        <div class="add_music_panel_on">
+            <div class="panel-content">
+                <h1>此页面已不再支持<br>请转到<a href="https://play-live.bilibili.com/details/1649539569084">饭贩商店</a>使用</h1>
+            </div>
+        </div>
+    </div>
+{% endblock %}

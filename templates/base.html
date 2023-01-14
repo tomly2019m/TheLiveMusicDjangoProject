@@ -1,0 +1,50 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title|default:"Live Music" }}</title>
+    <script src="{% static "js/others/jquery-3.4.1.min.js" %}"></script>
+    <script src="{% static "js/display_setting.js" %}"></script>
+    <script src="{% static "js/array_equals.js" %}"></script>
+    <script src="{% static "js/trianglify.js" %}"></script>
+    {% if dev %}
+        <script src="{% static "js/others/vue.js" %}"></script>
+    {% else %}
+        <script src="{% static "js/others/vue.min.js" %}"></script>
+    {% endif %}
+    <script src="{% static "js/load_vue.js" %}"></script>
+    <link rel="icon" href="{% static "images/favicon.ico" %}">
+    <link rel="stylesheet" href="/static/css/base.css">
+    <link rel="stylesheet" href="/static/css/{{ style_name|default:"base.css" }}">
+    <link rel="stylesheet" href="/static/css/{{ style_name1|default:"base.css" }}">
+</head>
+<body>
+<div class="box">
+    <div id="header">
+        <a href="../">
+            <img src="{% static "images/LiveMusic.png" %}" height="64" width="128" alt="" id="left_logo"/>
+        </a>
+        <div id="menu">
+            <a href="/introduction" style="display: none">简介</a>
+            <a href="/course" target="_blank">教程</a>
+            <a href="/music_display">设置</a>
+            <a href="#">下载</a>
+            <a class="left_a" href="/login">{{ user_name|default:"登录" }}</a>
+            <a class="left_a" id="msg" href="/message/global">消息<i id="unread_msg" class="{{ new_msg }}"></i></a>
+        </div>
+    </div>
+    <div id="content">
+        {% block mainbody %}
+            <p>original</p>
+        {% endblock %}
+    </div>
+    <div id="footer">
+        <p>Copyright © TLittlePrince. All rights reserved.</p>
+        <p>
+            <a href="https://beian.miit.gov.cn/" target="_blank">粤ICP备2022013625号</a>
+        </p>
+    </div>
+</div>
+</body>
+</html>
