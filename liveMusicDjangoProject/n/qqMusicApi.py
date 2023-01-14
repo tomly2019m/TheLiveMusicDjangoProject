@@ -127,15 +127,19 @@ def get_music_dict(music_name, artist, model=False) -> dict:
     }
     try:
         raw_music_dict = json.loads(login_session.get(url=search_url, headers=headers, params=search_params).text)
-        music_dict = raw_music_dict['data']['song']['itemlist'][0]
+        # music_dict = raw_music_dict['data']['song']['itemlist'][0]
+        for music_dict in raw_music_dict['data']['song']['itemlist']:
+            if artist != '未指定':
+                if artist in music_dict['singer']:
+                    return music_dict
+            else:
+                return music_dict
+            ...
     except (KeyError, IndexError):
         if not model:
             music_dict = get_music_dict(music_name, artist, True)
         else:
-            music_dict = []
-    if not model:
-        print(music_dict)
-    return music_dict
+            music_dict = {}
 
 
 def get_music_info(music_dict):

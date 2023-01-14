@@ -269,12 +269,10 @@ def get_music_dict(music_name, artist, model=False):
                                 for now_artist in music_dict['ar']:  # 遍历当前歌曲字典里的所有歌手
                                     if (artist in now_artist['name']) or \
                                             (artist.upper() in now_artist['name'].upper()):  # 只要有指定的歌手就算
-                                        flag = True
-                                        break
+                                        return music_dict
                             else:
                                 # 未指定歌手
-                                flag = True
-                                break
+                                return music_dict
         else:
             # 返回为空
             print(f"cloudMusicApi无返回{model}")
