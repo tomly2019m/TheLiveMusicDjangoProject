@@ -34,8 +34,8 @@ function load_for_bili_setting(user_params, utils = {}) {
                 // }
             ],
             playlist_mask: false,
-            playlist_id: '',
-            playlist_raw: '',
+            playlist_id: '',   //
+            playlist_raw: '',  //
             playlist_platform: 'default',
             playlist_overwrite: 1,
 

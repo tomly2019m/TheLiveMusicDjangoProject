@@ -262,8 +262,8 @@
       <div class="add-button control-button" title="添加" v-on:click="choose_overwrite = true">
         <span>┼</span>
         <div class="mini-panel" v-show="choose_overwrite">
-          <div class="mini-panel-button" v-on:click="music_mask=true;choose_overwrite=false;playlist_overwrite=0;">追加</div>
-          <div class="mini-panel-button" v-on:click="music_mask=true;choose_overwrite=false;playlist_overwrite=1;">覆盖</div>
+          <div class="mini-panel-button" v-on:click="music_mask=true;playlist_overwrite=0;">追加</div>
+          <div class="mini-panel-button" v-on:click="music_mask=true;playlist_overwrite=1;">覆盖</div>
         </div>
       </div>
     </div>
@@ -290,7 +290,7 @@
           </div>
         </div>
       </div>
-      <div class="close-button control-button" v-on:click="music_mask = false;choose_overwrite = false" title="关闭">
+      <div class="close-button control-button" v-on:click="music_mask = choose_overwrite = false" title="关闭">
         <span>✕</span>
       </div>
       <div class="panel-title" v-text="playlist_overwrite ? '覆盖现有歌单(未完成)' : '在现有歌单中追加歌单(未完成)'"></div>
