@@ -39,6 +39,16 @@ function load_for_bili_setting(user_params, utils = {}) {
             playlist_platform: 'default',
             playlist_overwrite: 1,
 
+            // 空闲歌单
+            idle_playlist: [
+                {
+                    name: '',
+                    artist: '',
+                    platform_text: '',
+                }
+            ],
+            idle_playlist_mask: false,
+
             // 添加歌曲
             mask1: false,
 

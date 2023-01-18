@@ -115,7 +115,7 @@
     <div class="dan-mu-panel">
       <div class="operation-bar">
         <div class="operation-bar-item" v-on:click="playlist_mask = true;" onclick="p.get_qq_playlist(vm)">我的歌单</div>
-        <div class="operation-bar-item" v-on:click="music_mask = true;playlist_overwrite=0;">空闲歌单</div>
+        <div class="operation-bar-item" v-on:click="idle_playlist_mask = true;playlist_overwrite=0;">空闲歌单</div>
         <!--<div class="operation-bar-item" v-on:click="music_mask = true;playlist_overwrite=1;">停止空闲单</div>-->
       </div>
       <ul id="music">
@@ -257,6 +257,46 @@
       </div>
       <div class="panel-title">登录账号里的歌单(未完成)</div>
       <div class="close-button control-button" v-on:click="playlist_mask = false; playlist_name = []" title="关闭">
+        <span>✕</span>
+      </div>
+      <div class="add-button control-button" title="添加" v-on:click="choose_overwrite = true">
+        <span>┼</span>
+        <div class="mini-panel" v-show="choose_overwrite">
+          <div class="mini-panel-button" v-on:click="music_mask=true;playlist_overwrite=0;">追加</div>
+          <div class="mini-panel-button" v-on:click="music_mask=true;playlist_overwrite=1;">覆盖</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endverbatim %}
+
+  {% verbatim %}
+  <div class="page-mask" v-show="idle_playlist_mask">
+    <div class="question-panel place-center" style="width: 510px">
+      <div style="margin: 40px 20px 20px 20px;">
+        <ul>
+          <li class="playlist-info" v-for="(playlist_info, key) in idle_playlist">
+            <img v-bind:src="playlist_info.cover" v-bind:alt="playlist_info.name" height="60px">
+            <div class="playlist-info-desc">
+              <div class="playlist-info-text" style="margin: 0">{{ playlist_info.name }}</div>
+              <div class="playlist-info-text" style="margin: 0">{{ playlist_info.artist }}</div>
+              <div class="playlist-info-text" style="margin: 0">来源:&nbsp;{{ playlist_info.platform_text }}</div>
+            </div>
+            <div class="operation" v-bind:id="'k' + key">
+              <button class="delete conform"
+                      v-on:click="playlist_id = playlist_info.tid; playlist_platform = playlist_info.platform; playlist_overwrite = 0;"
+                      onclick="p.load_playlist_to_database(vm)">追加
+              </button>
+              <button class="delete conform"
+                      v-on:click="playlist_id = playlist_info.tid; playlist_platform = playlist_info.platform; playlist_overwrite = 1;">
+                覆盖
+              </button>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="panel-title">空闲歌单里的歌曲(未完成)</div>
+      <div class="close-button control-button" v-on:click="idle_playlist_mask = false" title="关闭">
         <span>✕</span>
       </div>
       <div class="add-button control-button" title="添加" v-on:click="choose_overwrite = true">
