@@ -581,6 +581,8 @@ def get_request_data(url: str, where: str, which_data_list: list) -> dict:
 
         if which_data == 'is_running':
             return_data['is_running'] = bool(int(user_info_table.is_running))
+        if which_data == 'user_playlist':
+            return_data['user_playlist'] = json.loads(user_data_tabel.user_playlist)
     return return_data
 
 
