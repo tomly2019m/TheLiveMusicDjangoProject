@@ -1482,3 +1482,8 @@ def gift_config(request) -> HttpResponse:
     print(params)
     return HttpResponse(
         requests.get('https://api.live.bilibili.com/xlive/web-room/v1/giftPanel/giftConfig', params=params).content)
+
+
+def obs_pet(request) -> HttpResponse:
+    request.encoding = 'utf-8'
+    return render(request, 'OBS_Pet.html')

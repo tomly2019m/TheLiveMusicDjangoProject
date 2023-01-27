@@ -77,4 +77,6 @@ urlpatterns = [
     path('room-gift-data', view.room_gift_data),
     path('lottery-settings', view.lottery_settings),
     path('get-lottery-setting', view.get_lottery_setting),
+
+    path('obs-pet', view.obs_pet),
 ]
