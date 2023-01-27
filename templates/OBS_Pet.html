@@ -1,0 +1,103 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" xmlns:v-bind="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>OBS_Pet</title>
+    <script src="{% static "js/others/vue.js" %}"></script>
+    <script src="{% static "js/OBS_Pet.js" %}"></script>
+    <link rel="stylesheet" href="{% static "css/" %}">
+    <script>
+        let p, interval_id;
+        window.onload = async () => {
+            p = new OBS_Pet('#app');
+            window.onresize = () => {
+                p.vue_object.$data.win_width = window.innerWidth;
+                p.vue_object.$data.win_height = window.innerHeight;
+            }
+            await p.delayTime(3000);
+            p.random_walk();
+            interval_id = setInterval(() => {
+                const random_result = ~~(Math.random() * 10);
+                if (!p.is_playing_function) {
+                    console.log(random_result);
+                    switch (random_result) {
+                        case 1:
+                            if (p.vue_object.$data.status !== 'climb') {
+                                p.random_climb_right();
+                                break;
+                            }
+                        case 2:
+                            p.random_prostrate();
+                            break;
+                        case 3:
+                            if (p.vue_object.$data.status !== 'climb') {
+                                p.random_climb_left();
+                                break;
+                            }
+                        case 4:
+                            p.random_sit();
+                            break;
+                        case 5:
+                            p.random_sing();
+                            break;
+                        case 6:
+                            p.random_walk();
+                            break;
+                        case 7:
+                            break;
+                    }
+                }
+            }, 20000);
+        }
+    </script>
+</head>
+<body>
+<div id="app" class="main-window" v-on:click="debug_flag = !debug_flag" v-bind:style="`font-size: ${debug_font_size}px;`" v-on:mousewheel="e=>{e.deltaY> 0 ? debug_font_size++ : debug_font_size--;}">
+    <div class="functions" v-show="debug_flag">
+        <ul>
+            <li>
+                <label>
+                    <input id="xy" type="text">
+                    <input id="val" type="number" step="any">
+                    <span class="run-function-button"
+                          onclick="p.set_pos(document.getElementById('xy').value, parseInt(document.getElementById('val').value))">set_pos</span>
+                </label>
+            </li>
+            <li class="run-function-button" onclick="p.random_climb_left()">
+                random_climb_left
+            </li>
+            <li class="run-function-button" onclick="p.random_climb_right()">
+                random_climb_right
+            </li>
+            <li class="run-function-button" onclick="p.random_walk()">
+                random_walk
+            </li>
+            <li class="run-function-button" onclick="p.random_sit()">
+                random_sit
+            </li>
+            <li class="run-function-button" onclick="p.random_sing()">
+                random_sing
+            </li>
+            <li class="run-function-button" onclick="p.random_prostrate()">
+                random_prostrate
+            </li>
+        </ul>
+    </div>
+    <div class="status" v-show="debug_flag">
+        w, h: ({{ win_width }}, {{ win_height }})<br>
+        pos: ({{ x_pos }}, {{ y_pos }})<br>
+        final_y: {{ final_y }}<br>
+        status: {{ status }}<br>
+        is_playing_function: {{ is_playing_function }} <br>
+        is_playing_animation: {{ is_playing_animation }}<br>
+        is_reverse: {{ is_reverse }}<br>
+        flip: {{ flip }}<br>
+        now_called: {{ now_called }}
+    </div>
+    <div class="role" v-bind:style="`left: ${x_pos}px; bottom: ${y_pos}px; transition: ${speed}s linear;`">
+        <img alt="role-image" v-bind:src="now_image" v-bind:style="flip" id="role_image">
+    </div>
+</div>
+</body>
+</html>
