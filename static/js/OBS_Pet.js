@@ -1,5 +1,6 @@
 class OBS_Pet {
     constructor(css_select_text) {
+
         this.is_playing_function = false;  // 是否在播放动作函数
         this.is_playing_animation = false;  // 是否在播放动画
         this.is_reverse = false;  // 颠倒播放顺序
@@ -256,7 +257,7 @@ class OBS_Pet {
                     let times = ~~(Math.abs(distance) / 20);  // 爬多少次(每次爬20px)
                     a = false;
                     let temp = setInterval(() => {
-                        a ? this.break_now_and_play('climb_left_stop') : '';
+                        let b = a ? this.break_now_and_play('climb_left_stop') : '';
                         setTimeout(() => {
                             this.break_now_and_play('climb_left');
                             setTimeout(() => {
