@@ -3,6 +3,7 @@ import random
 import threading
 from typing import Tuple
 
+from django.db.utils import OperationalError
 from django.contrib.sessions.models import Session
 from django.core.exceptions import FieldError
 from django.http import HttpResponse
@@ -581,8 +582,8 @@ def get_request_data(url: str, where: str, which_data_list: list) -> dict:
 
         if which_data == 'is_running':
             return_data['is_running'] = bool(int(user_info_table.is_running))
-        if which_data == 'user_playlist':
-            return_data['user_playlist'] = json.loads(user_data_tabel.user_playlist)
+        # if which_data == 'user_playlist':
+        #     return_data['user_playlist'] = json.loads(user_data_tabel.user_playlist)
     return return_data
 
 
@@ -1121,7 +1122,7 @@ def for_bili_prepare(request, where) -> HttpResponse:
                     template = 'for_bilibili.html'
                 else:
                     template = 'for_bilibili_lyric.html'
-                user_set[where].update({'dev': dev, 'real_status': json.dumps({})})
+                user_set[where].update({'dev': dev, 'real_status': json.dumps({}), 'set_flag': plug_env})
                 return render(request, template, user_set[where])
         else:
             # 非法访问
@@ -1141,8 +1142,7 @@ def get_global_settings(username: str) -> dict:
     :return: 全局设置字典
     """
     try:
-        global_settings = json.loads(
-            UsersData.objects.filter(username=username).get().global_setting)
+        global_settings = json.loads(UsersData.objects.filter(username=username).get().global_setting)
     except (TypeError, json.decoder.JSONDecodeError):
         global_settings = {'black_user_list': [], 'black_music_list': []}
         UsersData.objects.filter(username=username).update(global_setting=json.dumps(global_settings))

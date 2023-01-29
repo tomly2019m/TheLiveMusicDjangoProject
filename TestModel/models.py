@@ -185,7 +185,7 @@ class UsersData(models.Model):
     sessions = models.TextField(blank=True, null=True)
     global_setting = models.TextField(blank=True, null=True)
     login_status = models.CharField(max_length=60, blank=True, null=True)
-    user_playlist = models.TextField(blank=True, null=True)
+    # user_playlist = models.TextField(blank=True, null=True)
 
     class Meta:
         managed = False
