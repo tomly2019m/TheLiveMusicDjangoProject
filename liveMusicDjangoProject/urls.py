@@ -79,4 +79,5 @@ urlpatterns = [
     path('get-lottery-setting', view.get_lottery_setting),
 
     path('obs-pet', view.obs_pet),
+    path('upload-images', view.upload_images),
 ]

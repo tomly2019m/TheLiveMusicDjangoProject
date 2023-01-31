@@ -4,19 +4,35 @@
 <head>
     <meta charset="UTF-8">
     <title>OBS_Pet</title>
-    <script src="{% static "js/others/vue.js" %}"></script>
-    <script src="{% static "js/OBS_Pet.js" %}"></script>
-    <link rel="stylesheet" href="{% static "css/" %}">
+    <script src="{% static "js/others/jquery-3.4.1.min.js" %}"></script>
+    {% if dev %}
+        <script src="{% static "js/others/vue.js" %}"></script>
+        <script src="{% static "js/OBS_Pet.js" %}"></script>
+        <script src="{% static "js/myUtils.js" %}"></script>
+        <link rel="stylesheet" href="{% static "css/bili.css" %}">
+        <link rel="stylesheet" href="{% static "css/sheet.css" %}">
+        <link rel="stylesheet" href="{% static "css/OBS_Pet.css" %}">
+        <link rel="stylesheet" href="{% static "css/iconfont.css" %}">
+    {% else %}
+        <script src="{% static "js/others/vue.min.js" %}"></script>
+        <script src="{% static "js/OBS_Pet.min.js" %}"></script>
+        <script src="{% static "js/myUtils.min.js" %}"></script>
+        <link rel="stylesheet" href="{% static "css/bili.min.css" %}">
+        <link rel="stylesheet" href="{% static "css/sheet.min.css" %}">
+        <link rel="stylesheet" href="{% static "css/OBS_Pet.min.css" %}">
+        <link rel="stylesheet" href="{% static "css/iconfont.min.css" %}">
+    {% endif %}
     <script>
         let p, interval_id;
+        const my_utils = new MyUtils()
         window.onload = async () => {
-            p = new OBS_Pet('#app');
+            p = new OBS_Pet('show', {{ set_flag }}, {{ images|safe }});
             window.onresize = () => {
-                p.vue_object.$data.win_width = window.innerWidth;
-                p.vue_object.$data.win_height = window.innerHeight;
+                p.vue_object.$data.win_width = document.getElementById('show').offsetWidth;
+                p.vue_object.$data.win_height = document.getElementById('show').offsetHeight;
             }
-            await p.delayTime(3000);
-            p.random_walk();
+            {#await p.delayTime(3000);#}
+            {#p.random_walk();#}
             interval_id = setInterval(() => {
                 const random_result = ~~(Math.random() * 10);
                 if (!p.is_playing_function) {
@@ -53,50 +69,102 @@
     </script>
 </head>
 <body>
-<div id="app" class="main-window" v-on:click="debug_flag = !debug_flag" v-bind:style="`font-size: ${debug_font_size}px;`" v-on:mousewheel="e=>{e.deltaY> 0 ? debug_font_size++ : debug_font_size--;}">
-    <div class="functions" v-show="debug_flag">
-        <ul>
-            <li>
-                <label>
-                    <input id="xy" type="text">
-                    <input id="val" type="number" step="any">
-                    <span class="run-function-button"
-                          onclick="p.set_pos(document.getElementById('xy').value, parseInt(document.getElementById('val').value))">set_pos</span>
-                </label>
-            </li>
-            <li class="run-function-button" onclick="p.random_climb_left()">
-                random_climb_left
-            </li>
-            <li class="run-function-button" onclick="p.random_climb_right()">
-                random_climb_right
-            </li>
-            <li class="run-function-button" onclick="p.random_walk()">
-                random_walk
-            </li>
-            <li class="run-function-button" onclick="p.random_sit()">
-                random_sit
-            </li>
-            <li class="run-function-button" onclick="p.random_sing()">
-                random_sing
-            </li>
-            <li class="run-function-button" onclick="p.random_prostrate()">
-                random_prostrate
-            </li>
-        </ul>
-    </div>
-    <div class="status" v-show="debug_flag">
-        w, h: ({{ win_width }}, {{ win_height }})<br>
-        pos: ({{ x_pos }}, {{ y_pos }})<br>
-        final_y: {{ final_y }}<br>
-        status: {{ status }}<br>
-        is_playing_function: {{ is_playing_function }} <br>
-        is_playing_animation: {{ is_playing_animation }}<br>
-        is_reverse: {{ is_reverse }}<br>
-        flip: {{ flip }}<br>
-        now_called: {{ now_called }}
-    </div>
-    <div class="role" v-bind:style="`left: ${x_pos}px; bottom: ${y_pos}px; transition: ${speed}s linear;`">
-        <img alt="role-image" v-bind:src="now_image" v-bind:style="flip" id="role_image">
+{% csrf_token %}
+<div id="app" class="main-window" onclick="p.vue_object.$data.win_width = document.getElementById('show').offsetWidth;p.vue_object.$data.win_height = document.getElementById('show').offsetHeight;" v-on:dblclick="debug_flag = !debug_flag;"
+
+     v-on:mousewheel="e=>{e.deltaY < 0 ? debug_font_size++ : debug_font_size--;}">
+
+    <div class="root-div" v-bind:style="{backgroundImage: set_style}">
+        <div class="show-div" id="show">
+
+            <div class="head-title" v-bind:style="{display: set_style}">
+                <div class="h-t-text">Live 效果预览</div>
+            </div>
+
+            <div style="width: 100%;height: 100%;display: flex;align-items: center;justify-content: center;">
+                <div class="functions" v-show="debug_flag" v-bind:style="`font-size: ${debug_font_size}px;`">
+                    <ul>
+                        <li>
+                            <label>
+                                <input id="xy" type="text">
+                                <input id="val" type="number" step="any">
+                                <span class="run-function-button"
+                                      onclick="p.set_pos(document.getElementById('xy').value, parseInt(document.getElementById('val').value))">set_pos</span>
+                            </label>
+                        </li>
+                        <li>
+                            <span class="run-function-button" onclick="p.random_climb_left()">random_climb_left</span>
+                        </li>
+                        <li>
+                            <span class="run-function-button" onclick="p.random_climb_right()">random_climb_right</span>
+                        </li>
+                        <li>
+                            <span class="run-function-button" onclick="p.random_walk()">random_walk</span>
+                        </li>
+                        <li>
+                            <span class="run-function-button" onclick="p.random_sit()">random_sit</span>
+                        </li>
+                        <li>
+                            <span class="run-function-button" onclick="p.random_sing()">random_sing</span>
+                        </li>
+                        <li>
+                            <span class="run-function-button" onclick="p.random_prostrate()">random_prostrate</span>
+                        </li>
+                        <li>
+                            <span class="run-function-button" onclick="clearInterval(interval_id)">clear_interval</span>
+                        </li>
+                    </ul>
+                </div>
+                {% verbatim %}
+                <div class="status" v-show="debug_flag" v-bind:style="`font-size: ${debug_font_size}px;`">
+                    w, h: ({{ win_width }}, {{ win_height }})<br>
+                    pos: ({{ x_pos }}, {{ y_pos }})<br>
+                    final_y: {{ final_y }}<br>
+                    status: {{ status }}<br>
+                    is_playing_function: {{ is_playing_function }} <br>
+                    is_playing_animation: {{ is_playing_animation }}<br>
+                    is_reverse: {{ is_reverse }}<br>
+                    flip: {{ flip }}<br>
+                    now_called: {{ now_called }}
+                </div>
+                {% endverbatim %}
+                <div class="role" v-bind:style="`left: ${x_pos}px; bottom: ${y_pos}px; transition: ${speed}s linear;`">
+                    <img alt="role-image" v-bind:src="now_image" v-bind:style="flip" id="role_image">
+                </div>
+            </div>
+
+        </div>
+
+        <div class="set-div" v-bind:style="{display: set_style}">
+            <div class="set-title" v-on:click="gift_config()">
+                <div class="s-t-text">设置</div>
+            </div>
+            <div class="load-info" v-if="load_info_flag">
+                <div class="v-line"></div>
+                <div class="info-content">
+                    <i class="element-icons icon-size el-icon-loading" v-if="load_info_icon==='loading'"></i>
+                    <i class="element-icons icon-size el-icon-check" v-if="load_info_icon==='check'"></i>
+                    <i class="element-icons icon-size el-icon-close" v-if="load_info_icon==='close'"></i>
+                    <div v-text="load_info"></div>
+                </div>
+            </div>
+            <div style="background-color: rgb(233 104 107 / 10%);">
+
+                <p class="base conform" style="float: right;margin: 5px;text-decoration: none;color: #ffffff;text-align: center;
+    padding: 5px 0 0 0;font-family: Microsoft YaHei, Microsoft Sans Serif, Microsoft SanSerf, 微软雅黑, serif"
+                   onclick="my_utils.copy_content(p.vue_object, '#copy-url', 'https://live-music.the-little-princes.com/obs-pet?user={{ username }}&plug_env=0')">
+                    <i class="element-icons el-icon-link"></i>复制桌宠插件地址
+                </p>
+                <input type="text" id="copy-url" style="width: 1px;opacity: 0"
+                       value="https://live-music.the-little-princes.com/obs-pet?user={{ username }}&plug_env=0">
+
+            </div>
+            <div class="set-content">
+                <input id="files" type="file" multiple>
+                <button onclick="p.getFiles()">上传</button>
+                <div>ps:上传大概6s左右，上传成功后会自动刷新</div>
+            </div>
+        </div>
     </div>
 </div>
 </body>

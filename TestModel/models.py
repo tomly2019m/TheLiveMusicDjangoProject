@@ -216,3 +216,12 @@ class Lottery(models.Model):
     class Meta:
         managed = False
         db_table = 'lottery'
+
+
+class ObsPet(models.Model):
+    username = models.CharField(primary_key=True, max_length=20)
+    images = models.TextField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'OBS_Pet'
