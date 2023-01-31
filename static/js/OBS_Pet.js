@@ -1,24 +1,29 @@
 class OBS_Pet {
-    constructor(css_select_text) {
-
+    constructor(area_id_text, show_flag, images) {
+        this.elem = area_id_text;
+        this.images = images;
         this.is_playing_function = false;  // 是否在播放动作函数
         this.is_playing_animation = false;  // 是否在播放动画
         this.is_reverse = false;  // 颠倒播放顺序
         this.vue_object = new Vue({
-            el: css_select_text,
+            el: '#app',
             data: {
+                set_style: Boolean(show_flag) ? '' : 'none',  // 控制设置界面是否显示
+                load_info_flag: false,
+                load_info_icon: '',
+                load_info: '',
                 debug_flag: false,
                 debug_font_size: 25,
                 is_playing_function: false,
                 is_playing_animation: false,  // 是否在播放
                 is_reverse: false,  // 颠倒播放顺序
                 now_called: '',  // 哪个函数被调用
-                now_image: 'statics/images/shime1.png',
+                now_image: this.images['shime1'],
                 speed: 0,
                 x_pos: 300,
                 y_pos: 0,
-                win_width: window.innerWidth,
-                win_height: window.innerHeight,
+                win_width: document.getElementById(this.elem).offsetWidth,
+                win_height: document.getElementById(this.elem).offsetHeight,
                 final_y: 0,
                 status: 'stand',
                 flip: '',
@@ -76,6 +81,40 @@ class OBS_Pet {
     }
 
     /**
+     * 读取并上传文件
+     */
+    getFiles() {
+        let images = {};
+        let count = 0;
+        const files = document.getElementById('files').files;
+        for (const file of files) {
+            if (file.type !== 'image/png') {
+                continue
+            }
+            const file_reader = new FileReader();
+            file_reader.readAsDataURL(file);
+            file_reader.onload = () => {
+                console.log(file);
+                images[file.name.split('.')[0]] = file_reader.result;
+                count++;
+            }
+        }
+        setTimeout(() => {
+            console.log(images);
+            if (count >= 46 && count <= 49) {
+                $.post('upload-images', {
+                    'images': JSON.stringify(images),
+                    'csrfmiddlewaretoken': document.getElementsByName('csrfmiddlewaretoken')[0].value,
+                }, data => {
+                    if (data === 'ok') {
+                        location.reload()
+                    }
+                });
+            }
+        }, 5000);
+    }
+
+    /**
      *  播放动画
      * @param {string} animation 动画名
      * @param {number} times 播放次数
@@ -92,7 +131,8 @@ class OBS_Pet {
         this.vue_object.$data.status = animation;
         this.vue_object.$data.timer_id = setInterval(() => {
             this.is_playing_animation = this.vue_object.$data.is_playing_animation = true;
-            image_tag.setAttribute('src', `statics/images/shime${animation_list[point]}.png`);
+            // image_tag.setAttribute('src', `statics/images/shime${animation_list[point]}.png`);
+            image_tag.setAttribute('src', this.images[`shime${animation_list[point]}`]);
             // this.vue_object.$data.now_image = `statics/images/shime${elem}.png`;
             // console.log(`statics/images/shime${elem}.png`);
             // reverse ? --point : ++point;
@@ -156,10 +196,10 @@ class OBS_Pet {
         let random_num;
         switch (xy) {
             case 'x':
-                random_num = Math.random() * window.innerWidth;
+                random_num = Math.random() * document.getElementById(this.elem).offsetWidth;
                 break;
             case 'y':
-                random_num = Math.random() * window.innerHeight;
+                random_num = Math.random() * document.getElementById(this.elem).offsetHeight;
                 break;
         }
         this.set_pos(xy, random_num);
@@ -177,13 +217,13 @@ class OBS_Pet {
             case 'x':
                 distance = this.vue_object.$data.x_pos - value;
                 this.flip_role(distance < 0 ? 'right' : 'left');
-                pos = check ? value > window.innerWidth - 128 ? window.innerWidth - 128 : value : value;
+                pos = check ? value > document.getElementById(this.elem).offsetWidth - 128 ? document.getElementById(this.elem).offsetWidth - 128 : value : value;
                 this.vue_object.$data.x_pos = pos;
                 break;
             case 'y':
                 distance = this.vue_object.$data.y_pos - value;
                 this.is_reverse = this.vue_object.$data.is_reverse = distance > 0;
-                pos = check ? value > window.innerHeight - 128 ? window.innerHeight - 128 : value : value;
+                pos = check ? value > document.getElementById(this.elem).offsetHeight - 128 ? document.getElementById(this.elem).offsetHeight - 128 : value : value;
                 this.vue_object.$data.y_pos = pos;
                 break;
         }
@@ -243,13 +283,13 @@ class OBS_Pet {
             this.vue_object.$data.speed = 0;
         }
         setTimeout(() => {
-            this.set_pos('x', forward === 'left' ? -64 : window.innerWidth - 64, false);
+            this.set_pos('x', forward === 'left' ? -64 : document.getElementById(this.elem).offsetWidth - 64, false);
             setTimeout(() => {
                 let a = forward === 'left' ? forward : this.flip_role('right');
                 this.break_now_and_play('climb');
                 setTimeout(() => {
-                    let num = Math.random() * window.innerHeight;
-                    num = num > window.innerHeight - 128 ? window.innerHeight - 128 : num;
+                    let num = Math.random() * document.getElementById(this.elem).offsetHeight;
+                    num = num > document.getElementById(this.elem).offsetHeight - 128 ? document.getElementById(this.elem).offsetHeight - 128 : num;
                     console.log(num);
                     let distance = this.vue_object.$data.y_pos - num;
                     this.vue_object.$data.final_y = Math.abs(distance);
@@ -302,7 +342,7 @@ class OBS_Pet {
         // this.flip_role('right');
         this.random_climb('right');
         // this.break_now_and_play('walk', 1, 0, true);
-        // this.set_pos('x', window.innerWidth - 64);
+        // this.set_pos('x', document.getElementById(this.elem).offsetWidth - 64);
         // setTimeout(() => {
         //     this.flip_role('right');
         //     this.break_now_and_play('climb_left');
