@@ -186,7 +186,7 @@ def search(music_name: str, artist: str, model=False):
                 # 普通歌名
                 collection = []  # 待选歌名列表(大写)
                 for music_dict in music_list:
-                    music = re.sub(r"[%&',;=?()♂+$\x22]+", ' ', music_dict['name'])
+                    music = re.sub(r"[%&',;*=*?()♂+$\x22]+", ' ', music_dict['name'])
                     # artist = music_dict['ar'][0]['name']
                     collection.append(music)
                 music_name = music_name.replace('%20', ' ')  # 把空格转回来
@@ -256,7 +256,7 @@ def get_music_dict(music_name, artist, model=False):
                 # 普通歌名
                 collection = []  # 待选歌名列表(大写)
                 for music_dict in music_list:
-                    music = re.sub(r"[%&',;=?()♂+$\x22]+", ' ', music_dict['name'])
+                    music = re.sub(r"[%&',;=?*()♂+$\x22]+", ' ', music_dict['name'])
                     # artist = music_dict['ar'][0]['name']
                     collection.append(music)
                 music_name = music_name.replace('%20', ' ')  # 把空格转回来

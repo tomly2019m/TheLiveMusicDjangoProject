@@ -4,7 +4,6 @@ import sys
 import threading
 from typing import Tuple
 
-from django.db.utils import OperationalError
 from django.contrib.sessions.models import Session
 from django.core.exceptions import FieldError
 from django.http import HttpResponse
@@ -584,8 +583,8 @@ def get_request_data(url: str, where: str, which_data_list: list) -> dict:
 
         if which_data == 'is_running':
             return_data['is_running'] = bool(int(user_info_table.is_running))
-        # if which_data == 'user_playlist':
-        #     return_data['user_playlist'] = json.loads(user_data_tabel.user_playlist)
+        if which_data == 'user_playlist':
+            return_data['user_playlist'] = json.loads(user_data_tabel.user_playlist)
     return return_data
 
 
@@ -677,8 +676,8 @@ def play(request) -> HttpResponse:
     """
     播放, 重播, 谁播(../play)
 
-    :param request: data(int): 1/0, where(str): play/replay/who_play, url(str): 歌名/歌词链接, where_url(str): 歌名/歌词 (music / lyric)
-    :return: 响应执行信息
+    :param request: data(int): 1/0, where(str): play/replay/who_play, url(str): 歌名/歌词链接, where_url(str): 歌名/歌词 (music
+    / lyric) :return: 响应执行信息
     """
     try:
         try:
@@ -734,8 +733,8 @@ def move_music(request) -> HttpResponse:
     """
     移动歌曲(../move_music)
 
-    :param request: index(int): 操作索引, music_name(str): 歌曲名, artist(str): 歌手名, url(str): 歌名/歌词链接, where_url(str): 歌名/歌词 (music / lyric)
-    :return: 响应执行结果
+    :param request: index(int): 操作索引, music_name(str): 歌曲名, artist(str): 歌手名, url(str): 歌名/歌词链接, where_url(str):
+    歌名/歌词 (music / lyric) :return: 响应执行结果
     """
     try:
 
@@ -1200,7 +1199,7 @@ def get_real_status(username: str) -> dict:
     login_status = json.loads(UsersData.objects.get(username=username).login_status)
     if login_status['cloud']:
         try:
-            t = utils.get_cloud_music_real_status(username)['profile']
+            utils.get_cloud_music_real_status(username)['profile']
         except KeyError:
             real_status['cloud'] = login_status['cloud'] = False
     if login_status['qq']:

@@ -547,6 +547,16 @@ class MyUtils {
         }
     }
 
+
+    /**
+     * 获取数据库空闲歌单
+     * @param {Vue} vm Vue实例
+     * @param {Object} extend 父类
+     */
+    get_user_playlist(vm, extend) {
+        return {which_data_list: ['user_playlist'], callback_list: [extend.set_idle_playlist]}
+    }
+
     /**
      * 基本控制(播放状态, 谁来播放, 重播状态)
      * @param {Vue} vm Vue实例
@@ -556,7 +566,8 @@ class MyUtils {
     base_control(vm, extend, data) {
         console.log(data);
         // let who_play_flag = (data.who_play === 'music' ? 0 : 1) === vm.$data.who_play;
-        vm.$data.who_play = data.who_play
+        vm.$data.who_play = data.who_play;
+        vm.$data.play_icon_flag = data.play_status;
         let who_play_flag = data.who_play === vm.$data.who_i_am;
         // 谁来播放
         console.log(`is_play: ${extend.is_play}`);
@@ -1224,7 +1235,34 @@ class MyUtils {
                 playlist_id: vm.$data.playlist_id
             });
         }, 1000);
+    }
 
+    /**
+     * 设置显示空闲歌单
+     * @param {Vue} vm Vue实例
+     * @param {Object} extend 父类
+     * @param {{username: number, user_playlist: [{id, file_name: [string, string], platform}]}} user_playlist 空闲歌单
+     */
+    set_idle_playlist(vm, extend, user_playlist) {
+        vm.$data.idle_playlist = [];
+        for (const music_info of user_playlist.user_playlist) {
+            let plat = '';
+            const [a, b] = music_info.file_name;
+            switch (music_info.platform) {
+                case 'qq':
+                    plat = 'QQ音乐';
+                    break;
+                case 'cloud':
+                    plat = '网易云';
+                    break;
+                case 'ku_wo':
+                    plat = '酷我';
+                    break;
+                default:
+                    plat = '未定义';
+            }
+            vm.$data.idle_playlist.push({name: a, artist: b, platform_text: plat});
+        }
     }
 
     /**

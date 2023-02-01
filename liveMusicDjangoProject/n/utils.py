@@ -554,7 +554,7 @@ def write_result(file_name, music_name, artist, username):
 def fuzzy_finder(user_input: str, collection: list):
     """模糊匹配"""
     suggestions = []
-    pattern = '.*?'.join(re.sub(r"[%&',;=?()♂+$\x22]+", ' ', user_input))  # Converts 'djm' to 'd.*?j.*?m'
+    pattern = '.*?'.join(re.sub(r"[%&',;=*?()♂+$\x22]+", ' ', user_input))  # Converts 'djm' to 'd.*?j.*?m'
     regex = re.compile(pattern)  # Compiles a regex.
     for item in collection:
         match = regex.search(item)  # Checks if the current item matches the regex.
