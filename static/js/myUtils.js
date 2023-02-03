@@ -331,27 +331,30 @@ class MyUtils {
         const lis = document.getElementsByClassName('item')
         const lis_len = lis.length
         // 填入歌词时间到 li
-        if (who === 'lyric') {
-            while (i < lis_len) {
-                console.log(i)
-                try {
-                    let small_time_list = []
-                    small_time_list[0] = lis[i].id
-                    small_time_list[1] = lis[i + 1].id
-                    time_list[i] = small_time_list
-                    i++
-                } catch (e) {
-                    let small_time_list = []
-                    small_time_list[0] = lis[i].id
-                    small_time_list[1] = '86400'
-                    time_list[i] = small_time_list
-                    break
-                }
-            }
-            small_time_list[0] = lis[i].id
-            small_time_list[1] = '86400'
-            time_list[i] = small_time_list
-            console.log(time_list)
+        // if (who === 'lyric') {
+        //     while (i < lis_len) {
+        //         console.log(i)
+        //         try {
+        //             let small_time_list = []
+        //             small_time_list[0] = lis[i].id
+        //             small_time_list[1] = lis[i + 1].id
+        //             time_list[i] = small_time_list
+        //             i++
+        //         } catch (e) {
+        //             let small_time_list = []
+        //             small_time_list[0] = lis[i].id
+        //             small_time_list[1] = '86400'
+        //             time_list[i] = small_time_list
+        //             break
+        //         }
+        //     }
+        //     small_time_list[0] = lis[i].id
+        //     small_time_list[1] = '86400'
+        //     time_list[i] = small_time_list
+        //     console.log(time_list)
+        // }
+        for (const lyric_obj of lis) {
+            time_list.push(lyric_obj.id)
         }
         return {lis_len, time_list}
     }
@@ -402,6 +405,17 @@ class MyUtils {
         this.htmlAudioElement.addEventListener('timeupdate', function () {
             if (who === 'lyric') {
                 i = _this.show_now_lyric(i, lis_len, time_list, this.currentTime)
+                // for (let j = 0; j < time_list.length; j++) {
+                //     if (this.currentTime >= time_list[j]) {
+                //         time_list.splice(j);
+                //         const others = document.getElementsByClassName('item');
+                //         for (let other of others) {
+                //             other.getElementsByClassName('original')[0].style.cssText = vm.$data.first_style
+                //         }
+                //         document.getElementById(time_list[i][0]).getElementsByClassName('original')[0].style.cssText = vm.$data.now_style
+                //         _this.change(vm)
+                //     }
+                // }
             }
         });
         this.htmlAudioElement.addEventListener('ended', () => {
@@ -415,8 +429,7 @@ class MyUtils {
      * @param {string} who 歌名 或 歌词
      */
     music_play1(vm, who) {
-        let i = 0
-        const {lis_len, time_list} = who === 'lyric' && this.create_time_list(who)
+        let {lis_len, time_list} = who === 'lyric' && this.create_time_list(who)
         if (who === 'lyric') {
             this.n = (parseInt(vm.$data.v_li_margin) + parseInt(vm.$data.li_height)) * 3;
             this.change(vm)
@@ -434,7 +447,22 @@ class MyUtils {
         // });
         this.htmlAudioElement.ontimeupdate = () => {
             if (who === 'lyric') {
-                i = this.show_now_lyric(i, lis_len, time_list, this.htmlAudioElement.currentTime)
+                // i = this.show_now_lyric(i, lis_len, time_list, this.htmlAudioElement.currentTime)
+                for (let j = 0; j < time_list.length; j++) {
+                    const now_time = time_list[j];
+                    if (this.htmlAudioElement.currentTime >= now_time) {
+                        console.log(now_time);
+                        time_list = time_list.slice(j + 1, time_list.length)
+                        const others = document.getElementsByClassName('item');
+                        for (let other of others) {
+                            other.getElementsByClassName('original')[0].style.cssText = vm.$data.first_style
+                        }
+                        document.getElementById(now_time).getElementsByClassName('original')[0].style.cssText = vm.$data.now_style
+                        for (let i = 0; i <= j; i++) {
+                            this.change(vm);
+                        }
+                    }
+                }
             }
         }
         // this.htmlAudioElement.addEventListener('ended', () => {
@@ -547,6 +575,16 @@ class MyUtils {
         }
     }
 
+
+    /**
+     * 获取数据库空闲歌单
+     * @param {Vue} vm Vue实例
+     * @param {Object} extend 父类
+     */
+    get_user_playlist(vm, extend) {
+        return {which_data_list: ['user_playlist'], callback_list: [extend.set_idle_playlist]}
+    }
+
     /**
      * 基本控制(播放状态, 谁来播放, 重播状态)
      * @param {Vue} vm Vue实例
@@ -556,7 +594,8 @@ class MyUtils {
     base_control(vm, extend, data) {
         console.log(data);
         // let who_play_flag = (data.who_play === 'music' ? 0 : 1) === vm.$data.who_play;
-        vm.$data.who_play = data.who_play
+        vm.$data.who_play = data.who_play;
+        vm.$data.play_icon_flag = data.play_status;
         let who_play_flag = data.who_play === vm.$data.who_i_am;
         // 谁来播放
         console.log(`is_play: ${extend.is_play}`);
@@ -580,10 +619,7 @@ class MyUtils {
             //     }
             // })
             extend.music_play1(vm, who)
-            const params = {
-                url: vm.$data.url, data: 0, where: 'replay', where_url: `${vm.$data.who_i_am ? 'lyric' : 'music'}_url`
-            }
-            $.get('play', params)
+            extend.update_play_data(vm, 'replay', 0);
         }
     }
 
@@ -685,11 +721,7 @@ class MyUtils {
     who_play_control(vm, extend, data) {
         const who_play = data.who_play;
         console.log(who_play);
-        if (who_play) {
-            $("[name='switch']:eq(0)").prop("checked", false);
-        } else {
-            $("[name='switch']:eq(0)").prop("checked", true);
-        }
+        $("[name='switch']:eq(0)").prop("checked", !who_play);
     }
 
     /**
@@ -1174,7 +1206,7 @@ class MyUtils {
     }
 
     /**
-     * 获取登录账户里的歌单
+     * 获取qq登录账户里的歌单
      * @param {Vue} vm Vue实例
      */
     get_qq_playlist(vm) {
@@ -1201,13 +1233,47 @@ class MyUtils {
     }
 
     /**
-     * 获取指定歌单内歌曲
+     * 获取qq音乐指定歌单内歌曲
      * @param {Vue} vm Vue实例
      */
     get_qq_playlist_info(vm) {
         $.getJSON('get-qq-playlist-info', {playlist_id: vm.$data.playlist_id}, (data) => {
             console.log(data)
         })
+    }
+
+    /**
+     * 获取网易云登录账户里的歌单
+     * @param {Vue} vm Vue实例
+     */
+    get_cloud_playlist(vm) {
+        $.getJSON('get-cloud-playlist', {
+            url: vm.$data.url,
+            where_url: vm.$data.who_i_am ? 'lyric_url' : 'music_url'
+        }, (data) => {
+            console.log(data);
+            const playlist = data.playlist;
+            for (const playlistElement of playlist) {
+                const items = {
+                    tid: playlistElement.id,
+                    name: playlistElement.name,
+                    song_count: playlistElement.trackCount,
+                    platform_text: '网易云',
+                    platform: 'cloud',
+                    cover: playlistElement.coverImgUrl === '?n=1' ? '' : playlistElement.coverImgUrl,
+                };
+                vm.$data.playlist_name.push(items)
+            }
+        })
+    }
+
+    /**
+     * 获取所有登录账户里的歌单
+     * @param {Vue} vm Vue实例
+     */
+    get_all_playlist(vm) {
+        this.get_qq_playlist(vm);
+        this.get_cloud_playlist(vm);
     }
 
     /**
@@ -1224,7 +1290,35 @@ class MyUtils {
                 playlist_id: vm.$data.playlist_id
             });
         }, 1000);
+    }
 
+    /**
+     * 设置显示空闲歌单
+     * @param {Vue} vm Vue实例
+     * @param {Object} extend 父类
+     * @param {{username: number, user_playlist: {status: boolean, playlist: [{id, file_name: [string, string], platform}]}}} data 空闲歌单
+     */
+    set_idle_playlist(vm, extend, data) {
+        vm.$data.idle_playlist = [];
+        $("[name='use_playlist']:eq(0)").prop("checked", data.user_playlist.status);
+        for (const music_info of data.user_playlist.playlist) {
+            let plat = '';
+            const [a, b] = music_info.file_name;
+            switch (music_info.platform) {
+                case 'qq':
+                    plat = 'QQ音乐';
+                    break;
+                case 'cloud':
+                    plat = '网易云';
+                    break;
+                case 'ku_wo':
+                    plat = '酷我';
+                    break;
+                default:
+                    plat = '未定义';
+            }
+            vm.$data.idle_playlist.push({name: a, artist: b, platform_text: plat});
+        }
     }
 
     /**
@@ -1261,16 +1355,12 @@ class MyUtils {
      */
     change_who_play(vm) {
         const who = $("[name='switch']:eq(0)").prop("checked");
-        console.log(who)
-        const params = {
-            url: vm.$data.url, data: Number(!who), where: 'who_play', where_url: `${vm.$data.where}_url`
-        }
-        // if (who) {
-        //     $.get('/play?where_url=' + vm.$data.where + '_url&url=' + vm.$data.url + '&where=who_play&data=0');
-        // } else {
-        //     $.get('/play?where_url=' + vm.$data.where + '_url&url=' + vm.$data.url + '&where=who_play&data=1');
-        // }
-        $.get('play', params)
+        this.update_play_data(vm, 'who_play', Number(!who));
+    }
+
+    use_playlist(vm) {
+        const who = $("[name='use_playlist']:eq(0)").prop("checked");
+        this.update_play_data(vm, 'use_playlist', Number(who));
     }
 
     /**
@@ -1279,10 +1369,7 @@ class MyUtils {
      */
     play_pause(vm) {
         vm.$data.play_icon_flag = vm.$data.play_icon_flag ? 0 : 1
-        const params = {
-            url: vm.$data.url, data: vm.$data.play_icon_flag, where: 'play', where_url: `${vm.$data.where}_url`
-        }
-        $.get('play', params)
+        this.update_play_data(vm, 'play', vm.$data.play_icon_flag);
     }
 
     /**
@@ -1290,8 +1377,18 @@ class MyUtils {
      * @param {Vue} vm Vue实例
      */
     replay_music(vm) {
+        this.update_play_data(vm, 'replay', 1);
+    }
+
+    /**
+     *
+     * @param {Vue} vm Vue实例
+     * @param {'play', 'replay', 'who_play', 'use_playlist'} change_where 改哪里
+     * @param {number} new_data 改成什么
+     */
+    update_play_data(vm, change_where, new_data) {
         const params = {
-            url: vm.$data.url, data: 1, where: 'replay', where_url: `${vm.$data.where}_url`
+            url: vm.$data.url, data: new_data, where: change_where, where_url: `${vm.$data.where}_url`
         }
         $.get('play', params);
     }

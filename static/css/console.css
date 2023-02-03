@@ -209,6 +209,32 @@ hr {
     background-color: #51ccee;
 }
 
+#use-playlist {
+    display: none;
+}
+
+.use-playlist-on {
+    color: #fff;
+    display: none;
+    text-indent: 7px;
+}
+
+#use-playlist:checked + label.button-label .circle {
+    left: 50px;
+}
+
+#use-playlist:checked + label.button-label .use-playlist-on {
+    display: inline-block;
+}
+
+#use-playlist:checked + label.button-label .off {
+    display: none;
+}
+
+#use-playlist:checked + label.button-label {
+    background-color: #51ccee;
+}
+
 .left-top-button {
     text-decoration: none;
     color: rgb(255, 255, 255);

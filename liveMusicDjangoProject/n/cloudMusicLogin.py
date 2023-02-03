@@ -12,6 +12,12 @@ from pyncm.apis.login import LoginQrcodeUnikey, \
 
 
 def check_qr_status(uuid, username):
+    """
+    检查二维码扫描状态
+    :param uuid: 二维码uuid
+    :param username: 用户名
+    :return:
+    """
     break_time = 180
     while break_time:
         rsp = LoginQrcodeCheck(uuid)  # 检测扫描状态
@@ -30,18 +36,28 @@ def check_qr_status(uuid, username):
 
 
 def get_qrcode(username):
+    """
+    获取登录二维码
+    :param username: 用户名
+    :return: 二维码base64文本
+    """
     uuid = LoginQrcodeUnikey()["unikey"]  # 获取 UUID
     print("UUID", uuid)
     url = f"https://music.163.com/login?codekey={uuid}"  # 二维码内容即这样的 URL
     img = qrcode.make(url)
-    bytesIO = BytesIO()
-    img.save(bytesIO, format='JPEG')
+    bytes_io = BytesIO()
+    img.save(bytes_io, format='JPEG')
     th = threading.Thread(target=check_qr_status, args=[uuid, username])
     th.start()
-    return str(base64.b64encode(bytesIO.getvalue()), 'utf-8')
+    return str(base64.b64encode(bytes_io.getvalue()), 'utf-8')
 
 
 def get_current_login_status(username):
+    """
+    从数据库获取并加载登录cookies返回用户信息
+    :param username: 用户名
+    :return: 用户信息dict
+    """
     try:
         temp = load_response(username)
         response = temp['cloud']['response']

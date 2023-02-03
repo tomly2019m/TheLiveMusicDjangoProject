@@ -4,7 +4,6 @@ import sys
 import threading
 from typing import Tuple
 
-from django.db.utils import OperationalError
 from django.contrib.sessions.models import Session
 from django.core.exceptions import FieldError
 from django.http import HttpResponse
@@ -584,8 +583,11 @@ def get_request_data(url: str, where: str, which_data_list: list) -> dict:
 
         if which_data == 'is_running':
             return_data['is_running'] = bool(int(user_info_table.is_running))
-        # if which_data == 'user_playlist':
-        #     return_data['user_playlist'] = json.loads(user_data_tabel.user_playlist)
+        if which_data == 'user_playlist':
+            try:
+                return_data['user_playlist'] = json.loads(user_data_tabel.user_playlist)
+            except:
+                return_data['user_playlist'] = {}
     return return_data
 
 
@@ -656,18 +658,31 @@ def next_music(data: [str, dict], username: str) -> HttpResponse:
                     target=utils.save_music_info_in_database(music_info_list[0], username, True, music_info_list))
                 th.start()
             except IndexError:
-                """
-                # 随机歌单
-                th = threading.Thread(target=utils.save_random_music_in, args=[username, True])
-                th.start()
-                """
-                UsersData.objects.filter(username=username).update(music_name=json.dumps([]), now_music_url='',
-                                                                   lyric_name='[{}]')
+                try:
+                    user_playlist = json.loads(UsersData.objects.get(username=username).user_playlist)
+                except:
+                    user_playlist = {'status': False}
+                if user_playlist['status']:
+                    # 随机歌单
+                    th = threading.Thread(target=utils.save_random_music_in, args=[username, True])
+                    th.start()
+                else:
+                    UsersData.objects.filter(username=username).update(music_name=json.dumps([]), now_music_url='',
+                                                                       lyric_name='[{}]')
                 ...
 
             return HttpResponse(json.dumps({'data': 'True'}))
         except IndexError:
-            return HttpResponse(json.dumps({'data': 'error'}))
+            user_playlist = json.loads(UsersData.objects.get(username=username).user_playlist)
+            if user_playlist['status']:
+                # 随机歌单
+                th = threading.Thread(target=utils.save_random_music_in, args=[username, True])
+                th.start()
+            else:
+                UsersData.objects.filter(username=username).update(music_name=json.dumps([]), now_music_url='',
+                                                                   lyric_name='[{}]')
+            return HttpResponse(json.dumps({'data': 'True'}))
+            # return HttpResponse(json.dumps({'data': 'error'}))
 
     else:
         return HttpResponse(json.dumps({'data': 'error'}))
@@ -675,14 +690,15 @@ def next_music(data: [str, dict], username: str) -> HttpResponse:
 
 def play(request) -> HttpResponse:
     """
-    播放, 重播, 谁播(../play)
+    播放, 重播, 谁播, 用不用空闲歌单(../play)
 
-    :param request: data(int): 1/0, where(str): play/replay/who_play, url(str): 歌名/歌词链接, where_url(str): 歌名/歌词 (music / lyric)
+    :param request: data(int): 1/0, where(str): play/replay/who_play/use_playlist, url(str): 歌名/歌词链接, where_url(str):
+    歌名/歌词 (music / lyric)
     :return: 响应执行信息
     """
     try:
         try:
-            data = request.GET['data']
+            data = int(request.GET['data'])
             where = request.GET['where']
             username = use_url_get_user(request)
             update_play_data(username, where, data)
@@ -702,7 +718,7 @@ def update_play_data(username: str, where: str, data: int) -> None:
     更改播放信息(播放, 重播, 谁播)
 
     :param username: 用户名
-    :param where: 改哪里 (play/replay/who_play)
+    :param where: 改哪里 (play/replay/who_play/use_playlist)
     :param data: 改成啥 (1/0)
     :return: None
     """
@@ -712,6 +728,10 @@ def update_play_data(username: str, where: str, data: int) -> None:
         UsersData.objects.filter(username=username).update(replay=data)
     elif where == 'who_play':
         UsersData.objects.filter(username=username).update(who_play=data)
+    elif where == 'use_playlist':
+        user_playlist = json.loads(UsersData.objects.get(username=username).user_playlist)
+        user_playlist['status'] = bool(data)
+        UsersData.objects.filter(username=username).update(user_playlist=json.dumps(user_playlist))
 
 
 def del_music(request) -> HttpResponse:
@@ -734,8 +754,8 @@ def move_music(request) -> HttpResponse:
     """
     移动歌曲(../move_music)
 
-    :param request: index(int): 操作索引, music_name(str): 歌曲名, artist(str): 歌手名, url(str): 歌名/歌词链接, where_url(str): 歌名/歌词 (music / lyric)
-    :return: 响应执行结果
+    :param request: index(int): 操作索引, music_name(str): 歌曲名, artist(str): 歌手名, url(str): 歌名/歌词链接, where_url(str):
+    歌名/歌词 (music / lyric) :return: 响应执行结果
     """
     try:
 
@@ -1200,7 +1220,7 @@ def get_real_status(username: str) -> dict:
     login_status = json.loads(UsersData.objects.get(username=username).login_status)
     if login_status['cloud']:
         try:
-            t = utils.get_cloud_music_real_status(username)['profile']
+            utils.get_cloud_music_real_status(username)['profile']
         except KeyError:
             real_status['cloud'] = login_status['cloud'] = False
     if login_status['qq']:
@@ -1358,6 +1378,14 @@ def get_qq_playlist_info(request) -> HttpResponse:
     request.encoding = 'utf-8'
     playlist_id = request.GET['playlist_id']
     return HttpResponse(json.dumps(utils.get_qq_music_playlist_info(playlist_id)))
+
+
+def get_cloud_playlist(request) -> HttpResponse:
+    username = use_url_get_user(request)
+    try:
+        return HttpResponse(json.dumps(utils.get_cloud_music_playlist(username)))
+    except TypeError:
+        return HttpResponse('{}')
 
 
 def load_playlist_to_database(request) -> HttpResponse:

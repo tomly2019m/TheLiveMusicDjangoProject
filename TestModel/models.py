@@ -173,19 +173,19 @@ class Urls(models.Model):
 
 
 class UsersData(models.Model):
-    console_info = models.TextField(blank=True, null=True)
-    username = models.CharField(max_length=20, blank=True, null=True)
+    username = models.CharField(unique=True, max_length=20)
     music_name = models.CharField(max_length=9000, blank=True, null=True)
     now_music_url = models.CharField(max_length=1000, blank=True, null=True)
-    lyric_name = models.TextField(blank=True, null=True)
     who_play = models.IntegerField(blank=True, null=True)
-    replay = models.IntegerField(blank=True, null=True)
-    play = models.IntegerField(blank=True, null=True)
     user_set = models.TextField(blank=True, null=True)
-    sessions = models.TextField(blank=True, null=True)
+    replay = models.IntegerField(blank=True, null=True)
+    lyric_name = models.TextField(blank=True, null=True)
+    play = models.IntegerField(blank=True, null=True)
+    console_info = models.TextField(blank=True, null=True)
     global_setting = models.TextField(blank=True, null=True)
+    sessions = models.TextField(blank=True, null=True)
     login_status = models.CharField(max_length=60, blank=True, null=True)
-    # user_playlist = models.TextField(blank=True, null=True)
+    user_playlist = models.TextField(blank=True, null=True)
 
     class Meta:
         managed = False
