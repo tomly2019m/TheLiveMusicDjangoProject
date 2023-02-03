@@ -264,7 +264,7 @@ def get_music_dict(music_name, artist, model=False):
                 sug = utils.fuzzy_finder(music_name, collection)  # 模糊搜索，返回递减的推荐列表
                 if sug:  # 不为空
                     for music_dict in music_list:  # 遍历所有歌曲信息字典列表
-                        if music_dict['name'] in sug:  # 为了尽可能能播放出歌曲，只要在推荐列表里的都算
+                        if re.sub(r"[%&',;=?*()♂+$\x22]+", ' ', music_dict['name']) in sug:  # 为了尽可能能播放出歌曲，只要在推荐列表里的都算
                             if artist != '未指定':  # 指定了歌手
                                 for now_artist in music_dict['ar']:  # 遍历当前歌曲字典里的所有歌手
                                     if (artist in now_artist['name']) or \

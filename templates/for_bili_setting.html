@@ -35,16 +35,15 @@
         window.onload = function () {
             {#vm = load_for_bili_setting_vue(url, where)#}
             vm = load_for_bili_setting({url: url, where: where}, p)
-            p.get_union_data(vm, p, [p.get_base_control, p.get_music_info_list, p.get_who_play, p.get_is_running, p.get_console_info])
+            p.get_union_data(vm, p, [p.get_base_control, p.get_music_info_list, p.get_who_play, p.get_is_running, p.get_console_info, p.get_user_playlist])
             setInterval(() => {
-                p.get_union_data(vm, p, [p.get_base_control, p.get_music_info_list, p.get_who_play, p.get_is_running, p.get_console_info])
+                p.get_union_data(vm, p, [p.get_base_control, p.get_music_info_list, p.get_who_play, p.get_is_running, p.get_console_info, p.get_user_playlist])
             }, 5000);
         }
     </script>
 </head>
 <body>
 <div id="app">
-    <img src="https://www.mcmod.cn/favicon.ico">
     <div style="width: 100%">
         <a href="/for-bili?{{ params }}" style="text-decoration: none;">
             <p class="base conform left-top-button" style="margin: 0 0 8px 0;">返回设置</p>
@@ -116,7 +115,7 @@
         <!--<div class="dan-mu-panel" onmouseenter="display_item('.delete')" onmouseleave="(hidden_item('.delete'))">-->
         <div class="dan-mu-panel">
             <div class="operation-bar">
-                <div class="operation-bar-item" v-on:click="playlist_mask = true;" onclick="p.get_qq_playlist(vm)">
+                <div class="operation-bar-item" v-on:click="playlist_mask = true;" onclick="p.get_all_playlist(vm)">
                     我的歌单
                 </div>
                 <div class="operation-bar-item" v-on:click="idle_playlist_mask = true;playlist_overwrite=0;"
@@ -203,6 +202,10 @@
                 <p class="base conform" style="float: right;margin: 5px;text-decoration: none;color: #ffffff;text-align: center;
     padding: 5px 0 0 0;font-family: Microsoft YaHei, Microsoft Sans Serif, Microsoft SanSerf, 微软雅黑, serif"
                    onclick="p.reset_own_database(vm, '{{ where }}_url')">重置个人数据</p>
+                <br>
+                <p class="base conform"><a style="text-decoration: none;color: white"
+                                           href="https://live-music.the-little-princes.com/document" target="_blank">设置教程</a>
+                </p>
             </div>
             <div class="close-button control-button" v-on:click="mask2 = false"
                  onclick="$('#music_name').val('');$('#artist').val('')"
@@ -216,11 +219,11 @@
             <div class="panel-content">
                 个人数据已重置
             </div>
-            <div class="close-button control-button" v-on:click="music_mask = false"
-                 onclick="$('#music_name').val('');$('#artist').val('')"
-                 title="关闭">
-                <span>✕</span>
-            </div>
+{#            <div class="close-button control-button" v-on:click="music_mask = false"#}
+{#                 onclick="$('#music_name').val('');$('#artist').val('')"#}
+{#                 title="关闭">#}
+{#                <span>✕</span>#}
+{#            </div>#}
         </div>
     </div>
     <div class="page-mask-on" v-show="mask2_2">
@@ -267,9 +270,7 @@
                     </li>
                 </ul>
             </div>
-            <div class=" panel-title
-                            ">登录账号里的歌单(未完成)
-            </div>
+            <div class=" panel-title">登录账号里的歌单</div>
             <div class="close-button control-button" v-on:click="playlist_mask = false; playlist_name = []"
                  title="关闭">
                 <span>✕</span>
@@ -277,10 +278,8 @@
             <div class="add-button control-button" title="添加" v-on:click="choose_overwrite = true">
                 <span>┼</span>
                 <div class="mini-panel" v-show="choose_overwrite">
-                    <div class="mini-panel-button" v-on:click="music_mask=true;playlist_overwrite=0;">追加
-                    </div>
-                    <div class="mini-panel-button" v-on:click="music_mask=true;playlist_overwrite=1;">覆盖
-                    </div>
+                    <div class="mini-panel-button" v-on:click="music_mask=true;playlist_overwrite=0;">追加</div>
+                    <div class="mini-panel-button" v-on:click="music_mask=true;playlist_overwrite=1;">覆盖</div>
                 </div>
             </div>
         </div>
@@ -314,7 +313,7 @@
                     </li>
                 </ul>
             </div>
-            <div class="panel-title">空闲歌单里的歌曲(未完成)</div>
+            <div class="panel-title">空闲歌单里的歌曲</div>
             <div class="close-button control-button" v-on:click="idle_playlist_mask = false" title="关闭">
                 <span>✕</span>
             </div>
@@ -323,6 +322,16 @@
                 <div class="mini-panel" v-show="choose_overwrite">
                     <div class="mini-panel-button" v-on:click="music_mask=true;playlist_overwrite=0;">追加</div>
                     <div class="mini-panel-button" v-on:click="music_mask=true;playlist_overwrite=1;">覆盖</div>
+                </div>
+            </div>
+            <div class="control-button use-playlist-button">
+                <div class="use-playlist-toggle-button-wrapper">
+                    <input type="checkbox" id="use-playlist" name="use_playlist" onclick="p.use_playlist(vm)">
+                    <label for="use-playlist" class="button-label" style="width: 70px;height: 20px;font-size: 13px;">
+                        <span class="circle" style="width: 20px;height: 20px;"></span>
+                        <span class="text use-playlist-on" style="line-height: 20px;">已开启</span>
+                        <span class="text off" style="line-height: 20px;">已关闭</span>
+                    </label>
                 </div>
             </div>
         </div>
@@ -345,7 +354,7 @@
                                    style="background-color: #cef7ff;"
                                    placeholder="粘贴歌单链接或id">
                         </div>
-                        <input type="submit" class="base conform" style="width: 50px" value="提交"/>
+                        <input type="submit" class="base conform" style="width: 50px" value="提交" onclick="p.load_playlist_to_database(vm)"/>
                     </div>
                 </div>
             </div>

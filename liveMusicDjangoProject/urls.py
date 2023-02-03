@@ -61,6 +61,7 @@ urlpatterns = [
     path('qq-music-qr-code', view.qq_music_qr_code),
     path('get-qq-playlist', view.get_qq_playlist),
     path('get-qq-playlist-info', view.get_qq_playlist_info),
+    path('get-cloud-playlist', view.get_cloud_playlist),
     path('load-playlist-to-database', view.load_playlist_to_database),
 
     path('get_dan_mu', view.get_dan_mu),  # 返回弹幕数据

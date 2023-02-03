@@ -1,13 +1,14 @@
 # import atexit
+import datetime
 import hashlib
 import hmac
 import json
 import random
 import re
-import time
 from typing import Tuple, Union
-
+import time
 import pymysql
+import pytz
 import requests
 
 import bili_auth
@@ -15,7 +16,12 @@ import cloudMusicApi
 import cloudMusicLogin
 import kuWoApi
 import qqMusicApi
+from django.utils import timezone
+from liveMusicDjangoProject.n import pyncm
 from liveMusicDjangoProject.n.pyncm.apis import cloudsearch, WeapiCryptoRequest
+from liveMusicDjangoProject.n.pyncm.apis import user as cloud_user
+from liveMusicDjangoProject.n.pyncm.apis import playlist as cloud_playlist
+from liveMusicDjangoProject.n.pyncm.apis import track as cloud_track
 
 try:
     import django
@@ -163,9 +169,15 @@ def write_console_info(username, msg):
     info = json.loads(str(UsersData.objects.get(username=username).console_info))
     if len(info) > 100:
         info = info[-1:-99]
-    info.append({'info': msg, 'time': time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())})
-    UsersData.objects.filter(username=username).update(
-        console_info=json.dumps(info))
+    # info.append({'info': msg, 'time': time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())})
+    info.append(
+        {
+            'info': msg,
+            'time': datetime.datetime.now(pytz.timezone('Asia/Shanghai')).strftime("%Y-%m-%d %H:%M:%S")
+        }
+    )
+    # info.append({'info': msg, 'time': timezone.localtime().strftime("%Y-%m-%d %H:%M:%S")})
+    UsersData.objects.filter(username=username).update(console_info=json.dumps(info))
     # try:
     #     info = json.loads(str(UsersData.objects.get(username=username).console_info))
     #     info.append({'info': msg, 'time': time.strftime("%Y-%m-%d-%H-%M-%ss", time.localtime())})
@@ -187,45 +199,63 @@ def save_playlist_in(platform: str, playlist_id: Union[str, int], overwrite: Uni
     :param username: 用户名
     :return: None
     """
+    try:
+        data = json.loads(UsersData.objects.get(username=username).user_playlist)
+    except (TypeError, json.decoder.JSONDecodeError):
+        data = {'statue': False, 'playlist': []}
     if overwrite:
-        data = []
-    else:
-        try:
-            data = json.loads(UsersData.objects.get(username=username).user_playlist)
-        except (TypeError, json.decoder.JSONDecodeError):
-            data = []
+        data['playlist'] = []
     if platform == 'qq':
         result = qqMusicApi.playlist_info(playlist_id)['songList']
         for music_dict in result:
             artist = []
             for artist_dict in music_dict['singer']:
                 artist.append(artist_dict['name'].split(' (')[0])
-            data.append({
+            data['playlist'].append({
                 'file_name': [music_dict['name'], '/'.join(artist)],
                 'id': music_dict['mid'],
                 'platform': 'qq'
             })
     elif platform == 'cloud':
-        # data.append({
-        #     'file_name': [music_dict['name'], '/'.join(artist)],
-        #     'id': music_dict['mid'],
-        #     'platform': 'qq'
-        # })
+        result = get_cloud_music_playlist_info(username, playlist_id)
+        music_ids = [music_info['id'] for music_info in result['privileges']]
+        music_info_list = cloud_music_use_id_get_music_info(music_ids)
+        for music_dict in music_info_list:
+            artist = []  # 所有统计歌手
+            for now_artist in music_dict['ar']:
+                artist.append(now_artist['name'])
+            data['playlist'].append({
+                'file_name': [music_dict['name'], '/'.join(artist)],
+                'id': music_dict['id'],
+                'platform': 'cloud'
+            })
+        # print(result)
         ...
     elif platform == 'ku_wo':
+        music_info_list = kuWoApi.get_playlist_info(playlist_id)
+        for music_dict in music_info_list:
+            data['playlist'].append({
+                'file_name': [music_dict['name'], music_dict['artist']],
+                'id': music_dict['rid'],
+                'platform': 'ku_wo'
+            })
         ...
     UsersData.objects.filter(username=username).update(user_playlist=json.dumps(data))
 
 
 def random_get_playlist_music(username):
     try:
-        data = json.loads(UsersData.objects.get(username=username).user_playlist)
+        data = json.loads(UsersData.objects.get(username=username).user_playlist)['playlist']
     except (TypeError, json.decoder.JSONDecodeError):
-        return ['', ''], '', ''
-    index = random.randint(0, len(data) - 1)
-    music_info = data[index]
-    file_name, music_url, lyric = analyze_music_information(music_info, username)
-    return music_info, file_name, music_url, lyric
+        return {}, ['', ''], '', '', False
+    playlist_len = len(data)
+    if playlist_len:
+        index = random.randint(0, playlist_len - 1)
+        music_info = data[index]
+        file_name, music_url, lyric = analyze_music_information(music_info, username)
+        return music_info, file_name, music_url, lyric, True
+    else:
+        return {}, ['', ''], '', '', False
 
 
 def analyze_music_information(music_info: dict, username: Union[str, int], used=False) -> Tuple[list, str, dict]:
@@ -257,10 +287,10 @@ def analyze_music_information(music_info: dict, username: Union[str, int], used=
             music_url = cloudMusicApi.get_song_url(music_id, cloudMusicApi.get_random_str(16))['data'][0]['url']
         except KeyError:
             music_url = ''
-        if music_url == '':
+        if music_url == '' or music_url is None:
             try:
                 cloudsearch.load_cookies(username)
-                music_url = new_cloud_music_get_url(music_id)
+                music_url = new_cloud_music_get_url(music_id)['data'][0]['url']
                 lyric = lyric_filter(new_cloud_music_lyric_download(music_id))
             except (TypeError, KeyError):
                 pass
@@ -438,9 +468,11 @@ def save_random_music_in(username: str, flag=False) -> None:
     :param flag: （占位无用）
     :return: None
     """
-    music_info, file_name, music_url, lyric = random_get_playlist_music(username)
-    if music_url == '':
+    music_info, file_name, music_url, lyric, status = random_get_playlist_music(username)
+    if music_url == '' and status:
         save_random_music_in(username, flag)
+    elif not status:
+        write_console_info(username, '空闲歌单出错或没有歌曲')
     else:
         # save_music_in_database(file_name, music_url, lyric, flag, username)
         UsersData.objects.filter(username=username).update(
@@ -803,6 +835,32 @@ def get_qq_music_playlist(username):
 
 def get_qq_music_playlist_info(playlist_id):
     return qqMusicApi.playlist_info(playlist_id)
+
+
+def get_cloud_music_playlist(username):
+    cloudsearch.load_cookies(username)
+    return cloud_user.GetUserPlaylists(pyncm.GetCurrentSession().uid)
+
+
+def get_cloud_music_playlist_info(username, playlist_id):
+    cloudsearch.load_cookies(username)
+    return cloud_playlist.GetPlaylistInfo(playlist_id)
+
+
+def cloud_music_use_id_get_music_info(music_ids):
+    # cloudsearch.load_cookies(username)
+    # id_list_len = len(music_ids)
+    # last_index = 0
+    # new_id_list = []
+    # for i in range(20, id_list_len, 20):
+    #     new_id_list.append(music_ids[last_index:i])
+    # if id_list_len > 20:
+    #     times = id_list_len // 20
+    #     mod_times = id_list_len % 20
+    #
+    #     ...
+    music_detail = cloud_track.GetTrackDetail(music_ids)
+    return music_detail['songs']
 
 
 @WeapiCryptoRequest

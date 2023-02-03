@@ -15,10 +15,7 @@ except django.core.exceptions.ImproperlyConfigured:
 
 username = ''
 
-
-def ku_wo_api(music_name: str):
-    # 请求头
-    headers = {
+headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
                       "Chrome/84.0.4147.135 Safari/537.36 Edg/84.0.522.63",
         "Cookie": "_ga=GA1.2.1083049585.1590317697; _gid=GA1.2.2053211683.1598526974; _gat=1; "
@@ -27,6 +24,11 @@ def ku_wo_api(music_name: str):
         "Referer": "http://www.kuwo.cn/search/list?key=%E5%91%A8%E6%9D%B0%E4%BC%A6",
         "csrf": "HYZQI4KPK3P",
     }
+
+
+def ku_wo_api(music_name: str):
+    # 请求头
+
     # 参数列表
     params = {
         "key": music_name,
@@ -77,6 +79,51 @@ def ku_wo_api(music_name: str):
         music_list.append(music_dict)
     # 看看真实数据数量
     return music_list
+
+
+def get_playlist_info(playlist_id):
+    # 参数列表
+    music_list = []
+    r = get_playlist_music_info("1", playlist_id)
+    print(r)
+    total = r['total']
+    # music_list += r['musicList']
+    for music_dict in r['musicList']:
+        music_list.append(music_dict)
+    times = total // 100 + 1
+    mod_time = total % 100
+    for i in range(2, times):
+        time.sleep(0.5)
+        r = get_playlist_music_info(i, playlist_id)
+        # music_list += r['musicList']
+        for music_dict in r['musicList']:
+            music_list.append(music_dict)
+        time.sleep(0.5)
+    if mod_time != total:
+        r = get_playlist_music_info(times, playlist_id)
+        # music_list += r['musicList']
+        for music_dict in r['musicList']:
+            music_list.append(music_dict)
+    print(music_list)
+    return music_list
+
+
+def get_playlist_music_info(i, playlist_id):
+    params = {
+        "pid": playlist_id,
+        # 页数
+        "pn": i,
+        # 音乐数
+        "rn": "100",
+        "httpsStatus": "1",
+        "reqId": "cc337fa0-e856-11ea-8e2d-ab61b365fb50",
+    }
+    r = requests.get('http://www.kuwo.cn/api/www/playlist/playListInfo', params=params, headers=headers)
+    if r.status_code == 504:
+        time.sleep(5)
+        r = requests.get('http://www.kuwo.cn/api/www/playlist/playListInfo', params=params, headers=headers)
+    r = r.json()['data']
+    return r
 
 
 def search(music_name: str, artist: str):
@@ -188,7 +235,7 @@ def down(music_name, artist, info):
     file_name = [music_name, artist]
     mid = info['mid']
     api_music = f"http://www.kuwo.cn/api/v1/www/music/playUrl?mid={mid}&type=music&" \
-                f"httpsStatus=1&reqId=ef5637b1-3be4-11ec-a82d-9dc83a3a5b8d "
+                "httpsStatus=1&reqId=ef5637b1-3be4-11ec-a82d-9dc83a3a5b8d "
     api_res = requests.get(url=api_music)
     # print(api_res.text)
     try:
@@ -278,3 +325,7 @@ def get_lyric(mid):
             lyrics.append({'id': str_time, 'original': lyric, 'translation': ''})
     # return ''.join(lyrics)
     return lyrics
+
+
+if __name__ == '__main__':
+    get_playlist_info(3356722926)

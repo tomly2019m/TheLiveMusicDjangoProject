@@ -210,3 +210,9 @@
 .mini-panel-button:hover {
     background-color: rgba(0, 0, 0, 0.16);
 }
+
+.use-playlist-button {
+    top: 10px;
+    right: 78px;
+
+}
