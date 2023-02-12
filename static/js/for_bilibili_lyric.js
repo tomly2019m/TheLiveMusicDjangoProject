@@ -30,15 +30,19 @@
  *           translation_shadow_blur,
  *           translation_shadow_color,
  *          }} user_params 用户设置字典
- * @param {Object} utils 工具类对象
+ * @param {MyUtils} utils 工具类对象
+ * @param {LiveMusicWebsocket} wss
  * @returns {Vue} Vue实例
  */
-function load_for_bili_lyric_vue(user_params, utils) {
+function load_for_bili_lyric_vue(user_params, utils, wss) {
     return new Vue({
         el: '.app',
         data: {
 
             vm: this,
+            wss: wss,
+
+            base_url: `${window.location.protocol}${window.location.hostname}${window.location.port ? ':' + window.location.port: ''}`,
 
             QRCode_key: '',
             QRCode_where: '...',

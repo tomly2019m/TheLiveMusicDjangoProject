@@ -27,7 +27,8 @@
  *           en,
  *           url
  *           }} user_params 用户设置字典
- * @param {Object} utils 工具类对象
+ * @param {MyUtils} utils 工具类对象
+ * @param {LiveMusicWebsocket} wss
  * @returns {Vue} Vue实例
  */
 function load_for_bili_vue(
@@ -54,11 +55,14 @@ function load_for_bili_vue(
     // url,
     // room_id
     user_params,
-    utils
+    utils,
+    wss
 ) {
     return new Vue({
         el: '.app',
         data: {
+            wss: wss,
+
             QRCode_key: '',
             QRCode_where: '...',
             QRCode_b64_style: '',
@@ -253,7 +257,7 @@ function load_for_bili_vue(
             now_music_name() {
                 // this.utils.prepare_to_music_play(this, this.music_url, 'music')
                 // this.utils.delay_post_setting(this, 2, 'music')
-                this.utils.get_union_data(vm, this.utils, [this.utils.get_music_url]);
+                // this.utils.get_union_data(vm, this.utils, [this.utils.get_music_url]);
             },
             black_user_list() {
                 if (this.set_flag) {

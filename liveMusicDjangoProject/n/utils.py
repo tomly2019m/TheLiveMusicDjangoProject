@@ -5,7 +5,7 @@ import hmac
 import json
 import random
 import re
-from typing import Tuple, Union
+from typing import Tuple, Union, List, Any
 import time
 import pymysql
 import pytz
@@ -335,12 +335,12 @@ def load_music(index: int, username: Union[str, int]) -> None:
     save_music_info_in_database(music_info, username, True)
 
 
-def save_music_info(music_name, username) -> None:
+def save_music_info(music_name, username) -> Tuple[List[Any], str, dict]:
     """
 
     :param music_name:
     :param username:
-    :return:
+    :return: music_info_list, music_url, lyric
     """
     # todo
     file_name = ['', '']
@@ -357,11 +357,11 @@ def save_music_info(music_name, username) -> None:
                     break
     except KeyError:
         write_result(file_name, music_name, artist, username)
-    if file_name != ['', '']:
+        return [], '', {}
+    if file_name != ['', ''] and music_info:
         # save_music_in_database(file_name)
-        save_music_info_in_database(music_info, username)
-        ...
-    ...
+        return save_music_info_in_database(music_info, username)
+    return [], '', {}
 
 
 def get_platform_music_info(platform, music_name, artist):
@@ -397,7 +397,8 @@ def get_platform_music_info(platform, music_name, artist):
     return music_info
 
 
-def save_music_info_in_database(music_info: dict, username: Union[str, int], is_play_now=False, music_info_list=None) -> None:
+def save_music_info_in_database(music_info: dict, username: Union[str, int], is_play_now=False, music_info_list=None) -> \
+        Tuple[List[Any], str, dict]:
     """
     将歌曲详细信息存到数据库
 
@@ -405,9 +406,10 @@ def save_music_info_in_database(music_info: dict, username: Union[str, int], is_
     :param username: 用户名
     :param is_play_now: 忽略判断直接加载歌曲 url 等
     :param music_info_list: 已经操作过的列表
-    :return: None
+    :return: music_info_list, music_url, lyric
     """
     if music_info_list is None:
+        music_info_list = []
         result = UsersData.objects.get(username=username).music_name
         file_name, music_url, lyric = analyze_music_information(music_info, username)
         if result == '[]' or is_play_now:
@@ -416,14 +418,16 @@ def save_music_info_in_database(music_info: dict, username: Union[str, int], is_
                 data = json.loads(result)
                 try:
                     del data[0]
+                    music_info_list = data
                     UsersData.objects.filter(username=username).update(
                         music_name=json.dumps(data),
                         now_music_url=music_url,
                         lyric_name=json.dumps(lyric)
                     )
                 except IndexError:
+                    music_info_list = [music_info]
                     UsersData.objects.filter(username=username).update(
-                        music_name=json.dumps([music_info]),
+                        music_name=json.dumps(music_info_list),
                         now_music_url=music_url,
                         lyric_name=json.dumps(lyric)
                     )
@@ -431,8 +435,10 @@ def save_music_info_in_database(music_info: dict, username: Union[str, int], is_
             if music_url:
                 data = json.loads(result)
                 data.append(music_info)
+                music_info_list = data
                 UsersData.objects.filter(username=username).update(music_name=json.dumps(data))
                 write_console_info(username, f'{music_info["file_name"][0]}-{music_info["file_name"][1]}: 点歌成功')
+        return music_info_list, music_url, lyric
     else:
         file_name, music_url, lyric = analyze_music_information(music_info, username)
         if music_url:
@@ -441,7 +447,7 @@ def save_music_info_in_database(music_info: dict, username: Union[str, int], is_
                 now_music_url=music_url,
                 lyric_name=json.dumps(lyric)
             )
-        ...
+        return music_info_list, music_url, lyric
 
 
 def sava_music_in(music_info, username: str, flag=False) -> None:
@@ -460,7 +466,7 @@ def sava_music_in(music_info, username: str, flag=False) -> None:
     save_music_in_database(file_name, music_url, lyric, flag, username)
 
 
-def save_random_music_in(username: str, flag=False) -> None:
+def save_random_music_in(username: str, flag=False) -> Tuple[List[Any], str, str]:
     """
     随机歌单中能播放的一首歌保存详细信息到数据库（直接播放）
 
@@ -473,6 +479,7 @@ def save_random_music_in(username: str, flag=False) -> None:
         save_random_music_in(username, flag)
     elif not status:
         write_console_info(username, '空闲歌单出错或没有歌曲')
+        return [], '', ''
     else:
         # save_music_in_database(file_name, music_url, lyric, flag, username)
         UsersData.objects.filter(username=username).update(
@@ -485,6 +492,7 @@ def save_random_music_in(username: str, flag=False) -> None:
             write_console_info(username, f'{file_name[0]}-{file_name[1]}: 歌词获取成功')
         else:
             write_console_info(username, f'{file_name[0]}-{file_name[1]}: 歌词获取失败')
+        return music_info, music_url, lyric
     ...
 
 

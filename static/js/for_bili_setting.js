@@ -1,15 +1,17 @@
 /**
  *
  * @param {{url, where}} user_params 用户设置字典
- * @param {Object} utils 工具类对象
+ * @param {MyUtils} utils 工具类对象
+ * @param {LiveMusicWebsocket} wss
  * @returns {Vue} Vue实例
  */
-function load_for_bili_setting(user_params, utils = {}) {
+function load_for_bili_setting(user_params, utils, wss) {
     return new Vue({
         el: '#app',
         data: {
 
             vm: this,
+            wss: wss,
 
             music_info: [],
             console_info: [''],
@@ -131,14 +133,15 @@ function load_for_bili_setting(user_params, utils = {}) {
              * @param {string} artist 歌手
              */
             delete_music(select_obj_text, music, artist) {
-                const params = {
+                /*const params = {
                     url: this.url,
                     data: this.play_icon_flag,
                     artist: artist,
                     where_url: `${this.where}_url`,
                     music_name: music,
-                }
-                $.get('del_music', params)
+                }*/
+                wss.del_music(this.url, this.where, music, artist);
+                // $.get('del_music', params)
                 // $(select_obj_text).remove();
             },
 
@@ -147,10 +150,10 @@ function load_for_bili_setting(user_params, utils = {}) {
              * @param {string} select_obj_text css选择器
              * @param {string} music 歌曲名
              * @param {string} artist 歌手
-             * @param {Number} index 移动位置
+             * @param {Number} index 移动位置``
              */
             move_music(select_obj_text, music, artist, index) {
-                const params = {
+                /*const params = {
                     url: this.url,
                     data: this.play_icon_flag,
                     index: index,
@@ -158,7 +161,8 @@ function load_for_bili_setting(user_params, utils = {}) {
                     where_url: `${this.where}_url`,
                     music_name: music,
                 }
-                $.get('move_music', params)
+                $.get('move_music', params)*/
+                wss.move_music(this.url, this.where, music, artist, index);
             },
         },
         created() {

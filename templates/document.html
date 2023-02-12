@@ -45,6 +45,9 @@
                         '\u9ed1\u540d\u5355\u8bbe\u7f6e-\u6b4c\u66f2\u9ed1\u540d\u5355': ['\u6559\u7a0b', '\u9ed1\u540d\u5355\u8bbe\u7f6e'],
                         '\u9ed1\u540d\u5355\u8bbe\u7f6e-\u9644: \u5982\u4f55\u627e\u5230uid\uff1f': ['\u6559\u7a0b', '\u9ed1\u540d\u5355\u8bbe\u7f6e'],
                         '\u5f00\u59cb\u4f7f\u7528\u70b9\u6b4c': ['\u6559\u7a0b', '\u5f00\u59cb\u4f7f\u7528\u70b9\u6b4c'],
+                        '\u5982\u4F55\u6E05\u9664\u7F13\u5B58\uFF1F': ['\u6559\u7a0b', '\u5982\u4F55\u6E05\u9664\u7F13\u5B58\uFF1F'],
+                        '\u5982\u4F55\u6E05\u9664\u7F13\u5B58\uFF1F-OBS': ['\u6559\u7a0b', '\u5982\u4F55\u6E05\u9664\u7F13\u5B58\uFF1F'],
+                        '\u5982\u4F55\u6E05\u9664\u7F13\u5B58\uFF1F-\u76F4\u64AD\u59EC': ['\u6559\u7a0b', '\u5982\u4F55\u6E05\u9664\u7F13\u5B58\uFF1F'],
                         'Q&A': ['\u6559\u7a0b', 'Q&A'],
                         'Q&A-\u4e3a\u4ec0\u4e48\u89c2\u4f17\u53d1\u9001\u70b9\u6b4c\u5f39\u5e55\u63d2\u4ef6\u6ca1\u6709\u53cd\u5e94\uff1f': ['\u6559\u7a0b', 'Q&A'],
                         'Q&A-\u4e3a\u4ec0\u4e48\u76f4\u64ad\u95f4\u91cc\u6709\u58f0\u97f3\u800c\u6211\u81ea\u5df1\u542c\u4e0d\u5230\uff1f': ['\u6559\u7a0b', 'Q&A'],
@@ -63,6 +66,9 @@
                         '\u9ed1\u540d\u5355\u8bbe\u7f6e-\u7528\u6237\u9ed1\u540d\u5355': 0,
                         '\u9ed1\u540d\u5355\u8bbe\u7f6e-\u6b4c\u66f2\u9ed1\u540d\u5355': 0,
                         '\u9ed1\u540d\u5355\u8bbe\u7f6e-\u9644: \u5982\u4f55\u627e\u5230uid\uff1f': 0,
+                        '\u5982\u4F55\u6E05\u9664\u7F13\u5B58\uFF1F': 0,
+                        '\u5982\u4F55\u6E05\u9664\u7F13\u5B58\uFF1F-OBS': 0,
+                        '\u5982\u4F55\u6E05\u9664\u7F13\u5B58\uFF1F-\u76F4\u64AD\u59EC': 0,
                         'Q&A-\u4e3a\u4ec0\u4e48\u89c2\u4f17\u53d1\u9001\u70b9\u6b4c\u5f39\u5e55\u63d2\u4ef6\u6ca1\u6709\u53cd\u5e94\uff1f': 0,
                         'Q&A-\u4e3a\u4ec0\u4e48\u76f4\u64ad\u95f4\u91cc\u6709\u58f0\u97f3\u800c\u6211\u81ea\u5df1\u542c\u4e0d\u5230\uff1f': 0,
                         'Q&A-\u4e3a\u4ec0\u4e48\u6211\u6ca1\u6709\u6b4c\u8bcd\u754c\u9762\uff1f': 0,
@@ -219,7 +225,8 @@
                                             <li>
                                                 <a class="side-link"
                                                    v-bind:class="on_view_class[on_view_status['设置样式-通过直播姬']]"
-                                                   v-on:click="change_click_status('设置样式-通过直播姬')" href="#设置样式-通过直播姬">通过直播姬</a>
+                                                   v-on:click="change_click_status('设置样式-通过直播姬')"
+                                                   href="#设置样式-通过直播姬">通过直播姬</a>
                                             </li>
                                             <li>
                                                 <a class="side-link"
@@ -243,12 +250,14 @@
                                             <li>
                                                 <a class="side-link"
                                                    v-bind:class="on_view_class[on_view_status['黑名单设置-用户黑名单']]"
-                                                   v-on:click="change_click_status('黑名单设置-用户黑名单')" href="#黑名单设置-用户黑名单">用户黑名单</a>
+                                                   v-on:click="change_click_status('黑名单设置-用户黑名单')"
+                                                   href="#黑名单设置-用户黑名单">用户黑名单</a>
                                             </li>
                                             <li>
                                                 <a class="side-link"
                                                    v-bind:class="on_view_class[on_view_status['黑名单设置-歌曲黑名单']]"
-                                                   v-on:click="change_click_status('黑名单设置-歌曲黑名单')" href="#黑名单设置-歌曲黑名单">歌曲黑名单</a>
+                                                   v-on:click="change_click_status('黑名单设置-歌曲黑名单')"
+                                                   href="#黑名单设置-歌曲黑名单">歌曲黑名单</a>
                                             </li>
                                             <li>
                                                 <a class="side-link"
@@ -262,6 +271,31 @@
                                 <li>
                                     <section>
                                         <a class="side-link" href="#开始使用点歌">开始使用点歌</a>
+                                    </section>
+                                </li>
+                                <li>
+                                    <section>
+                                        <div class="flex-center" v-on:click="change_status('如何清除缓存？')">
+                                            <a class="side-link" href="#如何清除缓存？">如何清除缓存？</a>
+                                            <i class="element-icons el-icon-caret-right"
+                                               v-show="!toggle_status['如何清除缓存？']"></i>
+                                            <i class="element-icons el-icon-caret-bottom"
+                                               v-show="toggle_status['如何清除缓存？']"></i>
+                                        </div>
+                                        <ul class="child-ul" v-show="toggle_status['如何清除缓存？']">
+                                            <li>
+                                                <a class="side-link"
+                                                   v-bind:class="on_view_class[on_view_status['如何清除缓存？-OBS']]"
+                                                   v-on:click="change_click_status('如何清除缓存？-OBS')"
+                                                   href="#如何清除缓存？-OBS">OBS</a>
+                                            </li>
+                                            <li>
+                                                <a class="side-link"
+                                                   v-bind:class="on_view_class[on_view_status['如何清除缓存？-直播姬']]"
+                                                   v-on:click="change_click_status('如何清除缓存？-直播姬')"
+                                                   href="#如何清除缓存？-直播姬">直播姬</a>
+                                            </li>
+                                        </ul>
                                     </section>
                                 </li>
                                 <li>
@@ -320,13 +354,18 @@
                                 <h3 class="course-title second-indent" id="插件的获取与添加-通过网页">通过网页</h3>
                                 <div class="course-title third-indent">打开B站 直播中心，在右上角找到饭盒-饭贩</div>
                                 <img class="course-img" src="{% static "images/course/image001.png" %}" alt="">
-                                <div class="course-title third-indent">点击H5插件，找到弹幕点歌，点击获取后点击复制H5插件链接</div>
+                                <div class="course-title third-indent">
+                                    点击H5插件，找到弹幕点歌，点击获取后点击复制H5插件链接
+                                </div>
                                 <img class="course-img" src="{% static "images/course/image002.png" %}" alt="">
-                                <div class="course-title third-indent" id="插件的获取与添加-歌名界面">打开obs，在 "来源" 里添加浏览器源 (歌名界面)
+                                <div class="course-title third-indent" id="插件的获取与添加-歌名界面">打开obs，在 "来源"
+                                    里添加浏览器源 (歌名界面)
                                 </div>
                                 <img class="course-img" src="{% static "images/course/image003.png" %}" alt="">
                                 <img class="course-img" src="{% static "images/course/image004.png" %}" alt="">
-                                <div class="course-title third-indent">将链接粘贴到url栏中，并勾选“通过OBS控制音频”，确定</div>
+                                <div class="course-title third-indent">
+                                    将链接粘贴到url栏中，并勾选“通过OBS控制音频”，确定
+                                </div>
                                 <img class="course-img" src="{% static "images/course/image005.png" %}" alt="">
                                 <div class="course-title third-indent">现在你已经添加好了“歌名界面”</div>
                                 <img class="course-img" src="{% static "images/course/image006.png" %}" alt="">
@@ -336,7 +375,9 @@
                                 </div>
                                 <div class="course-title third-indent">回到饭贩-H5插件界面，点击项目名进入项目详情</div>
                                 <img class="course-img" src="{% static "images/course/image007.png" %}" alt="">
-                                <div class="course-title third-indent">在H5插件配置里，点击“转到歌词设置”，点击“复制歌词插件链接”</div>
+                                <div class="course-title third-indent">
+                                    在H5插件配置里，点击“转到歌词设置”，点击“复制歌词插件链接”
+                                </div>
                                 <img class="course-img" src="{% static "images/course/image008.png" %}" alt="">
                                 <img class="course-img" src="{% static "images/course/image009.png" %}" alt="">
                                 <div class="course-title third-indent">
@@ -347,16 +388,19 @@
                                 <img class="course-img" src="{% static "images/course/image010.png" %}" alt="">
                             </div>
                             <div class="core-content" ref="插件的获取与添加-通过直播姬">
-                                <h3 class="course-title second-indent" id="插件的获取与添加-通过直播姬">2. 通过直播姬</h3>
+                                <h3 class="course-title second-indent" id="插件的获取与添加-通过直播姬">2.
+                                    通过直播姬</h3>
                                 <div class="course-title third-indent">打开直播姬，找到H5插件，进入</div>
                                 <img class="course-img" src="{% static "images/course/image011.png" %}" alt="">
                                 <div class="course-title third-indent">找到“弹幕点歌“</div>
                                 <img class="course-img" src="{% static "images/course/image012.png" %}" alt="">
-                                <div class="course-title third-indent">您可以选择直接添加也可以点击描述进入饭贩详情页</div>
+                                <div class="course-title third-indent">您可以选择直接添加也可以点击描述进入饭贩详情页
+                                </div>
                                 <img class="course-img" src="{% static "images/course/image013.png" %}" alt="">
                                 <div class="course-title third-indent">点击添加使用，现在你已经添加好“歌名界面”</div>
                                 <img class="course-img" src="{% static "images/course/image014.png" %}" alt="">
-                                <div class="course-title third-indent" id="转到插件的获取与添加-通过直播姬-添加歌词界面">
+                                <div class="course-title third-indent"
+                                     id="转到插件的获取与添加-通过直播姬-添加歌词界面">
                                     （5） 现在添加“歌词界面”，
                                     <span class="fluorescent">无歌词显示需求的可以跳过</span>
                                 </div>
@@ -364,13 +408,18 @@
                                 <img class="course-img" src="{% static "images/course/image015.png" %}" alt="">
                                 <div class="course-title third-indent">浏览器将自动弹出项目详情</div>
                                 <img class="course-img" src="{% static "images/course/image007.png" %}" alt="">
-                                <div class="course-title third-indent">在H5插件配置里，点击“转到歌词设置”，点击“复制歌词插件链接”</div>
+                                <div class="course-title third-indent">
+                                    在H5插件配置里，点击“转到歌词设置”，点击“复制歌词插件链接”
+                                </div>
                                 <img class="course-img" src="{% static "images/course/image008.png" %}" alt="">
                                 <img class="course-img" src="{% static "images/course/image009.png" %}" alt="">
-                                <div class="course-title third-indent">回到直播姬，在左侧的场景中添加素材，选择浏览器</div>
+                                <div class="course-title third-indent">回到直播姬，在左侧的场景中添加素材，选择浏览器
+                                </div>
                                 <img class="course-img" src="{% static "images/course/image016.png" %}" alt="">
                                 <img class="course-img" src="{% static "images/course/image017.png" %}" alt="">
-                                <div class="course-title third-indent">将链接粘贴到url栏中，监听设置为“仅监听，声音输出到系统声音”，点击确定</div>
+                                <div class="course-title third-indent">
+                                    将链接粘贴到url栏中，监听设置为“仅监听，声音输出到系统声音”，点击确定
+                                </div>
                                 <img class="course-img" src="{% static "images/course/image018.png" %}" alt="">
                                 <div class="course-title third-indent">现在你已经添加好“歌词界面”</div>
                                 <img class="course-img" src="{% static "images/course/image019.png" %}" alt="">
@@ -390,24 +439,34 @@
                                 <div class="course-title third-indent">进入详情页，找到H5配置页面</div>
                                 <img class="course-img" src="{% static "images/course/image020.png" %}" alt="">
                                 <img class="course-img" src="{% static "images/course/image021.png" %}" alt="">
-                                <div class="course-title third-indent">调整完后右上角会出现保存中的提示，请等待提示变化为已保存</div>
+                                <div class="course-title third-indent">
+                                    调整完后右上角会出现保存中的提示，请等待提示变化为已保存
+                                </div>
                                 <img class="course-img" src="{% static "images/course/image022.png" %}" alt="">
                                 <div class="course-title third-indent">歌词样式设置，先切换到“歌词设置”界面</div>
                                 <img class="course-img" src="{% static "images/course/image023.png" %}" alt="">
                                 <img class="course-img" src="{% static "images/course/image024.png" %}" alt=""></div>
                             <div class="core-content" ref="设置样式-通过直播姬">
                                 <h3 class="course-title second-indent" id="设置样式-通过直播姬">2. 通过直播姬</h3>
-                                <div class="course-title third-indent">在右边的场景中找到弹幕点歌的浏览器源，点击编辑</div>
+                                <div class="course-title third-indent">在右边的场景中找到弹幕点歌的浏览器源，点击编辑
+                                </div>
                                 <img class="course-img" src="{% static "images/course/image025.png" %}" alt="">
                                 <div class="course-title third-indent">在弹出的插件设置窗口中即可设置样式</div>
                             </div>
                             <div class="core-content" ref="设置样式-附：字体设置方法">
-                                <h3 class="course-title second-indent" id="设置样式-附：字体设置方法">3. 附：字体设置方法</h3>
-                                <div class="course-title third-indent">字体设置的字体名称为自己系统内字体名称，以下是查看本地系统安装字体的方法</div>
+                                <h3 class="course-title second-indent" id="设置样式-附：字体设置方法">3.
+                                    附：字体设置方法</h3>
+                                <div class="course-title third-indent">
+                                    字体设置的字体名称为自己系统内字体名称，以下是查看本地系统安装字体的方法
+                                </div>
                                 <img class="course-img" src="{% static "images/course/image026.png" %}" alt="">
-                                <div class="course-title third-indent">在任务栏的搜索框里搜索“字体设置”，打开。（或打开设置-个性化-字体）</div>
+                                <div class="course-title third-indent">
+                                    在任务栏的搜索框里搜索“字体设置”，打开。（或打开设置-个性化-字体）
+                                </div>
                                 <img class="course-img" src="{% static "images/course/image027.png" %}" alt="">
-                                <div class="course-title third-indent">可用字体下面就是本地系统安装的字体，设置字体时请输入蓝色字体名称。</div>
+                                <div class="course-title third-indent">
+                                    可用字体下面就是本地系统安装的字体，设置字体时请输入蓝色字体名称。
+                                </div>
                                 <img class="course-img" src="{% static "images/course/image028.png" %}" alt="">
                             </div>
 
@@ -422,7 +481,9 @@
                             <hr>
                             <div class="core-content" ref="黑名单设置-用户黑名单">
                                 <h3 class="course-title second-indent" id="黑名单设置-用户黑名单">用户黑名单</h3>
-                                <div class="course-title third-indent">打开任意设置界面，在设置中往下翻到最底，点击“用户”</div>
+                                <div class="course-title third-indent">
+                                    打开任意设置界面，在设置中往下翻到最底，点击“用户”
+                                </div>
                                 <img class="course-img" src="{% static "images/course/image029.png" %}" alt="">
                                 <div class="course-title third-indent">点击右上角的加号</div>
                                 <img class="course-img" src="{% static "images/course/image030.png" %}" alt="">
@@ -442,7 +503,9 @@
                             <div class="core-content" ref="黑名单设置-附: 如何找到uid？">
                                 <h3 class="course-title second-indent" id="黑名单设置-附: 如何找到uid？">附:
                                     如何找到uid？</h3>
-                                <div class="course-title third-indent">打开直播间评论区，找到想要屏蔽的用户，点击名称-去TA的个人空间</div>
+                                <div class="course-title third-indent">
+                                    打开直播间评论区，找到想要屏蔽的用户，点击名称-去TA的个人空间
+                                </div>
                                 <img class="course-img" src="{% static "images/course/image034.png" %}" alt="">
                                 <div class="course-title third-indent">双击网址中的数字部分，复制数字</div>
                                 <img class="course-img" src="{% static "images/course/image035.png" %}" alt="">
@@ -475,7 +538,9 @@
                                             <h4>解释和设置起来有些麻烦，以下总结了几种情况的设置：</h4>
                                             <div>a) 直播界面里只展示“歌名界面”时，开关应该设置为“由歌名界面播放”</div>
                                             <div>b) 直播界面里只展示“歌词界面”时，开关应该设置为“由歌词界面播放”</div>
-                                            <div>c) 直播界面里展示“歌词界面”和“歌名界面”时，开关应该设置为“由歌词界面播放“</div>
+                                            <div>c)
+                                                直播界面里展示“歌词界面”和“歌名界面”时，开关应该设置为“由歌词界面播放“
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="child-el padding-child-div">
@@ -514,6 +579,54 @@
                     </div>
                     <div class="cell" ref="course4">
                         <div class="core">
+                            <h2 class="core-title" id="如何清除缓存？">
+                                <a class="jump-link jump-mark" href="#如何清除缓存？">#</a>
+                                四、如何清除缓存？
+                            </h2>
+                            <hr>
+                            <div class="core-content" ref="如何清除缓存？-OBS">
+                                <h3 class="course-title second-indent" id="如何清除缓存？-OBS">OBS</h3>
+                                <div class="tip child-el">
+                                    <div>
+                                        <h4>注意</h4>
+                                        <p>此部分只针对 OBS 28.0 及以上版本</p>
+                                        如果你的 OBS 版本在 28.0 以下(如 OBS 27.2.4)，请直接右键浏览器源 > 属性 >
+                                        刷新当前页面缓存
+                                    </div>
+                                </div>
+                                <div class="course-title third-indent"></div>
+                                <div class="course-title third-indent">
+                                    打开 OBS 在工具栏找到“文件”中的“打开设置文件夹”
+                                </div>
+                                <img class="course-img" src="{% static "images/course/clear_cache_1.png" %}" alt="">
+                                <div class="course-title third-indent">
+                                    在弹出的文件浏览器中依次点击 plugin_config > obs-browser 文件夹，找到“Cache”，“Code
+                                    Cache”和“Local Storage”文件夹并删除(需先关闭 OBS )
+                                </div>
+                                <img class="course-img" src="{% static "images/course/clear_cache_2.png" %}" alt="">
+                                <div class="course-title third-indent">回到 OBS 选择浏览器源，刷新</div>
+                                <img class="course-img" src="{% static "images/course/clear_cache_3.png" %}" alt="">
+                            </div>
+                            <div class="core-content" ref="如何清除缓存？-直播姬">
+                                <h3 class="course-title second-indent" id="如何清除缓存？-直播姬">直播姬</h3>
+                                <div class="course-title third-indent">
+                                    打开直播姬找到右上角的“更多”按钮，找到“日志文件”下的“文件定位”
+                                </div>
+                                <img class="course-img" src="{% static "images/course/clear_cache_4.png" %}" alt="">
+                                <div class="course-title third-indent">
+                                    在弹出的文件浏览器“Browser Cache”和“Cache”文件夹并删除(需先关闭直播姬)
+                                </div>
+                                <img class="course-img" src="{% static "images/course/clear_cache_5.png" %}" alt="">
+                                <div class="course-title third-indent">
+                                    回到直播姬，右键浏览器源 > 属性 > 刷新当前页面缓存
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="cell" ref="course5">
+                        <div class="core">
                             <h2 class="core-title" id="Q&A">
                                 <a class="jump-link jump-mark" href="#Q&A">#</a>
                                 Q&A
@@ -535,12 +648,15 @@
                                         <div class="tip child-el">
                                             <div>
                                                 <h4>注意</h4>
-                                                更改“由歌名界面播放/由歌词界面播放”开关状态后, 请刷新OBS/直播姬中的浏览器源。
+                                                更改“由歌名界面播放/由歌词界面播放”开关状态后,
+                                                请刷新OBS/直播姬中的浏览器源。(若音频已正确切换请忽略)
                                             </div>
                                         </div>
                                         <div class="padding-child-div">
                                             <div>（3）检查播放按钮是否处于播放状态，按钮样式为双竖线时为播放状态</div>
-                                            <div>（4）检查“点歌信息”是否提示歌曲获取失败。（此问题一般是因为歌曲为vip或无版权歌曲，请尝试更换歌曲）</div>
+                                            <div>
+                                                （4）检查“点歌信息”是否提示歌曲获取失败。（此问题一般是因为歌曲为vip或无版权歌曲，请尝试更换歌曲）
+                                            </div>
                                         </div>
                                     </div>
 
@@ -566,7 +682,8 @@
                                                 <div>在混音器中找到相同名字的音轨，点击对应的设置齿轮-高级音频设置</div>
                                                 <img class="course-img" src="{% static "images/course/image041.png" %}"
                                                      alt="">
-                                                <div>找到需要设置监听的浏览器源，将“音频监听”设置为“仅监听(输出静音)”</div>
+                                                <div>找到需要设置监听的浏览器源，将“音频监听”设置为“仅监听(输出静音)”
+                                                </div>
                                                 <img class="course-img" src="{% static "images/course/image042.png" %}"
                                                      alt="">
 

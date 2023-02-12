@@ -586,7 +586,7 @@ def get_request_data(url: str, where: str, which_data_list: list) -> dict:
         if which_data == 'user_playlist':
             try:
                 return_data['user_playlist'] = json.loads(user_data_tabel.user_playlist)
-            except:
+            except (json.decoder.JSONDecodeError, KeyError):
                 return_data['user_playlist'] = {}
     return return_data
 
@@ -655,12 +655,12 @@ def next_music(data: [str, dict], username: str) -> HttpResponse:
                 # th = threading.Thread(target=utils.load_music, args=[0, username])
                 # th.start()
                 th = threading.Thread(
-                    target=utils.save_music_info_in_database(music_info_list[0], username, True, music_info_list))
+                    target=utils.save_music_info_in_database, args=[music_info_list[0], username, True, music_info_list])
                 th.start()
             except IndexError:
                 try:
                     user_playlist = json.loads(UsersData.objects.get(username=username).user_playlist)
-                except:
+                except (json.decoder.JSONDecodeError, KeyError):
                     user_playlist = {'status': False}
                 if user_playlist['status']:
                     # 随机歌单

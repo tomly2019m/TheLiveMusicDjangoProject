@@ -18,6 +18,7 @@
         <script src="{% static "js/wss_for_bili.js" %}"></script>
         <script src="{% static "js/display_setting.js" %}"></script>
         <script src="{% static "js/for_bilibili_lyric.js" %}"></script>
+        <script src="{% static "js/wss_for_live_music.js" %}"></script>
     {% else %}
         <link rel="stylesheet" href="{% static "css/bili.min.css" %}">
         <link rel="stylesheet" href="{% static "css/sheet.min.css" %}">
@@ -30,12 +31,14 @@
         <script src="{% static "js/wss_for_bili.min.js" %}"></script>
         <script src="{% static "js/display_setting.min.js" %}"></script>
         <script src="{% static "js/for_bilibili_lyric.min.js" %}"></script>
+        <script src="{% static "js/wss_for_live_music.min.js" %}"></script>
     {% endif %}
     <script>
 
         let stop_flag = true;
-        let p = new MyUtils();
+        let utils = new MyUtils();
         let vm;
+        let my_wss = new LiveMusicWebsocket('vm', utils, '{{ url }}');
         let black_list = {{ global_setting|safe }};
         let auth_str = '{{ auth|safe }}';
         let room_id = auth_str === '' ? '' : JSON.parse(auth_str).roomid;
@@ -71,17 +74,21 @@
                         translation_shadow_blur: {{ translation_shadow_blur }},
                         translation_shadow_color: '{{ translation_shadow_color }}'
                     },
-                    p
+                    utils, my_wss
                 )
                 {% if not set_flag %}
-                    new BiliBili_WEBSocket(vm, '{{ auth|safe }}', p, p.on_wss, [vm, '{{ url }}', 'lyric_url'])
-                    p.get_union_data(vm, p, [p.get_base_control, p.get_lyric, p.get_music_info_list, p.get_is_running])
+                    my_wss.vm = vm;
+                    utils.htmlAudioElement.play();
+                    new BiliBili_WEBSocket(vm, '{{ auth|safe }}', utils, utils.on_wss, [vm, '{{ url }}', 'lyric_url'])
+                    utils.get_union_data(vm, utils, [utils.get_base_control, utils.get_lyric, utils.get_music_info_list, utils.get_is_running])
+                    /*
                     setInterval(() => {
-                        p.get_union_data(vm, p, [p.get_base_control, p.get_music_info_list, p.get_is_running]);
+                        utils.get_union_data(vm, utils, [utils.get_base_control, utils.get_music_info_list, utils.get_is_running]);
                         {#p.from_sever_get_data(vm, 'lyric')#}
                     }, 5000)
+                    */
                 {% else %}
-                    p.test_lyric(vm)
+                    utils.test_lyric(vm)
                 {% endif %}
             }
     </script>
@@ -142,7 +149,7 @@
 
                 <p class="base conform" style="float: right;margin: 5px;text-decoration: none;color: #ffffff;text-align: center;
     padding: 5px 0 0 0;font-family: Microsoft YaHei, Microsoft Sans Serif, Microsoft SanSerf, 微软雅黑, serif"
-                   onclick="p.copy_content(vm, '#copy-url', 'https://live-music.the-little-princes.com/for-bili-lyric?plug_env=0&{{ params }}')">
+                   onclick="utils.copy_content(vm, '#copy-url', `${window.location.protocol}//${window.location.hostname}${window.location.port ? ':' + window.location.port: ''}/for-bili-lyric?plug_env=0&{{ params }}`)">
                     <i class="element-icons el-icon-link"></i>复制歌词插件地址
                 </p>
                 <p class="base conform" style="display: none;float: right;margin: 5px;text-decoration: none;color: #ffffff;text-align: center;padding: 5px 0 0 0;font-family: Microsoft YaHei, Microsoft Sans Serif, Microsoft SanSerf, 微软雅黑, serif"
@@ -150,7 +157,7 @@
                     登录到音乐账户
                 </p>
                 <input type="text" id="copy-url" style="width: 1px;opacity: 0"
-                       value="https://live-music.the-little-princes.com/for-bili-lyric?plug_env=0&{{ params }}">
+                       value=`https://live-music.the-little-princes.com/for-bili-lyric?plug_env=0&{{ params }}`>
 
             </div>
             <div class="set-content">
@@ -426,14 +433,14 @@
                     <div class="base-block">
                         <div class="theme-item">
 
-                            <img class="img-item" alt="brown_cat" onclick="p.change_theme(vm, 0)"
+                            <img class="img-item" alt="brown_cat" onclick="utils.change_theme(vm, 0)"
                                  src={% static "images/brown_cat_1.png" %}>
-                            <img class="img-item" alt="purple_neko_1" onclick="p.change_theme(vm, 1)"
+                            <img class="img-item" alt="purple_neko_1" onclick="utils.change_theme(vm, 1)"
                                  src={% static "images/blue_window_1.png" %}>
-                            <img class="img-item" alt="purple_neko_1" onclick="p.change_theme(vm, 2)"
+                            <img class="img-item" alt="purple_neko_1" onclick="utils.change_theme(vm, 2)"
                                  src={% static "images/new.png" %}>
 
-                            <div class="img-item" onclick="p.change_theme(vm, 3, 'lyric')" style="text-align: center">
+                            <div class="img-item" onclick="utils.change_theme(vm, 3, 'lyric')" style="text-align: center">
                                 透明背景
                             </div>
                             <div class="img-item" style="text-align: center">更多主题正在制作中~</div>
@@ -504,7 +511,7 @@
                     </label>
 
                     <input type="submit" class="base conform" value="提交"
-                           onclick="p.push_black(vm, 'user')">
+                           onclick="utils.push_black(vm, 'user')">
                 </div>
             </div>
             <div class="close-button control-button" v-on:click="mask1_1 = false"
@@ -566,7 +573,7 @@
                                placeholder="">
                     </label>
                     <input type="submit" class="base conform" value="提交"
-                           onclick="p.push_black(vm, 'music')">
+                           onclick="utils.push_black(vm, 'music')">
                 </div>
             </div>
             <div class="close-button control-button" v-on:click="mask2_1 = false"
@@ -584,9 +591,9 @@
             <div class="flex-center">
                 <aside class="QRCode-aside">
                     <ul>
-                        <li v-bind:style="QRCCode_selected_style['qq']" onclick="p.change_QRCode(vm, 'qq')">QQ音乐</li>
-                        <li style="display: none" v-bind:style="QRCCode_selected_style['ku_wo']" onclick="p.change_QRCode(vm, 'ku_wo')">酷我音乐</li>
-                        <li v-bind:style="QRCCode_selected_style['cloud']" onclick="p.change_QRCode(vm, 'cloud')">网易云音乐</li>
+                        <li v-bind:style="QRCCode_selected_style['qq']" onclick="utils.change_QRCode(vm, 'qq')">QQ音乐</li>
+                        <li style="display: none" v-bind:style="QRCCode_selected_style['ku_wo']" onclick="utils.change_QRCode(vm, 'ku_wo')">酷我音乐</li>
+                        <li v-bind:style="QRCCode_selected_style['cloud']" onclick="utils.change_QRCode(vm, 'cloud')">网易云音乐</li>
                     </ul>
                 </aside>
                 <div class="QRCode">
@@ -598,11 +605,11 @@
                             <div>已登录</div>
                         </div>
                     </div>
-                    <div class="QRCode-refresh" onclick="p.load_QRCode_b64(vm)" v-show="!QRCode_login_status[QRCode_key]&&QRCode_key!==''">
+                    <div class="QRCode-refresh" onclick="utils.load_QRCode_b64(vm)" v-show="!QRCode_login_status[QRCode_key]&&QRCode_key!==''">
                         <i class="element-icons el-icon-refresh-left"></i>
                         刷新二维码
                     </div>
-                    <div class="QRCode-refresh" onclick="p.set_login_status(vm)" v-show="QRCode_login_status[QRCode_key]">
+                    <div class="QRCode-refresh" onclick="utils.set_login_status(vm)" v-show="QRCode_login_status[QRCode_key]">
                         <i class="element-icons el-icon-switch-button"></i>
                         退出登录
                     </div>
