@@ -217,6 +217,8 @@ def get_music_dict(music_name: str, artist: str):
                     # file_name, url, lyric = down(info['name'], artist, info)
                     flag = True
                     break
+    else:
+        return music_list[0]
     if flag:
         return info
     else:

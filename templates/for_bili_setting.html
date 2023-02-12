@@ -18,6 +18,7 @@
         <script src="{% static "js/array_equals.js" %}"></script>
         <script src="{% static "js/display_setting.js" %}"></script>
         <script src="{% static "js/for_bili_setting.js" %}"></script>
+        <script src="{% static "js/wss_for_live_music.js" %}"></script>
     {% else %}
         <script src="{% static "js/myUtils.min.js" %}"></script>
         <script src="{% static "js/others/vue.min.js" %}"></script>
@@ -25,20 +26,26 @@
         <script src="{% static "js/array_equals.min.js" %}"></script>
         <script src="{% static "js/display_setting.min.js" %}"></script>
         <script src="{% static "js/for_bili_setting.min.js" %}"></script>
+        <script src="{% static "js/wss_for_live_music.min.js" %}"></script>
     {% endif %}
     <script>
-        let vm
-        let p = new MyUtils()
-        const url = '{{ url }}'
-        const where = '{{ where }}'
+        let vm;
+        let utils = new MyUtils();
+        let my_wss = new LiveMusicWebsocket('vm', utils, '{{ url }}_x1');
+
+        const url = '{{ url }}';
+        const where = '{{ where }}';
 
         window.onload = function () {
             {#vm = load_for_bili_setting_vue(url, where)#}
-            vm = load_for_bili_setting({url: url, where: where}, p)
-            p.get_union_data(vm, p, [p.get_base_control, p.get_music_info_list, p.get_who_play, p.get_is_running, p.get_console_info, p.get_user_playlist])
+            vm = load_for_bili_setting({url: url, where: where}, utils, my_wss);
+            my_wss.vm = vm;
+            utils.get_union_data(vm, utils, [utils.get_base_control, utils.get_music_info_list, utils.get_who_play, utils.get_is_running, utils.get_console_info, utils.get_user_playlist])
+            /*
             setInterval(() => {
-                p.get_union_data(vm, p, [p.get_base_control, p.get_music_info_list, p.get_who_play, p.get_is_running, p.get_console_info, p.get_user_playlist])
-            }, 5000);
+                utils.get_union_data(vm, utils, [utils.get_base_control, utils.get_music_info_list, utils.get_who_play, utils.get_is_running, utils.get_console_info])
+            }, 7000);
+            */
         }
     </script>
 </head>
@@ -62,14 +69,19 @@
             <hr>
             <div class="music-info">
                 <div>
-                    <p class="base conform" id="start_dan_mu" style="padding: 5px 0 0 0" onclick="p.start_getting(vm)">
+                    <!--
+                    <p class="base conform" id="start_dan_mu" style="padding: 5px 0 0 0" onclick="utils.start_getting(vm)">
+                        {{
+                        start_getting_text }}</p>
+                    -->
+                    <p class="base conform" id="start_dan_mu" style="padding: 5px 0 0 0" onclick="my_wss.start_getting()">
                         {{
                         start_getting_text }}</p>
                 </div>
 
                 <div id="who_play" style="display: flex;align-items: center;">
                     <div class="toggle-button-wrapper">
-                        <input type="checkbox" id="toggle-button" name="switch" onclick="p.change_who_play(vm)">
+                        <input type="checkbox" id="toggle-button" name="switch" onclick="my_wss.change_who_play()">
                         <label for="toggle-button" class="button-label">
                             <span class="circle"></span>
                             <span class="text on">由歌名界面播放</span>
@@ -86,7 +98,7 @@
             </div>
             <div style="display: flex;align-items: center;justify-content: center;">
                 <div class="music-control">
-                    <div class="replay-music" onclick="p.replay_music(vm)" title="重播">
+                    <div class="replay-music" onclick="my_wss.replay_music()" title="重播">
                         <svg v-if="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
                             <title>重播</title>
                             <path
@@ -95,10 +107,10 @@
                                     d="M8.229 7.771v16.571c0 0.457 0.343 0.914 0.914 0.914v0c0.457 0 0.914-0.343 0.914-0.914v-16.571c0-0.457-0.343-0.914-0.914-0.914v0c-0.457 0-0.914 0.343-0.914 0.914z"></path>
                         </svg>
                     </div>
-                    <div class="play-music" onclick="p.play_pause(vm)">
+                    <div class="play-music" onclick="my_wss.play_pause()">
                         <i class="iconfont" v-bind:class="play_icon[play_icon_flag]"></i>
                     </div>
-                    <div class="next-music" onclick="p.next_music(vm)" title="下一首">
+                    <div class="next-music" onclick="my_wss.next_music()" title="下一首">
                         <svg v-if="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
                             <title>下一首</title>
                             <path
@@ -115,11 +127,11 @@
         <!--<div class="dan-mu-panel" onmouseenter="display_item('.delete')" onmouseleave="(hidden_item('.delete'))">-->
         <div class="dan-mu-panel">
             <div class="operation-bar">
-                <div class="operation-bar-item" v-on:click="playlist_mask = true;" onclick="p.get_all_playlist(vm)">
+                <div class="operation-bar-item" v-on:click="playlist_mask = true;" onclick="utils.get_all_playlist(vm)">
                     我的歌单
                 </div>
                 <div class="operation-bar-item" v-on:click="idle_playlist_mask = true;playlist_overwrite=0;"
-                     onclick="p.get_union_data(vm, p, [p.get_user_playlist])">
+                     onclick="utils.get_union_data(vm, utils, [utils.get_user_playlist])">
                     空闲歌单
                 </div>
                 <!--<div class="operation-bar-item" v-on:click="music_mask = true;playlist_overwrite=1;">停止空闲单</div>-->
@@ -152,8 +164,8 @@
                 </transition-group>
             </ul>
             <span>点歌信息</span>
-            <ul id="console-info" onmouseenter="p.change_bili_scroll_flag(vm, 0)"
-                onmouseleave="p.change_bili_scroll_flag(vm, 1)">
+            <ul id="console-info" onmouseenter="utils.change_bili_scroll_flag(vm, 0)"
+                onmouseleave="utils.change_bili_scroll_flag(vm, 1)">
                 <transition-group mode="out-in">
                     <li v-for="(value, key) in console_info" v-bind:key="'thi'+ key"
                         style="display: flex;flex-direction: row;justify-content: space-between;">
@@ -182,8 +194,9 @@
                         <span>歌手:<input type="text" id="artist" class="set-color-text base" placeholder=""></span>
                     </label>
                     <input type="submit" class="base conform" value="提交"
-                           onclick="$.get('/move_music?where_url={{ where }}_url&url={{ url }}&music_name=' + $('#music_name').val() + '&artist=' + $('#artist').val() + '&index=-1');$('#music_name').val('');$('#artist').val('')"
+                           onclick="let a = $('#music_name'); let b = $('#artist'); my_wss.move_music(a.val(), b.val(), -1);a.val('');b.val('');"
                            v-on:click="mask1 = false">
+                    <!--onclick="$.get('/move_music?where_url={{ where }}_url&url={{ url }}&music_name=' + $('#music_name').val() + '&artist=' + $('#artist').val() + '&index=-1');$('#music_name').val('');$('#artist').val('')"-->
                 </div>
             </div>
             <div class="panel-title">添加</div>
@@ -201,7 +214,7 @@
                 设置改不了？歌曲删不掉？试试重置个人数据吧~
                 <p class="base conform" style="float: right;margin: 5px;text-decoration: none;color: #ffffff;text-align: center;
     padding: 5px 0 0 0;font-family: Microsoft YaHei, Microsoft Sans Serif, Microsoft SanSerf, 微软雅黑, serif"
-                   onclick="p.reset_own_database(vm, '{{ where }}_url')">重置个人数据</p>
+                   onclick="utils.reset_own_database(vm, '{{ where }}_url')">重置个人数据</p>
                 <br>
                 <p class="base conform"><a style="text-decoration: none;color: white"
                                            href="https://live-music.the-little-princes.com/document" target="_blank">设置教程</a>
@@ -260,11 +273,11 @@
                         <div class="operation" v-bind:id="'k' + key">
                             <button class="delete conform"
                                     v-on:click="playlist_id = playlist_info.tid; playlist_platform = playlist_info.platform; playlist_overwrite = 0;"
-                                    onclick="p.load_playlist_to_database(vm)">追加
+                                    onclick="utils.load_playlist_to_database(vm)">追加
                             </button>
                             <button class="delete conform"
                                     v-on:click="playlist_id = playlist_info.tid; playlist_platform = playlist_info.platform; playlist_overwrite = 1;"
-                                    onclick="p.load_playlist_to_database(vm)">覆盖
+                                    onclick="utils.load_playlist_to_database(vm)">覆盖
                             </button>
                         </div>
                     </li>
@@ -303,7 +316,7 @@
                         <div class="operation" v-bind:id="'k' + key">
                             <button class="delete conform"
                                     v-on:click="playlist_id = playlist_info.tid; playlist_platform = playlist_info.platform; playlist_overwrite = 0;"
-                                    onclick="p.load_playlist_to_database(vm)">追加
+                                    onclick="utils.load_playlist_to_database(vm)">追加
                             </button>
                             <button class="delete conform"
                                     v-on:click="playlist_id = playlist_info.tid; playlist_platform = playlist_info.platform; playlist_overwrite = 1;">
@@ -326,7 +339,7 @@
             </div>
             <div class="control-button use-playlist-button">
                 <div class="use-playlist-toggle-button-wrapper">
-                    <input type="checkbox" id="use-playlist" name="use_playlist" onclick="p.use_playlist(vm)">
+                    <input type="checkbox" id="use-playlist" name="use_playlist" onclick="utils.use_playlist(vm)">
                     <label for="use-playlist" class="button-label" style="width: 70px;height: 20px;font-size: 13px;">
                         <span class="circle" style="width: 20px;height: 20px;"></span>
                         <span class="text use-playlist-on" style="line-height: 20px;">已开启</span>
@@ -354,7 +367,7 @@
                                    style="background-color: #cef7ff;"
                                    placeholder="粘贴歌单链接或id">
                         </div>
-                        <input type="submit" class="base conform" style="width: 50px" value="提交" onclick="p.load_playlist_to_database(vm)"/>
+                        <input type="submit" class="base conform" style="width: 50px" value="提交" onclick="utils.load_playlist_to_database(vm)"/>
                     </div>
                 </div>
             </div>
@@ -363,7 +376,7 @@
                 <span>✕</span>
             </div>
             <div class="panel-title"
-                 v-text="playlist_overwrite ? '覆盖现有歌单(未完成)' : '在现有歌单中追加歌单(未完成)'"></div>
+                 v-text="playlist_overwrite ? '覆盖现有歌单' : '在现有歌单中追加歌单'"></div>
         </div>
     </div>
 </div>

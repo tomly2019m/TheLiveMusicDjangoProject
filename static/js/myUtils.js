@@ -288,6 +288,11 @@ class MyUtils {
         })
     }
 
+    /**
+     * 添加黑名单用户或歌曲
+     * @param vm
+     * @param {'music', 'user'} where
+     */
     push_black(vm, where) {
         const where_params = {
             music: {
@@ -382,70 +387,87 @@ class MyUtils {
         return i
     }
 
-    /**
-     *
-     * @param {Vue} vm Vue实例
-     * @param {string} music_url 音乐链接
-     * @param {string} who 歌名 或 歌词
-     */
-    music_play(vm, music_url, who) {
-        let i = 0
-        const _this = this
-        const {lis_len, time_list} = who === 'lyric' && this.create_time_list(who)
-        if (who === 'lyric') {
-            this.n = (parseInt(vm.$data.v_li_margin) + parseInt(vm.$data.li_height)) * 3;
-            this.change(vm)
-        }
-        this.htmlAudioElement = new Audio(music_url)
-        this.htmlAudioElement.play().then(() => {
-            this.is_play = 1
-            console.log(this)
-            console.log(this.is_play)
-        })
-        this.htmlAudioElement.addEventListener('timeupdate', function () {
+    /*    /!**
+         *
+         * @param {Vue} vm Vue实例
+         * @param {string} music_url 音乐链接
+         * @param {string} who 歌名 或 歌词
+         *!/
+        music_play(vm, music_url, who) {
+            let i = 0
+            const _this = this
+            const {lis_len, time_list} = who === 'lyric' && this.create_time_list(who)
             if (who === 'lyric') {
-                i = _this.show_now_lyric(i, lis_len, time_list, this.currentTime)
-                // for (let j = 0; j < time_list.length; j++) {
-                //     if (this.currentTime >= time_list[j]) {
-                //         time_list.splice(j);
-                //         const others = document.getElementsByClassName('item');
-                //         for (let other of others) {
-                //             other.getElementsByClassName('original')[0].style.cssText = vm.$data.first_style
-                //         }
-                //         document.getElementById(time_list[i][0]).getElementsByClassName('original')[0].style.cssText = vm.$data.now_style
-                //         _this.change(vm)
-                //     }
-                // }
+                this.n = (parseInt(vm.$data.v_li_margin) + parseInt(vm.$data.li_height)) * 3;
+                this.change(vm)
             }
-        });
-        this.htmlAudioElement.addEventListener('ended', () => {
-            $.get('/next_music', {url: vm.$data.url, where: who})
-        })
-    }
+            this.htmlAudioElement = new Audio(music_url)
+            this.htmlAudioElement.play().then(() => {
+                this.is_play = 1
+                console.log(this)
+                console.log(this.is_play)
+            })
+            this.htmlAudioElement.addEventListener('timeupdate', function () {
+                if (who === 'lyric') {
+                    i = _this.show_now_lyric(i, lis_len, time_list, this.currentTime)
+                    // for (let j = 0; j < time_list.length; j++) {
+                    //     if (this.currentTime >= time_list[j]) {
+                    //         time_list.splice(j);
+                    //         const others = document.getElementsByClassName('item');
+                    //         for (let other of others) {
+                    //             other.getElementsByClassName('original')[0].style.cssText = vm.$data.first_style
+                    //         }
+                    //         document.getElementById(time_list[i][0]).getElementsByClassName('original')[0].style.cssText = vm.$data.now_style
+                    //         _this.change(vm)
+                    //     }
+                    // }
+                }
+            });
+            this.htmlAudioElement.addEventListener('ended', () => {
+                $.get('/next_music', {url: vm.$data.url, where: who})
+            })
+            this.update_play_data(vm, 'replay', 0);
+        }*/
 
     /**
-     *
+     * 播放歌曲
      * @param {Vue} vm Vue实例
      * @param {string} who 歌名 或 歌词
      */
-    music_play1(vm, who) {
+    music_play(vm, who) {
         let {lis_len, time_list} = who === 'lyric' && this.create_time_list(who)
+        const music_src = this.htmlAudioElement.src
         if (who === 'lyric') {
             this.n = (parseInt(vm.$data.v_li_margin) + parseInt(vm.$data.li_height)) * 3;
             this.change(vm)
         }
+        try {
+            const localCurrentTime = parseInt(localStorage.getItem(music_src));
+            this.htmlAudioElement.currentTime = localCurrentTime;
+            if (localCurrentTime !== 0) {
+                this.htmlAudioElement.play().then(() => {
+                    this.is_play = 1
+                    console.log(this)
+                    console.log(this.is_play)
+                })
+            }
+        } catch (e) {
+            this.htmlAudioElement.play().then(() => {
+                this.is_play = 1
+                console.log(this)
+                console.log(this.is_play)
+            })
+        }
         // this.htmlAudioElement = new Audio(music_url)
-        this.htmlAudioElement.play().then(() => {
-            this.is_play = 1
-            console.log(this)
-            console.log(this.is_play)
-        })
+
         // this.htmlAudioElement.addEventListener('timeupdate', function () {
         //     if (who === 'lyric') {
         //         i = _this.show_now_lyric(i, lis_len, time_list, this.currentTime)
         //     }
         // });
         this.htmlAudioElement.ontimeupdate = () => {
+            const musicCurrentTime = this.htmlAudioElement.currentTime;
+            localStorage.setItem(music_src, musicCurrentTime.toString());
             if (who === 'lyric') {
                 // i = this.show_now_lyric(i, lis_len, time_list, this.htmlAudioElement.currentTime)
                 for (let j = 0; j < time_list.length; j++) {
@@ -470,9 +492,12 @@ class MyUtils {
         //     $.get('/next_music', {url: vm.$data.url, where: who})
         // })
         this.htmlAudioElement.onended = () => {
+            localStorage.setItem(music_src, '0');
             this.is_play = 0
-            $.get('/next_music', {url: vm.$data.url, where: who})
+            // $.get('/next_music', {url: vm.$data.url, where: who})
+            vm.$data.wss.next_music();
         }
+        this.update_play_data(vm, 'replay', 0);
     }
 
     /**
@@ -483,7 +508,6 @@ class MyUtils {
         document.getElementById('uls').style.transform = 'translateY(' + this.n + 'px)'
     }
 
-    //TODO
     /**
      * 获取基本控制数据: 重播, 暂停/播放, 谁来播放
      * @param {Vue} vm Vue实例
@@ -491,11 +515,6 @@ class MyUtils {
      * @return {{which_data_list: string[], callback_list: MyUtils.base_control[]}}
      */
     get_base_control(vm, extend) {
-        /*this.get_data(vm, who, [
-            'replay',
-            'who_play',
-            'play_status',
-        ], [this.base_control])*/
         return {
             which_data_list: ['replay', 'who_play', 'play_status',], callback_list: [extend.base_control,]
         }
@@ -508,7 +527,6 @@ class MyUtils {
      * @return {{which_data_list: string[], callback_list: MyUtils.music_info_list_control[]}}
      */
     get_music_info_list(vm, extend) {
-        // this.get_data(vm, who, ['lyric_name'], [this.lyric_control]);
         return {
             which_data_list: ['music_name_list',], callback_list: [extend.music_info_list_control,]
         }
@@ -589,28 +607,50 @@ class MyUtils {
      * 基本控制(播放状态, 谁来播放, 重播状态)
      * @param {Vue} vm Vue实例
      * @param {Object} extend 父类
-     * @param {{replay, who_play, play_status}} data 服务器返回数据
+     * @param {{replay, who_play, play_status, play}} data 服务器返回数据
      */
     base_control(vm, extend, data) {
         console.log(data);
         // let who_play_flag = (data.who_play === 'music' ? 0 : 1) === vm.$data.who_play;
-        vm.$data.who_play = data.who_play;
-        vm.$data.play_icon_flag = data.play_status;
-        let who_play_flag = data.who_play === vm.$data.who_i_am;
+        let who_play_flag, replay;
+        if (data.who_play !== undefined) {
+            vm.$data.who_play = data.who_play;
+        }
+        if (data.play_status !== undefined) {
+            vm.$data.play_icon_flag = data.play_status;
+        } else if (data.play !== undefined) {
+            vm.$data.play_icon_flag = data.play;
+        } else {
+            vm.$data.play_icon_flag = 1;
+        }
+        if (data.who_play !== undefined) {
+            who_play_flag = data.who_play === vm.$data.who_i_am;
+        } else {
+            who_play_flag = vm.$data.who_play === vm.$data.who_i_am;
+        }
+        if (data.replay !== undefined) {
+            replay = data.replay;
+        } else {
+            replay = 0;
+        }
         // 谁来播放
         console.log(`is_play: ${extend.is_play}`);
-        const who = data.who_play === 0 ? 'music' : 'lyric';
-        if (data.play_status && !extend.is_play && who_play_flag) {
+        const who = vm.$data.who_play === 0 ? 'music' : 'lyric';
+        if (vm.$data.play_icon_flag && !extend.is_play && who_play_flag) {
             // extend.htmlAudioElement.play().then(() => {
             //     extend.is_play = 1;
             // })
-            extend.music_play1(vm, who)
-        } else if (!data.play_status && extend.is_play && who_play_flag) {
+            extend.music_play(vm, who)
+        } else if (!vm.$data.play_icon_flag && extend.is_play && who_play_flag) {
+            extend.htmlAudioElement.pause();
+            extend.is_play = 0;
+        } else if (vm.$data.play_icon_flag && extend.is_play && !who_play_flag) {
             extend.htmlAudioElement.pause();
             extend.is_play = 0;
         }
-        if (data.replay && who_play_flag) {
+        if (replay && who_play_flag) {
             extend.htmlAudioElement.load();
+            localStorage.setItem(this.htmlAudioElement.src, '1');
             // extend.htmlAudioElement.play().then(() => {
             //     extend.is_play = 1;
             //     if (data.who_play === 'lyric') {
@@ -618,8 +658,8 @@ class MyUtils {
             //         extend.change(vm);
             //     }
             // })
-            extend.music_play1(vm, who)
-            extend.update_play_data(vm, 'replay', 0);
+            extend.music_play(vm, who)
+            // extend.update_play_data(vm, 'replay', 0);
         }
     }
 
@@ -627,12 +667,19 @@ class MyUtils {
      * 歌名控制
      * @param { Vue } vm Vue实例
      * @param { Object } extend 父类
-     * @param {{ music_name_list: [{file_name}] }} data 服务器返回数据
+     * @param {{ music_name_list: [{file_name}], music_info_list: [{file_name}] }} data 服务器返回数据
      */
     music_info_list_control(vm, extend, data) {
         console.log(data)
-        const music_info_list = data.music_name_list;
-        const music_info = music_info_list[0];
+        let music_info
+        let music_info_list;
+        try {
+            music_info_list = data.music_name_list;
+            music_info = music_info_list[0];
+        } catch (e) {
+            music_info_list = data.music_info_list;
+            music_info = music_info_list[0];
+        }
         const temp = [];
         music_info_list.forEach(element => {
             temp.push(element.file_name);
@@ -643,7 +690,8 @@ class MyUtils {
                 vm.$data.now_music_name = music_info.file_name.join(', ');
                 // extend.get_union_data(vm, extend, [extend.get_music_url]);
             } else {
-                $.get('/next_music', {url: vm.$data.url, where: vm.$data.who_i_am ? 'lyric' : 'music'});
+                vm.$data.wss.next_music();
+                // $.get('/next_music', {url: vm.$data.url, where: vm.$data.who_i_am ? 'lyric' : 'music'});
             }
         } else {
             vm.$data.music_info = [['暂无歌曲', '无']];
@@ -686,12 +734,14 @@ class MyUtils {
         console.log(data);
         extend.htmlAudioElement.pause();
         extend.htmlAudioElement.src = data.now_music_url;
-        if (data.now_music_url === '') {
+        /*if (data.now_music_url === '') {
             const who = data.who_play === 0 ? 'music' : 'lyric';
-            $.get('/next_music', {url: vm.$data.url, where: who})
-        }
+            // $.get('/next_music', {url: vm.$data.url, where: who})
+            vm.$data.wss.next_music();
+        }*/
         // extend.htmlAudioElement = new Audio();
         extend.is_play = 0;
+        // extend.update_play_data(vm, 'replay', 0);
     }
 
     /**
@@ -809,236 +859,239 @@ class MyUtils {
         return status;
     }
 
-    /**
-     *
-     * @param {Vue} vm Vue实例
-     * @param {string} who 歌名 或 歌词
-     */
-    from_sever_get_data(vm, who) {
-        $.getJSON('/get_data', {url: vm.$data.url, where: who}, data => {
-            console.log(this.is_play)
-            this.do_some_command(vm, data, who)
-        })
-    }
-
-    /**
-     * 根据获取的数据操作歌名或歌词
-     * @param {Vue} vm Vue实例
-     * @param {JSON} data 服务器返回的json数据
-     * @param {string} who 歌名 或 歌词
-     */
-    do_some_command(vm, data, who) {
-        console.log(data)
-        console.log(this.last)
-
-        // 当前歌曲名
-        let now_music_name
-        // 播放/暂停
-        const play_ = data['data']['play_']
-        // 从头开始
-        const replay = data['data']['replay']
-        // 歌词
-        const lyric = data['data']['lyric_name']
-        // 是否开始统计
-        const is_running = data['data']['is_running']
-        // 播放地址
-        const music_url = data['data']['now_music_url']
-        // 歌曲列表
-        const music_list = data['data']['music_name_list']
-        // 全局设置
-        const global_setting = data['data']['global_setting']
-        //
-        const user_set = data['data']['user_set']
-
-        switch (who) {
-            case 'lyric':
-                vm.$data.theme_id = parseInt(user_set['theme_id'])
-                vm.$data.v_div_width = parseInt(user_set['div_width'])
-                vm.$data.v_div_height = parseInt(user_set['div_height'])
-                vm.$data.v_first_color = user_set['original_text_color']
-                vm.$data.v_first_font = user_set['original_text_font']
-                vm.$data.v_first_font_size = parseInt(user_set['original_text_font_size'])
-                vm.$data.v_second_color = user_set['translation_color']
-                vm.$data.v_second_font = user_set['translation_font']
-                vm.$data.v_second_font_size = parseInt(user_set['translation_font_size'])
-                vm.$data.v_now_color = user_set['now_color']
-                vm.$data.v_now_font = user_set['now_font']
-                vm.$data.v_now_font_size = parseInt(user_set['now_font_size'])
-                vm.$data.v_li_margin = user_set['v_li_margin']
-                vm.$data.now_shadow_num = parseInt(user_set['now_shadow_num'])
-                vm.$data.now_shadow_blur = parseInt(user_set['now_shadow_blur'])
-                vm.$data.now_shadow_color = user_set['now_shadow_color']
-                vm.$data.first_shadow_num = parseInt(user_set['original_shadow_num'])
-                vm.$data.first_shadow_blur = parseInt(user_set['original_shadow_blur'])
-                vm.$data.first_shadow_color = user_set['original_shadow_color']
-                vm.$data.second_shadow_num = parseInt(user_set['translation_shadow_num'])
-                vm.$data.second_shadow_blur = parseInt(user_set['translation_shadow_blur'])
-                vm.$data.second_shadow_color = user_set['translation_shadow_color']
-                break
-            case 'music':
-                vm.$data.theme_id = parseInt(user_set['theme_id'])
-                vm.$data.v_div_width = parseInt(user_set['div_width'])
-                vm.$data.v_div_height = parseInt(user_set['div_height'])
-                vm.$data.v_first_color = user_set['music_color']
-                vm.$data.v_first_font = user_set['music_font']
-                vm.$data.v_first_font_size = parseInt(user_set['music_font_size'])
-                vm.$data.v_second_color = user_set['artist_color']
-                vm.$data.v_second_font = user_set['artist_font']
-                vm.$data.v_second_font_size = parseInt(user_set['artist_font_size'])
-                // vm.$data.now_color = user_set['now_color']
-                // vm.$data.now_font = user_set['now_font']
-                // vm.$data.now_font_size = user_set['now_font_size']
-                vm.$data.v_li_margin = parseInt(user_set['v_li_margin'])
-                // vm.$data.now_shadow_num = user_set['now_shadow_num']
-                // vm.$data.now_shadow_blur = user_set['now_shadow_blur']
-                // vm.$data.now_shadow_color = user_set['now_shadow_color']
-                vm.$data.first_shadow_num = parseInt(user_set['music_shadow_num'])
-                vm.$data.first_shadow_blur = parseInt(user_set['music_shadow_blur'])
-                vm.$data.first_shadow_color = user_set['music_shadow_color']
-                vm.$data.second_shadow_num = parseInt(user_set['artist_shadow_num'])
-                vm.$data.second_shadow_blur = parseInt(user_set['artist_shadow_blur'])
-                vm.$data.second_shadow_color = user_set['artist_shadow_color']
-                break
-        }
-
-        // 由谁播放 0:music 1:lyric
-        vm.$data.who_play = data['data']['who_play']
-        // vm.$data.play_icon_flag = play_
-        vm.$data.black_user_list = global_setting['black_user_list']
-        vm.$data.black_music_list = global_setting['black_music_list']
-        let temp = [{"id": 0, "original": "暂无歌词", "translation": "no find lyric"}]
-
-        try {
-            if (lyric[0].id != null) {
-                vm.$data.lyric_info = lyric
-            } else {
-                vm.$data.lyric_info = temp
-            }
-            vm.$data.music_url = music_url
-            vm.$data.stop_flag = is_running
-        } catch (e) {
-            vm.$data.lyric_info = temp
-            vm.$data.music_url = music_url
-            vm.$data.stop_flag = is_running
-        }
-
-        console.log(music_list)
-
-        try {
-            now_music_name = JSON.parse(JSON.stringify([music_list[0]]))
-        } catch (e) {
-            now_music_name = []
-        }
-        if ((now_music_name.equals([undefined]) || now_music_name.equals([['', '']])) && !music_list.equals([])) {
-            now_music_name = []
-            $.get('/next_music', {url: vm.$data.url, where: who})
-        }
-        console.log('vm.now_music_name: ' + vm.$data.now_music_name)
-        console.log('now_music_name: ' + now_music_name)
-
-        // 谁来播放
-        if (play_ && !this.is_play && (who === 'music' ? vm.$data.who_play === 0 : vm.$data.who_play === 1)) {
-            this.htmlAudioElement.play().then(() => {
-                this.is_play = 1
+    /*
+        /!**
+         *
+         * @param {Vue} vm Vue实例
+         * @param {string} who 歌名 或 歌词
+         *!/
+        from_sever_get_data(vm, who) {
+            $.getJSON('/get_data', {url: vm.$data.url, where: who}, data => {
+                console.log(this.is_play)
+                this.do_some_command(vm, data, who)
             })
         }
 
-        // 谁需要暂停
-        switch (who) {
-            case 'music':
-                // 是否需要暂停
-                if (vm.$data.who_play && this.is_play) {
-                    this.htmlAudioElement.pause()
-                    this.is_play = 0
-                }
-                if (music_list.equals([])) {
-                    console.log('暂无歌曲')
-                    vm.$data.music_info = [['暂无歌曲', '无']]
-                    console.log(vm.$data.music_info)
-                }
-                break
-            case 'lyric':
-                // 是否需要暂停
-                if (!vm.$data.who_play && this.is_play) {
-                    this.htmlAudioElement.pause()
-                    this.is_play = 0
-                }
-                break
-        }
-        // 自己要不要从头播放
-        if (replay && this.is_play) {
-            $.get('/play', {url: vm.$data.url, data: 0, where: 'replay', where_url: who + '_url'})
-            this.htmlAudioElement.load()
-            this.htmlAudioElement.play().then(() => {
-                // 重置歌词与歌名到最初状态
-                this.is_play = 1
-            })
-            this.n = (parseInt(vm.$data.v_li_margin) + parseInt(vm.$data.li_height)) * 2
-            this.change(vm)
-        }
+        /!**
+         * 根据获取的数据操作歌名或歌词
+         * @param {Vue} vm Vue实例
+         * @param {JSON} data 服务器返回的json数据
+         * @param {string} who 歌名 或 歌词
+         *!/
+        do_some_command(vm, data, who) {
+            console.log(data)
+            console.log(this.last)
 
-        // 我自己要不要暂停
-        if (!play_) {
-            this.htmlAudioElement.pause()
-            this.is_play = 0
-        }
-        vm.$data.now_music_name = now_music_name.join(',')
-        if (music_list.equals([])) {
-            vm.$data.music_info = [['暂无歌曲', '无']]
-        } else {
-            vm.$data.music_info = music_list
-        }
-    }
+            // 当前歌曲名
+            let now_music_name
+            // 播放/暂停
+            const play_ = data['data']['play_']
+            // 从头开始
+            const replay = data['data']['replay']
+            // 歌词
+            const lyric = data['data']['lyric_name']
+            // 是否开始统计
+            const is_running = data['data']['is_running']
+            // 播放地址
+            const music_url = data['data']['now_music_url']
+            // 歌曲列表
+            const music_list = data['data']['music_name_list']
+            // 全局设置
+            const global_setting = data['data']['global_setting']
+            //
+            const user_set = data['data']['user_set']
 
-    /**
-     * 当now_music_name为新的时候，根据内容执行下一首还是播放music_url
-     * @param {Vue} vm Vue实例
-     * @param {string} music_url
-     * @param {string} who
-     */
-    prepare_to_music_play(vm, music_url, who) {
-
-        let now_music_name = vm.$data.now_music_name
-        this.htmlAudioElement.pause()
-        // if (now_music_name.equals([]) || now_music_name.equals(['']) || now_music_name.equals(['', ''])) {
-        //     $.get('/next_music', {url: vm.$data.v_url, where: who})
-        //     this.n = 220
-        //     this.change()
-        if (now_music_name === '') {
-            $.get('/next_music', {url: vm.$data.url, where: who})
-            if (who === 'lyric') {
-                this.n = (parseInt(vm.$data.v_li_margin) + parseInt(vm.$data.li_height)) * 2
-                this.change(vm)
+            switch (who) {
+                case 'lyric':
+                    vm.$data.theme_id = parseInt(user_set['theme_id'])
+                    vm.$data.v_div_width = parseInt(user_set['div_width'])
+                    vm.$data.v_div_height = parseInt(user_set['div_height'])
+                    vm.$data.v_first_color = user_set['original_text_color']
+                    vm.$data.v_first_font = user_set['original_text_font']
+                    vm.$data.v_first_font_size = parseInt(user_set['original_text_font_size'])
+                    vm.$data.v_second_color = user_set['translation_color']
+                    vm.$data.v_second_font = user_set['translation_font']
+                    vm.$data.v_second_font_size = parseInt(user_set['translation_font_size'])
+                    vm.$data.v_now_color = user_set['now_color']
+                    vm.$data.v_now_font = user_set['now_font']
+                    vm.$data.v_now_font_size = parseInt(user_set['now_font_size'])
+                    vm.$data.v_li_margin = user_set['v_li_margin']
+                    vm.$data.now_shadow_num = parseInt(user_set['now_shadow_num'])
+                    vm.$data.now_shadow_blur = parseInt(user_set['now_shadow_blur'])
+                    vm.$data.now_shadow_color = user_set['now_shadow_color']
+                    vm.$data.first_shadow_num = parseInt(user_set['original_shadow_num'])
+                    vm.$data.first_shadow_blur = parseInt(user_set['original_shadow_blur'])
+                    vm.$data.first_shadow_color = user_set['original_shadow_color']
+                    vm.$data.second_shadow_num = parseInt(user_set['translation_shadow_num'])
+                    vm.$data.second_shadow_blur = parseInt(user_set['translation_shadow_blur'])
+                    vm.$data.second_shadow_color = user_set['translation_shadow_color']
+                    break
+                case 'music':
+                    vm.$data.theme_id = parseInt(user_set['theme_id'])
+                    vm.$data.v_div_width = parseInt(user_set['div_width'])
+                    vm.$data.v_div_height = parseInt(user_set['div_height'])
+                    vm.$data.v_first_color = user_set['music_color']
+                    vm.$data.v_first_font = user_set['music_font']
+                    vm.$data.v_first_font_size = parseInt(user_set['music_font_size'])
+                    vm.$data.v_second_color = user_set['artist_color']
+                    vm.$data.v_second_font = user_set['artist_font']
+                    vm.$data.v_second_font_size = parseInt(user_set['artist_font_size'])
+                    // vm.$data.now_color = user_set['now_color']
+                    // vm.$data.now_font = user_set['now_font']
+                    // vm.$data.now_font_size = user_set['now_font_size']
+                    vm.$data.v_li_margin = parseInt(user_set['v_li_margin'])
+                    // vm.$data.now_shadow_num = user_set['now_shadow_num']
+                    // vm.$data.now_shadow_blur = user_set['now_shadow_blur']
+                    // vm.$data.now_shadow_color = user_set['now_shadow_color']
+                    vm.$data.first_shadow_num = parseInt(user_set['music_shadow_num'])
+                    vm.$data.first_shadow_blur = parseInt(user_set['music_shadow_blur'])
+                    vm.$data.first_shadow_color = user_set['music_shadow_color']
+                    vm.$data.second_shadow_num = parseInt(user_set['artist_shadow_num'])
+                    vm.$data.second_shadow_blur = parseInt(user_set['artist_shadow_blur'])
+                    vm.$data.second_shadow_color = user_set['artist_shadow_color']
+                    break
             }
-        } else {
+
+            // 由谁播放 0:music 1:lyric
+            vm.$data.who_play = data['data']['who_play']
+            // vm.$data.play_icon_flag = play_
+            vm.$data.black_user_list = global_setting['black_user_list']
+            vm.$data.black_music_list = global_setting['black_music_list']
+            let temp = [{"id": 0, "original": "暂无歌词", "translation": "no find lyric"}]
+
             try {
-                this.htmlAudioElement.pause()
-                this.is_play = 0
+                if (lyric[0].id != null) {
+                    vm.$data.lyric_info = lyric
+                } else {
+                    vm.$data.lyric_info = temp
+                }
+                vm.$data.music_url = music_url
+                vm.$data.stop_flag = is_running
             } catch (e) {
-                console.log()
+                vm.$data.lyric_info = temp
+                vm.$data.music_url = music_url
+                vm.$data.stop_flag = is_running
             }
+
+            console.log(music_list)
+
+            try {
+                now_music_name = JSON.parse(JSON.stringify([music_list[0]]))
+            } catch (e) {
+                now_music_name = []
+            }
+            if ((now_music_name.equals([undefined]) || now_music_name.equals([['', '']])) && !music_list.equals([])) {
+                now_music_name = []
+                $.get('/next_music', {url: vm.$data.url, where: who})
+            }
+            console.log('vm.now_music_name: ' + vm.$data.now_music_name)
+            console.log('now_music_name: ' + now_music_name)
+
+            // 谁来播放
+            if (play_ && !this.is_play && (who === 'music' ? vm.$data.who_play === 0 : vm.$data.who_play === 1)) {
+                this.htmlAudioElement.play().then(() => {
+                    this.is_play = 1
+                })
+            }
+
+            // 谁需要暂停
             switch (who) {
                 case 'music':
-                    setTimeout(() => {
-                        if (who === 'music' ? vm.$data.who_play === 0 : vm.$data.who_play === 1) {
-                            this.music_play(vm, music_url, 'music')
-                        }
-                    }, 2000)
+                    // 是否需要暂停
+                    if (vm.$data.who_play && this.is_play) {
+                        this.htmlAudioElement.pause()
+                        this.is_play = 0
+                    }
+                    if (music_list.equals([])) {
+                        console.log('暂无歌曲')
+                        vm.$data.music_info = [['暂无歌曲', '无']]
+                        console.log(vm.$data.music_info)
+                    }
                     break
                 case 'lyric':
-                    setTimeout(() => {
-                        if (who === 'music' ? vm.$data.who_play === 0 : vm.$data.who_play === 1) {
-                            this.music_play(vm, music_url, 'lyric')
-                        }
-                    }, 2000)
-                    const class_names = {
-                        'link-navbar': 'background-color: #333 !important',
-                        'title': 'color: #fff',
-                        're-title': 'color: #fff'
+                    // 是否需要暂停
+                    if (!vm.$data.who_play && this.is_play) {
+                        this.htmlAudioElement.pause()
+                        this.is_play = 0
                     }
+                    break
+            }
+            // 自己要不要从头播放
+            if (replay && this.is_play) {
+                $.get('/play', {url: vm.$data.url, data: 0, where: 'replay', where_url: who + '_url'})
+                this.htmlAudioElement.load()
+                this.htmlAudioElement.play().then(() => {
+                    // 重置歌词与歌名到最初状态
+                    this.is_play = 1
+                })
+                this.n = (parseInt(vm.$data.v_li_margin) + parseInt(vm.$data.li_height)) * 2
+                this.change(vm)
+                this.update_play_data(vm, 'replay', 0);
+            }
+
+            // 我自己要不要暂停
+            if (!play_) {
+                this.htmlAudioElement.pause()
+                this.is_play = 0
+            }
+            vm.$data.now_music_name = now_music_name.join(',')
+            if (music_list.equals([])) {
+                vm.$data.music_info = [['暂无歌曲', '无']]
+            } else {
+                vm.$data.music_info = music_list
             }
         }
-    }
+
+        /!**
+         * 当now_music_name为新的时候，根据内容执行下一首还是播放music_url
+         * @param {Vue} vm Vue实例
+         * @param {string} music_url
+         * @param {string} who
+         *!/
+        prepare_to_music_play(vm, music_url, who) {
+
+            let now_music_name = vm.$data.now_music_name
+            this.htmlAudioElement.pause()
+            // if (now_music_name.equals([]) || now_music_name.equals(['']) || now_music_name.equals(['', ''])) {
+            //     $.get('/next_music', {url: vm.$data.v_url, where: who})
+            //     this.n = 220
+            //     this.change()
+            if (now_music_name === '') {
+                $.get('/next_music', {url: vm.$data.url, where: who})
+                if (who === 'lyric') {
+                    this.n = (parseInt(vm.$data.v_li_margin) + parseInt(vm.$data.li_height)) * 2
+                    this.change(vm)
+                }
+            } else {
+                try {
+                    this.htmlAudioElement.pause()
+                    this.is_play = 0
+                } catch (e) {
+                    console.log()
+                }
+                switch (who) {
+                    case 'music':
+                        setTimeout(() => {
+                            if (who === 'music' ? vm.$data.who_play === 0 : vm.$data.who_play === 1) {
+                                this.music_play(vm, music_url, 'music')
+                            }
+                        }, 2000)
+                        break
+                    case 'lyric':
+                        setTimeout(() => {
+                            if (who === 'music' ? vm.$data.who_play === 0 : vm.$data.who_play === 1) {
+                                this.music_play(vm, music_url, 'lyric')
+                            }
+                        }, 2000)
+                        const class_names = {
+                            'link-navbar': 'background-color: #333 !important',
+                            'title': 'color: #fff',
+                            're-title': 'color: #fff'
+                        }
+                }
+            }
+        }
+    */
 
     /**
      * 阻塞器
@@ -1388,7 +1441,10 @@ class MyUtils {
      */
     update_play_data(vm, change_where, new_data) {
         const params = {
-            url: vm.$data.url, data: new_data, where: change_where, where_url: `${vm.$data.where}_url`
+            url: vm.$data.url,
+            data: new_data,
+            where: change_where,
+            where_url: `${vm.$data.who_i_am ? 'lyric' : 'music'}_url`
         }
         $.get('play', params);
     }
@@ -1522,12 +1578,30 @@ class MyUtils {
         if (msg_json.cmd === 'LIVE_OPEN_PLATFORM_DM') {
             const vm = params[0]
             const url = params[1];
-            const where = params[2];
-            let {music_name, artist, status} = extend.my_filter(vm, msg_json)
-            if (vm.$data.start_flag && status && (where === 'music_url' ? vm.$data.who_i_am === 0 : vm.$data.who_i_am === 1)) {
-                extend.send_to_server(music_name, artist, url, where)
-            } else {
-                console.log('stop\n' + music_name + ': ' + artist)
+            const who = params[2];
+            const {
+                uid,
+                uname,
+                guard_level,
+                fans_medal_name,
+                fans_medal_level,
+                fans_medal_wearing_status,
+                command,
+                comment
+            } = extend.unpack_dan_mu(msg_json);
+            console.log('comment: ' + comment + '\ncommand: ' + command)
+            if (command === '点歌' || command === '.') {
+                let {music_name, artist, status} = extend.dan_mu_msg_filter(vm, extend, uid, uname, comment, command)
+                if (vm.$data.start_flag && status && vm.$data.who_play === vm.$data.who_i_am) {
+                    extend.send_music_info_to_server(vm, music_name, artist, url, who)
+                } else {
+                    console.log('stop\n' + music_name + ': ' + artist)
+                }
+            } else if (command === '切歌' || command === '>') {
+                if (!extend.is_black_user(vm, uid, uname)) {
+                    // $.get('/next_music', {url: url, where: who})
+                    vm.$data.wss.next_music();
+                }
             }
         }
     }
@@ -1535,31 +1609,16 @@ class MyUtils {
     /**
      * 按用户设置的条件过滤信息
      * @param vm
-     * @param msg_json
+     * @param extend
+     * @param uid
+     * @param uname
+     * @param comment
+     * @param command
      * @return {{artist: (string|string|jQuery), music_name: (string|string|jQuery), status: boolean}}
      */
-    my_filter(vm, msg_json) {
-        // 用户UID
-        let uid = msg_json.data.uid
-        // 弹幕内容
-        let msg = msg_json.data.msg
-        // 用户名
-        let uname = msg_json.data.uname
-        // 对应房间大航海 1总督 2提督 3舰长
-        let guard_level = msg_json.data.guard_level
-        // 粉丝勋章名
-        let fans_medal_name = msg_json.data.fans_medal_name
-        // 粉丝勋章等级
-        let fans_medal_level = msg_json.data.fans_medal_level
-        // 该房间粉丝勋章佩戴情况 true佩戴 false未佩戴
-        let fans_medal_wearing_status = msg_json.data.fans_medal_wearing_status
-
+    dan_mu_msg_filter(vm, extend, uid, uname, comment, command) {
         // 判断状态
         let status
-        // 主要内容
-        let comment = msg.split('#')[0].split(' ')
-        // 具体指令
-        let command = comment.shift()
         // 歌曲名
         let music_name
         // 歌手
@@ -1576,59 +1635,123 @@ class MyUtils {
             music_name = $.trim(comment[0])
             artist = $.trim(comment[1])
             console.log('music_name: ' + music_name + '\nartist: ' + artist)
-            // 用户黑名单
-            for (const blackUserListElement of vm.$data.black_user_list) {
-                try {
-                    switch (uid) {
-                        case parseInt(blackUserListElement.uid):
-                            status = false
-                            break
-                    }
-                } catch (e) {
-                    console.log('no uid')
-                }
-                try {
-                    switch (uname.toUpperCase()) {
-                        case blackUserListElement.nick:
-                            status = false
-                            break
-                    }
-                } catch (e) {
-                    console.log('no uname')
-                }
-            }
-            // 歌曲黑名单
-            for (const blackMusicListElement of vm.$data.black_music_list) {
-                try {
-                    switch (music_name.toUpperCase()) {
-                        case blackMusicListElement.music_name.toUpperCase():
-                            status = false
-                            break
-                    }
-                } catch (e) {
-                }
-                try {
-                    switch (artist.toUpperCase()) {
-                        case blackMusicListElement.artist.toUpperCase():
-                            status = false
-                            break
-                    }
-                } catch (e) {
-                }
-            }
+            status = !extend.is_black_user(vm, uid, uname);
+            status = !extend.is_black_music(vm, music_name, artist);
         } else {
             status = false
         }
         return {music_name, artist, status}
     }
 
-    send_to_server(music_name, artist, url, where) {
-        $.get('move_music', {
-            index: -1,
-            url: url,
-            artist: artist,
-            where_url: where,
-            music_name: music_name
-        });
+    /**
+     * 歌曲是否在黑名单中
+     * @param {Vue} vm
+     * @param {string} music_name
+     * @param {string} artist
+     * @returns {boolean}
+     */
+    is_black_music(vm, music_name, artist) {
+        let status = false;
+        // 歌曲黑名单
+        for (const blackMusicListElement of vm.$data.black_music_list) {
+            try {
+                switch (music_name.toUpperCase()) {
+                    case blackMusicListElement.music_name.toUpperCase():
+                        status = true;
+                        break;
+                }
+            } catch (e) {
+            }
+            try {
+                switch (artist.toUpperCase()) {
+                    case blackMusicListElement.artist.toUpperCase():
+                        status = true;
+                        break;
+                }
+            } catch (e) {
+            }
+        }
+        return status;
+    }
+
+    /**
+     * 用户是否在黑名单中
+     * @param {Vue} vm
+     * @param {number} uid
+     * @param {string} uname
+     * @returns {boolean}
+     */
+    is_black_user(vm, uid, uname) {
+        let status = false;
+        // 用户黑名单
+        for (const blackUserListElement of vm.$data.black_user_list) {
+            try {
+                switch (uid) {
+                    case parseInt(blackUserListElement.uid):
+                        status = true;
+                        break;
+                }
+            } catch (e) {
+                console.log('no uid')
+            }
+            try {
+                switch (uname.toUpperCase()) {
+                    case blackUserListElement.nick:
+                        status = true;
+                        break;
+                }
+            } catch (e) {
+                console.log('no uname')
+            }
+        }
+        return status;
+    }
+
+    /**
+     * 解弹幕包
+     * @param msg_json
+     * @returns {{uid: (*|number), fans_medal_level: (*|number), uname: (*|string), comment: string[], fans_medal_name: (*|string), fans_medal_wearing_status: (*|boolean), command: string, guard_level: (*|number|undefined)}}
+     */
+    unpack_dan_mu(msg_json) {
+        // 用户UID
+        let uid = msg_json.data.uid
+        // 弹幕内容
+        let msg = msg_json.data.msg
+        // 用户名
+        let uname = msg_json.data.uname
+        // 对应房间大航海 1：总督 2：提督 3：舰长
+        let guard_level = msg_json.data.guard_level
+        // 粉丝勋章名
+        let fans_medal_name = msg_json.data.fans_medal_name
+        // 粉丝勋章等级
+        let fans_medal_level = msg_json.data.fans_medal_level
+        // 该房间粉丝勋章佩戴情况 true佩戴 false未佩戴
+        let fans_medal_wearing_status = msg_json.data.fans_medal_wearing_status
+
+        // 主要内容
+        let comment = msg.split('#')[0].split(' ')
+        // 具体指令
+        let command = comment.shift()
+        return {
+            uid,
+            uname,
+            guard_level,
+            fans_medal_name,
+            fans_medal_level,
+            fans_medal_wearing_status,
+            command,
+            comment
+        };
+    }
+
+    send_music_info_to_server(vm, music_name, artist, url, where) {
+        // $.get('move_music', {
+        //     index: -1,
+        //     url: url,
+        //     artist: artist,
+        //     where_url: where,
+        //     music_name: music_name
+        // });
+        vm.$data.wss.move_music(music_name, artist, -1);
     }
 }

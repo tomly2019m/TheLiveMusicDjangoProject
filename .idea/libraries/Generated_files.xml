@@ -13,6 +13,7 @@
         <item url="file://$PROJECT_DIR$/static/js/myUtils.min.js" />
         <item url="file://$PROJECT_DIR$/static/js/others/qq_cookie.min.js" />
         <item url="file://$PROJECT_DIR$/static/js/wss_for_bili.min.js" />
+        <item url="file://$PROJECT_DIR$/static/js/wss_for_live_music.min.js" />
       </sourceFilesUrls>
     </properties>
     <CLASSES>
@@ -30,6 +31,7 @@
       <root url="file://$PROJECT_DIR$/static/js/myUtils.min.js" />
       <root url="file://$PROJECT_DIR$/static/js/others/qq_cookie.min.js" />
       <root url="file://$PROJECT_DIR$/static/js/wss_for_bili.min.js" />
+      <root url="file://$PROJECT_DIR$/static/js/wss_for_live_music.min.js" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
