@@ -1005,10 +1005,10 @@ def for_bili_setting(request) -> HttpResponse:
         temp.append('='.join(i))
     try:
         return render(request, 'for_bili_setting.html',
-                      {'url': request.GET['music'], 'where': 'music', 'dev': dev, 'params': '&'.join(temp)})
+                      {'url': request.GET['music'], 'where': 'music', 'dev': dev, 'params': '&'.join(temp), 'random': random.random()})
     except KeyError:
         return render(request, 'for_bili_setting.html',
-                      {'url': request.GET['lyric'], 'where': 'lyric', 'dev': dev, 'params': '&'.join(temp)})
+                      {'url': request.GET['lyric'], 'where': 'lyric', 'dev': dev, 'params': '&'.join(temp), 'random': random.random()})
 
 
 def get_sign_params(request):
@@ -1105,6 +1105,7 @@ def for_bili_prepare(request, where) -> HttpResponse:
                     user_settings.update({'secret': last_secret, 'set_flag': plug_env, 'url': music_url,
                                           'params': '&'.join(temp), 'global_setting': global_settings, 'dev': dev,
                                           'real_status': json.dumps(real_status)})
+                user_settings['random'] = random.random()
                 return render(request, template, user_settings)
             except UsersData.DoesNotExist:
                 print('new')

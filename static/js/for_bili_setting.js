@@ -59,6 +59,9 @@ function load_for_bili_setting(user_params, utils, wss) {
             mask2_1: false,
             mask2_2: false,
 
+            information: '',
+            information_mask: false,
+
             add_music: false,
             add_playlist: true,
             choose_overwrite: false,
@@ -98,6 +101,9 @@ function load_for_bili_setting(user_params, utils, wss) {
             },
         },
         watch: {
+            information() {
+                this.information_mask = true;
+            },
             console_info_change() {  // 列表内容改变
                 this.c_num++
                 if (this.scroll_flag) {

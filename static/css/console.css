@@ -392,3 +392,38 @@ hr {
 .playlist-info-text {
     margin: 0;
 }
+
+.music-status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.panel-status {
+    margin-right: 15px;
+    color: #f8fdfe;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.light {
+    width: 10px;
+    height: 10px;
+    margin: 0 5px;
+    border-radius: 5px;
+}
+
+.status-connect {
+    background-color: #2ef52e;
+}
+
+.status-disconnect {
+    background-color: #939393;
+}
+
+.status-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

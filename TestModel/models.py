@@ -174,7 +174,7 @@ class Urls(models.Model):
 
 class UsersData(models.Model):
     username = models.CharField(unique=True, max_length=20)
-    music_name = models.CharField(max_length=9000, blank=True, null=True)
+    music_name = models.TextField(blank=True, null=True)
     now_music_url = models.CharField(max_length=1000, blank=True, null=True)
     who_play = models.IntegerField(blank=True, null=True)
     user_set = models.TextField(blank=True, null=True)
@@ -225,3 +225,14 @@ class ObsPet(models.Model):
     class Meta:
         managed = False
         db_table = 'OBS_Pet'
+
+
+class WebsocketClients(models.Model):
+    key_name = models.CharField(unique=True, max_length=50)
+    channel_name = models.CharField(max_length=200)
+    music_url = models.CharField(max_length=50, blank=True, null=True)
+    lyric_url = models.CharField(max_length=50, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'websocket_clients'

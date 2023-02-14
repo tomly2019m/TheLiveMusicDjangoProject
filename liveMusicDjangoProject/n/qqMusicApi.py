@@ -128,7 +128,12 @@ def get_music_dict(music_name, artist, model=False) -> dict:
     try:
         raw_music_dict = json.loads(login_session.get(url=search_url, headers=headers, params=search_params).text)
         # music_dict = raw_music_dict['data']['song']['itemlist'][0]
-        for music_dict in raw_music_dict['data']['song']['itemlist']:
+        item_list = raw_music_dict['data']['song']['itemlist']
+        if not item_list or item_list is None:
+            qq = QQ_Music()
+            qq._cookies = load_response(username)['qq']['cookie']
+            item_list = qq.search_music(search_content)
+        for music_dict in item_list:
             if artist != '未指定':
                 if artist in music_dict['singer']:
                     return music_dict
@@ -144,11 +149,24 @@ def get_music_dict(music_name, artist, model=False) -> dict:
 
 
 def get_music_info(music_dict):
-    song_mid = music_dict['mid']
-    music_name = music_dict['name']
+    try:
+        song_mid = music_dict['mid']
+    except KeyError:
+        song_mid = music_dict['songmid']
+    try:
+        music_name = music_dict['name']
+    except KeyError:
+        music_name = music_dict['songname']
     # artist = '/'.join(music_dict['singer'])
     artist = music_dict['singer']
-    file_name = [music_name, artist]
+    artist_list = []
+    if type(artist) is list:
+        for i in artist:
+            artist_list.append(i['name'])
+        file_name = [music_name, '/'.join(artist_list)]
+    else:
+
+        file_name = [music_name, artist]
     return file_name, song_mid
 
 
