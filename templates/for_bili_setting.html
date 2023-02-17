@@ -5,14 +5,14 @@
     <meta charset="UTF-8">
     <title>Live Music 控制台</title>
     <link rel="icon" href="{% static "images/favicon.ico" %}">
-    <link rel="stylesheet" href="{% static "css/base.css" %}">
-    <link rel="stylesheet" href="{% static "css/sheet.css" %}">
-    <link rel="stylesheet" href="{% static "css/console.css" %}">
-    <link rel="stylesheet" href="{% static "css/iconfont.css" %}">
-    <link rel="stylesheet" href="{% static "css/mask_panel.css" %}">
 
     <script src="{% static "js/others/jquery-3.4.1.min.js" %}"></script>
     {% if dev %}
+        <link rel="stylesheet" href="{% static "css/base.css" %}">
+        <link rel="stylesheet" href="{% static "css/sheet.css" %}">
+        <link rel="stylesheet" href="{% static "css/console.css" %}">
+        <link rel="stylesheet" href="{% static "css/iconfont.css" %}">
+        <link rel="stylesheet" href="{% static "css/mask_panel.css" %}">
         <script src="{% static "js/myUtils.js" %}"></script>
         <script src="{% static "js/others/vue.js" %}"></script>
         <script src="{% static "js/array_equals.js" %}"></script>
@@ -20,13 +20,18 @@
         <script src="{% static "js/for_bili_setting.js" %}"></script>
         <script src="{% static "js/wss_for_live_music.js" %}"></script>
     {% else %}
-        <script src="{% static "js/myUtils.min.js" %}"></script>
-        <script src="{% static "js/others/vue.min.js" %}"></script>
-        <script src="{% static "js/for_bilibili.min.js" %}"></script>
-        <script src="{% static "js/array_equals.min.js" %}"></script>
-        <script src="{% static "js/display_setting.min.js" %}"></script>
-        <script src="{% static "js/for_bili_setting.min.js" %}"></script>
-        <script src="{% static "js/wss_for_live_music.min.js" %}"></script>
+        <link rel="stylesheet" href="{% static "css/base.min.css" %}?v={{ random }}">
+        <link rel="stylesheet" href="{% static "css/sheet.min.css" %}?v={{ random }}">
+        <link rel="stylesheet" href="{% static "css/console.min.css" %}?v={{ random }}">
+        <link rel="stylesheet" href="{% static "css/iconfont.min.css" %}?v={{ random }}">
+        <link rel="stylesheet" href="{% static "css/mask_panel.min.css" %}?v={{ random }}">
+        <script src="{% static "js/myUtils.min.js" %}?v={{ random }}"></script>
+        <script src="{% static "js/others/vue.min.js" %}?v={{ random }}"></script>
+        <script src="{% static "js/for_bilibili.min.js" %}?v={{ random }}"></script>
+        <script src="{% static "js/array_equals.min.js" %}?v={{ random }}"></script>
+        <script src="{% static "js/display_setting.min.js" %}?v={{ random }}"></script>
+        <script src="{% static "js/for_bili_setting.min.js" %}?v={{ random }}"></script>
+        <script src="{% static "js/wss_for_live_music.min.js" %}?v={{ random }}"></script>
     {% endif %}
     <script>
         let vm;
@@ -60,12 +65,24 @@
     {% verbatim %}
     <div class="panel">
         <div class="music-panel">
-            <ul id="u">
-                <li>
-                    <span class="music-name">{{ now_play[0] }}</span>
-                    <span class="artist">{{ now_play[1] }}</span>
-                </li>
-            </ul>
+            <div class="music-status">
+                <ul id="u">
+                    <li>
+                        <span class="music-name">{{ now_play[0] }}</span>
+                        <span class="artist">{{ now_play[1] }}</span>
+                    </li>
+                </ul>
+                <div class="panel-status">
+                    <div class="status-info" title="歌名界面与控制台的连接情况">
+                        <div class="light status-disconnect" id="music_status"></div>
+                        <div class="status-text">歌名</div>
+                    </div>
+                    <div class="status-info" title="歌词界面名与控制台的连接情况">
+                        <div class="light status-disconnect" id="lyric_status"></div>
+                        <div class="status-text">歌词</div>
+                    </div>
+                </div>
+            </div>
             <hr>
             <div class="music-info">
                 <div>
@@ -74,7 +91,8 @@
                         {{
                         start_getting_text }}</p>
                     -->
-                    <p class="base conform" id="start_dan_mu" style="padding: 5px 0 0 0" onclick="my_wss.start_getting()">
+                    <p class="base conform" id="start_dan_mu" style="padding: 5px 0 0 0"
+                       onclick="my_wss.start_getting()">
                         {{
                         start_getting_text }}</p>
                 </div>
@@ -210,15 +228,25 @@
 
     <div class="page-mask-on" v-show="mask2">
         <div class="question-panel place-center">
-            <div class="panel-content">
-                设置改不了？歌曲删不掉？试试重置个人数据吧~
-                <p class="base conform" style="float: right;margin: 5px;text-decoration: none;color: #ffffff;text-align: center;
+            <div class="panel-content" style="height: calc(100% - 60px);display: flex;flex-direction: column;">
+                <div>
+                    <div>设置改不了？歌曲删不掉？试试重置个人数据吧~</div>
+                    <div class="base conform" style="float: right;margin: 0;text-decoration: none;color: #ffffff;text-align: center;
     padding: 5px 0 0 0;font-family: Microsoft YaHei, Microsoft Sans Serif, Microsoft SanSerf, 微软雅黑, serif"
-                   onclick="utils.reset_own_database(vm, '{{ where }}_url')">重置个人数据</p>
-                <br>
-                <p class="base conform"><a style="text-decoration: none;color: white"
-                                           href="https://live-music.the-little-princes.com/document" target="_blank">设置教程</a>
-                </p>
+                         onclick="utils.reset_own_database(vm, '{{ where }}_url')">重置个人数据
+                    </div>
+                </div>
+
+                <div style="display: flex;align-items: center;justify-content: center;flex-direction: column;">
+                    <div>不太会用？可以看看设置教程</div>
+                    <a class="base conform"
+                       style="text-decoration: none;color: white;display: flex;width: 100%;align-items: center;justify-content: center;"
+                       href="https://live-music.the-little-princes.com/document"
+                       target="_blank">
+                        <div style="width: auto;">详细教程</div>
+                    </a>
+                </div>
+
             </div>
             <div class="close-button control-button" v-on:click="mask2 = false"
                  onclick="$('#music_name').val('');$('#artist').val('')"
@@ -232,11 +260,11 @@
             <div class="panel-content">
                 个人数据已重置
             </div>
-{#            <div class="close-button control-button" v-on:click="music_mask = false"#}
-{#                 onclick="$('#music_name').val('');$('#artist').val('')"#}
-{#                 title="关闭">#}
-{#                <span>✕</span>#}
-{#            </div>#}
+            {#            <div class="close-button control-button" v-on:click="music_mask = false"#}
+            {#                 onclick="$('#music_name').val('');$('#artist').val('')"#}
+            {#                 title="关闭">#}
+            {#                <span>✕</span>#}
+            {#            </div>#}
         </div>
     </div>
     <div class="page-mask-on" v-show="mask2_2">
@@ -246,6 +274,16 @@
             </div>
             <div class="close-button control-button" v-on:click="mask2_2 = false"
                  onclick="$('#music_name').val('');$('#artist').val('')"
+                 title="关闭">
+                <span>✕</span>
+            </div>
+        </div>
+    </div>
+    <div class="page-mask-on" v-show="information_mask">
+        <div class="add-music-panel place-center">
+            <div class="panel-content" v-text="information">
+            </div>
+            <div class="close-button control-button" v-on:click="information_mask = false"
                  title="关闭">
                 <span>✕</span>
             </div>
@@ -367,7 +405,8 @@
                                    style="background-color: #cef7ff;"
                                    placeholder="粘贴歌单链接或id">
                         </div>
-                        <input type="submit" class="base conform" style="width: 50px" value="提交" onclick="utils.load_playlist_to_database(vm)"/>
+                        <input type="submit" class="base conform" style="width: 50px" value="提交"
+                               onclick="utils.load_playlist_to_database(vm)"/>
                     </div>
                 </div>
             </div>

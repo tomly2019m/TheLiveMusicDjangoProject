@@ -6,6 +6,7 @@ from . import (
     EapiCryptoRequest,
     WeapiCryptoRequest,
     GetCurrentSession,
+    SetNewSession,
     # logger,
     LoginFailedException,
     dump_response,
@@ -23,6 +24,7 @@ def WriteLoginInfo(response, cookie=''):
     Raises:
         LoginFailedException: 登陆失败时发生
     """
+    # SetNewSession()
     sess = GetCurrentSession()
     sess.login_info = {"tick": time.time(), "content": response}
     if not sess.login_info["content"]["code"] == 200:

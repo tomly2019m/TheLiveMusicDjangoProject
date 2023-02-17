@@ -206,7 +206,7 @@ def save_playlist_in(platform: str, playlist_id: Union[str, int], overwrite: Uni
     if overwrite:
         data['playlist'] = []
     if platform == 'qq':
-        result = qqMusicApi.playlist_info(playlist_id)['songList']
+        result = qqMusicApi.playlist_info(int(playlist_id))['req_0']['data']['songlist']
         for music_dict in result:
             artist = []
             for artist_dict in music_dict['singer']:
@@ -342,7 +342,6 @@ def save_music_info(music_name, username) -> Tuple[List[Any], str, dict]:
     :param username:
     :return: music_info_list, music_url, lyric
     """
-    # todo
     file_name = ['', '']
     music_info = {}
     music_name, artist = pre_music_set(music_name)
@@ -472,11 +471,11 @@ def save_random_music_in(username: str, flag=False) -> Tuple[List[Any], str, str
 
     :param username: 用户名
     :param flag: （占位无用）
-    :return: None
+    :return: music_info, music_url, lyric
     """
     music_info, file_name, music_url, lyric, status = random_get_playlist_music(username)
     if music_url == '' and status:
-        save_random_music_in(username, flag)
+        return save_random_music_in(username, flag)
     elif not status:
         write_console_info(username, '空闲歌单出错或没有歌曲')
         return [], '', ''
@@ -493,7 +492,6 @@ def save_random_music_in(username: str, flag=False) -> Tuple[List[Any], str, str
         else:
             write_console_info(username, f'{file_name[0]}-{file_name[1]}: 歌词获取失败')
         return music_info, music_url, lyric
-    ...
 
 
 def save_music_in_database(file_name, music_url, lyric, flag, username):

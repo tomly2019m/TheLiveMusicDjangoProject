@@ -177,7 +177,7 @@ class BiliBili_WEBSocket extends WebSocket {
                             }
                         }
                         if (this.time_flag) {
-                            this.vm.$data.information = '备用弹幕服务已连接'
+                            this.vm.$data.information = '备用弹幕服务已连接';
                             setTimeout(() => {
                                 this.vm.$data.now_view = this.vm.$data.who_i_am === 0 ? 'music_name' : 'music_lyric';
                             }, 1000);

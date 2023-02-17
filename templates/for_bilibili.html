@@ -3,6 +3,11 @@
 <html lang="en" xmlns:v-bind="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=8">
+    <meta http-equiv="Expires" content="0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="Cache" content="no-cache">
     <title>Live Music 弹幕点歌</title>
     <script src="{% static "js/others/jquery-3.4.1.min.js" %}"></script>
     <link rel="icon" href="{% static "images/favicon.ico" %}">
@@ -20,23 +25,27 @@
         <script src="{% static "/js/wss_for_bili.js" %}"></script>
         <script src="{% static "js/wss_for_live_music.js" %}"></script>
     {% else %}
-        <link rel="stylesheet" href="{% static "css/bili.min.css" %}">
-        <link rel="stylesheet" href="{% static "css/sheet.min.css" %}">
-        <link rel="stylesheet" href="{% static "css/console.min.css" %}">
-        <link rel="stylesheet" href="{% static "css/iconfont.min.css" %}">
-        <link rel="stylesheet" href="{% static "css/mask_panel.min.css" %}">
-        <script src="{% static "js/myUtils.min.js" %}"></script>
-        <script src="{% static "js/dan_mu_ku.min.js" %}"></script>
-        <script src="{% static "js/others/vue.min.js" %}"></script>
-        <script src="{% static "js/array_equals.min.js" %}"></script>
-        <script src="{% static "js/for_bilibili.min.js" %}"></script>
-        <script src="{% static "/js/wss_for_bili.min.js" %}"></script>
-        <script src="{% static "js/wss_for_live_music.min.js" %}"></script>
+        <link rel="stylesheet" href="{% static "css/bili.min.css" %}?v={{ random }}">
+        <link rel="stylesheet" href="{% static "css/sheet.min.css" %}?v={{ random }}">
+        <link rel="stylesheet" href="{% static "css/console.min.css" %}?v={{ random }}">
+        <link rel="stylesheet" href="{% static "css/iconfont.min.css" %}?v={{ random }}">
+        <link rel="stylesheet" href="{% static "css/mask_panel.min.css" %}?v={{ random }}">
+        <script src="{% static "js/myUtils.min.js" %}?v={{ random }}"></script>
+        <script src="{% static "js/dan_mu_ku.min.js" %}?v={{ random }}"></script>
+        <script src="{% static "js/others/vue.min.js" %}?v={{ random }}"></script>
+        <script src="{% static "js/array_equals.min.js" %}?v={{ random }}"></script>
+        <script src="{% static "js/for_bilibili.min.js" %}?v={{ random }}"></script>
+        <script src="{% static "/js/wss_for_bili.min.js" %}?v={{ random }}"></script>
+        <script src="{% static "js/wss_for_live_music.min.js" %}?v={{ random }}"></script>
     {% endif %}
     <script>
         let vm
         let utils = new MyUtils()
-        let my_wss = new LiveMusicWebsocket('vm', utils, '{{ url }}');
+        {% if not set_flag %}
+            let my_wss = new LiveMusicWebsocket('vm', utils, '{{ url }}');
+        {% else %}
+            let my_wss = '';
+        {% endif %}
 
         let black_list = {{ global_setting|safe }};
         let auth_str = '{{ auth|safe }}'
@@ -84,7 +93,11 @@
             {% if not set_flag %}
                 new BiliBili_WEBSocket(vm, auth_str, utils, utils.on_wss, [vm, '{{ url }}', 'music_url'])
                 my_wss.vm = vm;
-                utils.htmlAudioElement.play();
+                setTimeout(() => {
+                    if (vm.$data.who_play === vm.$data.who_i_am) {
+                        utils.htmlAudioElement.play();
+                    }
+                }, 5000);
                 utils.get_union_data(vm, utils, [utils.get_base_control, utils.get_music_info_list, utils.get_is_running])
                 /*
                 setInterval(() => {

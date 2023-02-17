@@ -21,7 +21,7 @@ from ..utils.crypto import (
     WeapiEncrypt,
     AbroadDecrypt,
 )
-from .. import GetCurrentSession, logger, dump_response, load_response
+from .. import GetCurrentSession, SetNewSession, logger, dump_response, load_response
 
 
 class LoginRequiredException(Exception):

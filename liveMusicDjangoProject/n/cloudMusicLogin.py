@@ -8,7 +8,7 @@ import qrcode
 
 from pyncm import load_response
 from pyncm.apis.login import LoginQrcodeUnikey, \
-    LoginQrcodeCheck, GetCurrentLoginStatus, write_login_info_and_dump_to_database, WriteLoginInfo
+    LoginQrcodeCheck, GetCurrentLoginStatus, write_login_info_and_dump_to_database, WriteLoginInfo, SetNewSession
 
 
 def check_qr_status(uuid, username):
@@ -41,6 +41,7 @@ def get_qrcode(username):
     :param username: 用户名
     :return: 二维码base64文本
     """
+    SetNewSession()
     uuid = LoginQrcodeUnikey()["unikey"]  # 获取 UUID
     print("UUID", uuid)
     url = f"https://music.163.com/login?codekey={uuid}"  # 二维码内容即这样的 URL

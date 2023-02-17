@@ -443,13 +443,19 @@ class MyUtils {
         }
         try {
             const localCurrentTime = parseInt(localStorage.getItem(music_src));
-            this.htmlAudioElement.currentTime = localCurrentTime;
-            if (localCurrentTime !== 0) {
+            if (localCurrentTime !== 0 && !isNaN(localCurrentTime)) {
+                this.htmlAudioElement.currentTime = localCurrentTime;
                 this.htmlAudioElement.play().then(() => {
                     this.is_play = 1
                     console.log(this)
                     console.log(this.is_play)
                 })
+            } else {
+                this.htmlAudioElement.play().then(() => {
+                this.is_play = 1
+                console.log(this)
+                console.log(this.is_play)
+            })
             }
         } catch (e) {
             this.htmlAudioElement.play().then(() => {
@@ -770,6 +776,7 @@ class MyUtils {
      */
     who_play_control(vm, extend, data) {
         const who_play = data.who_play;
+        vm.$data.who_play = who_play;
         console.log(who_play);
         $("[name='switch']:eq(0)").prop("checked", !who_play);
     }
