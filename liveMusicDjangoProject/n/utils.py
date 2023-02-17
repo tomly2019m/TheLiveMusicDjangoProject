@@ -206,7 +206,7 @@ def save_playlist_in(platform: str, playlist_id: Union[str, int], overwrite: Uni
     if overwrite:
         data['playlist'] = []
     if platform == 'qq':
-        result = qqMusicApi.playlist_info(playlist_id)['songList']
+        result = qqMusicApi.playlist_info(int(playlist_id))['req_0']['data']['songlist']
         for music_dict in result:
             artist = []
             for artist_dict in music_dict['singer']:

@@ -168,7 +168,7 @@ function load_for_bili_setting(user_params, utils, wss) {
                     music_name: music,
                 }
                 $.get('move_music', params)*/
-                wss.move_music(this.url, this.where, music, artist, index);
+                wss.move_music(music, artist, index);
             },
         },
         created() {

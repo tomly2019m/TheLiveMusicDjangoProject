@@ -198,7 +198,7 @@ def my_playlist(str_username):
 
 def playlist_info(playlist_id):
     qq = QQ_Music()
-    return qq.get_playlist_info(playlist_id)
+    return qq.get_playlist_info_num(playlist_id, 0)
 
 
 def search_lyric(song_mid: str):

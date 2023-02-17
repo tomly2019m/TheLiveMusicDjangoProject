@@ -3,6 +3,7 @@ import asyncio
 import json
 
 from asgiref.sync import sync_to_async
+from channels.exceptions import StopConsumer
 from channels.generic.websocket import AsyncWebsocketConsumer
 from TestModel.models import UsersData, UsersInfo, WebsocketClients
 from liveMusicDjangoProject.n import utils
@@ -111,15 +112,18 @@ class LiveMusicWebsocket(AsyncWebsocketConsumer):
         await save_database(key_name, self.channel_name)
         await self.accept()
         print(f'key_name:[{self.get_key_name()}],channel_name:[{self.channel_name}] connected')
-        timer = Timer(90, self.close)
-        timer_dict[key_name] = timer
-        timer.start()
+        # timer = Timer(90, self.close)
+        # timer_dict[key_name] = timer
+        # timer.start()
         # print(timer_dict)
         # print(f'当前全部组:{self.channel_layer}')
 
     async def disconnect(self, code):
         print(code)
-        await self.discard_group()
+        for group in self.groups:
+            await self.channel_layer.group_discard(group, self.channel_name)
+        raise StopConsumer()
+        # await self.discard_group()
 
     async def receive(self, text_data=None, bytes_data=None):
         try:
@@ -151,17 +155,18 @@ class LiveMusicWebsocket(AsyncWebsocketConsumer):
             pass
 
     async def heartbeat(self, event):
+        ...
         group_id = self.get_key_name()
         print('now_heart', len(timer_dict))
-        try:
-            timer = timer_dict[group_id]
-            timer.cancel()
-            timer.start()
-            await self.send('{"status": true}')
-        except KeyError:
-            timer = Timer(90, self.close)
-            timer_dict[group_id] = timer
-            timer.start()
+        # try:
+        #     timer = timer_dict[group_id]
+        #     timer.cancel()
+        #     timer.start()
+        #     await self.send('{"status": true}')
+        # except KeyError:
+        #     timer = Timer(90, self.close)
+        #     timer_dict[group_id] = timer
+        #     timer.start()
 
     async def send_content_to_group(self, group_ids, data):
         for group_id in group_ids:
@@ -379,13 +384,17 @@ class LiveMusicWebsocket(AsyncWebsocketConsumer):
                 if music_name_index == 1:
                     music_name_list.insert(1, select_obj)
                     await self.next_music(
-                        {'content': {'music_name_list': music_name_list, 'now_music_url': music_url, 'where': 'music'}}
+                        {'content': {'music_name_list': music_name_list, 'url': music_url, 'where': 'music'}}
                     )
                 else:
                     music_name_list.insert(1, select_obj)
                     await database_sync_to_async(UsersData.objects.filter(username=username).update)(
                         music_name=json.dumps(music_name_list)
                     )
+                    info = {'type': 'add_music',
+                            'content': {'music_info_list': music_name_list}}
+                    channels_names = await get_channel_name([music_url, f'{music_url}_x1', f'{lyric_url}_x1'])
+                    await self.send_content_to(channels_names, info)
             send_content['content']['status'] = True
         else:
             send_content['content']['status'] = False
