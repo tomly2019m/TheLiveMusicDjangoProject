@@ -155,7 +155,6 @@ class LiveMusicWebsocket(AsyncWebsocketConsumer):
             pass
 
     async def heartbeat(self, event):
-        ...
         group_id = self.get_key_name()
         print('now_heart', len(timer_dict))
         # try:
