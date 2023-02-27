@@ -686,11 +686,12 @@ class MyUtils {
             music_info_list = data.music_info_list;
             music_info = music_info_list[0];
         }
-        const temp = [];
-        music_info_list.forEach(element => {
-            temp.push(element.file_name);
-        })
-        vm.$data.music_info = temp;
+        // const temp = [];
+        // music_info_list.forEach(element => {
+        //     temp.push(element.file_name);
+        // })
+        // vm.$data.music_info = temp;
+        vm.$data.music_info = music_info_list;
         if (music_info !== undefined && music_info.file_name !== undefined) {
             if (!extend.is_empty(music_info.file_name[0])) {
                 vm.$data.now_music_name = music_info.file_name.join(', ');
@@ -700,7 +701,10 @@ class MyUtils {
                 // $.get('/next_music', {url: vm.$data.url, where: vm.$data.who_i_am ? 'lyric' : 'music'});
             }
         } else {
-            vm.$data.music_info = [['暂无歌曲', '无']];
+            vm.$data.music_info = [{
+                file_name: ['暂无歌曲', '无'],
+                uid: 0
+            }];
             vm.$data.now_music_name = '';
             extend.htmlAudioElement.src = '';
             extend.is_play = 0;
@@ -1599,10 +1603,18 @@ class MyUtils {
             console.log('comment: ' + comment + '\ncommand: ' + command)
             if (command === '点歌' || command === '.') {
                 let {music_name, artist, status} = extend.dan_mu_msg_filter(vm, extend, uid, uname, comment, command)
-                if (vm.$data.start_flag && status && vm.$data.who_play === vm.$data.who_i_am) {
-                    extend.send_music_info_to_server(vm, music_name, artist, url, who)
+                if (vm.$data.start_flag !== undefined) {
+                    if (vm.$data.start_flag && status && vm.$data.who_play === vm.$data.who_i_am) {
+                        extend.send_music_info_to_server(vm, music_name, artist, url, who)
+                    } else {
+                        console.log('stop\n' + music_name + ': ' + artist)
+                    }
                 } else {
-                    console.log('stop\n' + music_name + ': ' + artist)
+                    if (status && vm.$data.who_play === vm.$data.who_i_am) {
+                        extend.send_music_info_to_server(vm, music_name, artist, url, who)
+                    } else {
+                        console.log('stop\n' + music_name + ': ' + artist)
+                    }
                 }
             } else if (command === '切歌' || command === '>') {
                 if (!extend.is_black_user(vm, uid, uname)) {

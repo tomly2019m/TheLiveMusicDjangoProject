@@ -69,7 +69,7 @@ function load_for_bili_setting(user_params, utils, wss) {
             last: '',
             utils: utils,
 
-            now_play: ['暂无歌曲', '暂无'],
+            now_play: {file_name: ['暂无歌曲', '暂无']},
             wait_to_play: [],
 
             last_list: [],
@@ -112,7 +112,7 @@ function load_for_bili_setting(user_params, utils, wss) {
                 }
             },
             music_info_change() {
-                this.now_play = this.music_info[0];
+                this.now_play = this.music_info[0].file_name;
                 let wait_to_play = [...this.music_info];
                 wait_to_play.shift();
                 this.wait_to_play = wait_to_play;

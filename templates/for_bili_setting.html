@@ -160,21 +160,21 @@
                         v-on:mouseenter="utils.display_operation('#o' + key)"
                         v-on:mouseleave="utils.hidden_operation('#o' + key)">
                         <!--<span v-bind:key="m_num" v-html="value"></span>-->
-                        <div class="music-name">{{ value[0] }}</div>
-                        <div class="artist">{{ value[1] }}</div>
+                        <div class="music-name">{{ value.file_name[0] }}</div>
+                        <div class="artist">{{ value.file_name[0] }}</div>
                         <div class="operation" mode="out-in" v-bind:id="'o' + key">
                             <div style="display: inline-flex">
                                 <button class="delete conform"
-                                        v-on:click="delete_music('#li' + key, value[0], value[1])">
+                                        v-on:click="delete_music('#li' + key, value.file_name[0], value.file_name[0])">
                                     删除
                                 </button>
                                 <button class="delete conform" style="margin-right: 5px;"
-                                        v-on:click="move_music('#li' + key, value[0], value[1], 1)">
+                                        v-on:click="move_music('#li' + key, value.file_name[0], value.file_name[0], 1)">
                                     播放
                                 </button>
                             </div>
                             <button class="delete conform" style="margin: 5px 5px 5px 0;"
-                                    v-on:click="move_music('#li' + key, value[0], value[1], 2)">
+                                    v-on:click="move_music('#li' + key, value.file_name[0], value.file_name[0], 2)">
                                 下一首播放
                             </button>
                         </div>

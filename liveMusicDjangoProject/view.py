@@ -4,6 +4,7 @@ import sys
 import threading
 from typing import Tuple
 
+import requests
 from django.contrib.sessions.models import Session
 from django.core.exceptions import FieldError
 from django.http import HttpResponse
@@ -1072,7 +1073,7 @@ def for_bili_prepare(request, where) -> HttpResponse:
                 if not plug_env:
                     try:
                         auth_body, room_id = get_websocket_auth_body_and_room_id(user_code, bili_app_id)
-                    except TypeError:
+                    except (TypeError, requests.exceptions.ProxyError):
                         return render(
                             request, 'show_error_info.html',
                             {'error_information': '阿伟又在刷新哦  休息60s好不好(过于频繁)'}
@@ -1111,7 +1112,7 @@ def for_bili_prepare(request, where) -> HttpResponse:
                 print('new')
                 try:
                     auth_body, room_id = get_websocket_auth_body_and_room_id(user_code, bili_app_id)
-                except TypeError:
+                except (TypeError, requests.exceptions.ProxyError):
                     return render(
                         request, 'show_error_info.html',
                         {'error_information': '阿伟又在刷新哦  休息60s好不好(过于频繁)'}
