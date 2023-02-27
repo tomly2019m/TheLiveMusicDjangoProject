@@ -134,13 +134,13 @@
                         {% verbatim %}
                         <ul v-bind:key="now_view">
                             <transition-group mode="in-out">
-                                <li v-for="(value, key) in music_info" v-bind:key="value[0] + now_view"
+                                <li v-for="(value, key) in music_info" v-bind:key="value.file_name[0] + now_view"
                                     v-bind:style="li_style">
                                     <span class="music-name"
-                                          v-bind:style="first_style" v-bind:key="'music_name' + test_flag + !now_view">{{ value[0] }}</span>
+                                          v-bind:style="first_style" v-bind:key="'music_name' + test_flag + !now_view">{{ value.file_name[0] }}</span>
                                     <span class="artist"
                                           v-bind:style="second_style"
-                                          v-bind:key="'artist_name' + test_flag + now_view">{{ value[1] }}</span>
+                                          v-bind:key="'artist_name' + test_flag + now_view">{{ value.file_name[1] }}</span>
                                 </li>
                             </transition-group>
                         </ul>

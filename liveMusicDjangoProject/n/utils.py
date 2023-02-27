@@ -797,7 +797,7 @@ def get_websocket_info(app_id, code: str) -> dict:
     :param code: 用户身份码
     :return: 长连信息、场次信息和主播信息字典
     """
-    return bili_auth.post_request('v2/app/start', params={'code': code, 'app_id': app_id})
+    return bili_auth.post_request('v2/app/start', params={'code': code, 'app_id': app_id}, timeout=10)
 
 
 def send_batch_heartbeat(game_ids: list):

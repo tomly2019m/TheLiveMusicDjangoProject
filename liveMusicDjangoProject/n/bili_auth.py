@@ -9,7 +9,7 @@ from hashlib import sha256
 import requests
 
 
-def post_request(url: str, params: dict):
+def post_request(url: str, params: dict, timeout=None):
     """
     使用B站官方接口获取数据
 
@@ -52,7 +52,7 @@ def post_request(url: str, params: dict):
     header_map["Content-Type"] = "application/json"
     header_map["Accept"] = "application/json"
 
-    r = requests.post(url=post_url, headers=header_map, data=params, verify=False)
+    r = requests.post(url=post_url, headers=header_map, data=params, verify=False, timeout=timeout)
     status_code = r.status_code
     content = json.loads(r.content.decode())
     print(content)

@@ -11,6 +11,7 @@ from liveMusicDjangoProject.view import update_play_data
 from channels.db import database_sync_to_async
 
 timer_dict = {}
+flag = 1
 
 
 @sync_to_async
