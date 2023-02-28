@@ -161,7 +161,7 @@
                         v-on:mouseleave="utils.hidden_operation('#o' + key)">
                         <!--<span v-bind:key="m_num" v-html="value"></span>-->
                         <div class="music-name">{{ value.file_name[0] }}</div>
-                        <div class="artist">{{ value.file_name[0] }}</div>
+                        <div class="artist">{{ value.file_name[1] }}</div>
                         <div class="operation" mode="out-in" v-bind:id="'o' + key">
                             <div style="display: inline-flex">
                                 <button class="delete conform"
@@ -212,7 +212,7 @@
                         <span>歌手:<input type="text" id="artist" class="set-color-text base" placeholder=""></span>
                     </label>
                     <input type="submit" class="base conform" value="提交"
-                           onclick="let a = $('#music_name'); let b = $('#artist'); my_wss.move_music(a.val(), b.val(), -1);a.val('');b.val('');"
+                           onclick="let a = $('#music_name'); let b = $('#artist'); my_wss.move_music(a.val(), b.val(), 0, '主播', -1);a.val('');b.val('');"
                            v-on:click="mask1 = false">
                     <!--onclick="$.get('/move_music?where_url={{ where }}_url&url={{ url }}&music_name=' + $('#music_name').val() + '&artist=' + $('#artist').val() + '&index=-1');$('#music_name').val('');$('#artist').val('')"-->
                 </div>

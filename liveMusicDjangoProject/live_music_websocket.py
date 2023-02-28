@@ -312,35 +312,11 @@ class LiveMusicWebsocket(AsyncWebsocketConsumer):
         await self.send_content_to(channels_names, send_content)
         # await self.send_content_to_group([music_url, lyric_url, f'{music_url}_x1', f'{lyric_url}_x1'], send_content)
 
-    @staticmethod
-    async def pretreatment(username, raw_content):
-        try:
-            music_name, artist = raw_content['music_name'], raw_content['artist']
-            result = await database_sync_to_async(UsersData.objects.get)(username=username)
-            music_name_list = json.loads(result.music_name)
-            file_name = [music_name, artist]
-            i = 0
-            flag = False
-            for i, music_info in enumerate(music_name_list):
-                if i == 0:
-                    continue
-                if music_info['file_name'] == file_name:
-                    flag = True
-                    break
-            # if flag and request.GET['index']:
-            if flag:
-                select_obj = music_name_list.pop(i)
-            else:
-                select_obj = {'file_name': [music_name, artist]}
-            return username, select_obj, music_name_list
-        except KeyError:
-            return '', {}, []
-
     async def del_music(self, event):
         raw_content = event['content']
         send_content = {'type': 'base_status', 'content': {}}
         username, music_url, lyric_url, check_status, who = await check_auth(raw_content)
-        username, select_obj, music_name_list = await self.pretreatment(username, raw_content)
+        username, select_obj, music_name_list = await pretreatment(username, raw_content)
         if username == '' and music_name_list == []:
             send_content['content']['status'] = False
         else:
@@ -364,9 +340,11 @@ class LiveMusicWebsocket(AsyncWebsocketConsumer):
         username, music_url, lyric_url, check_status, who = await check_auth(raw_content)
         if check_status:
             music_name_index = int(raw_content['index'])
-            username, select_obj, music_name_list = await self.pretreatment(username, raw_content)
+            username, select_obj, music_name_list = await pretreatment(username, raw_content)
             if music_name_index == -1:
-                music_info_list, url, lyric = await sync_to_async(utils.save_music_info)(select_obj, username)
+                send_user_info = {'uid': raw_content['uid'], 'uname': raw_content['uname']}
+                music_info_list, url, lyric = await sync_to_async(utils.save_music_info)(select_obj, username,
+                                                                                         send_user_info)
                 info = {'type': 'add_music',
                         'content': {'music_info_list': music_info_list, 'now_music_url': url, 'lyric': lyric}}
                 if len(music_info_list) == 1:
@@ -413,3 +391,27 @@ class LiveMusicWebsocket(AsyncWebsocketConsumer):
 
     async def send_message_to(self, event):
         ...
+
+
+async def pretreatment(username, raw_content):
+    try:
+        music_name, artist = raw_content['music_name'], raw_content['artist']
+        result = await database_sync_to_async(UsersData.objects.get)(username=username)
+        music_name_list = json.loads(result.music_name)
+        file_name = [music_name, artist]
+        i = 0
+        flag = False
+        for i, music_info in enumerate(music_name_list):
+            if i == 0:
+                continue
+            if music_info['file_name'] == file_name:
+                flag = True
+                break
+        # if flag and request.GET['index']:
+        if flag:
+            select_obj = music_name_list.pop(i)
+        else:
+            select_obj = {'file_name': [music_name, artist]}
+        return username, select_obj, music_name_list
+    except KeyError:
+        return '', {}, []

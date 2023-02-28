@@ -335,9 +335,10 @@ def load_music(index: int, username: Union[str, int]) -> None:
     save_music_info_in_database(music_info, username, True)
 
 
-def save_music_info(music_name, username) -> Tuple[List[Any], str, dict]:
+def save_music_info(music_name, username, send_user_info) -> Tuple[List[Any], str, dict]:
     """
 
+    :param send_user_info:
     :param music_name:
     :param username:
     :return: music_info_list, music_url, lyric
@@ -349,7 +350,7 @@ def save_music_info(music_name, username) -> Tuple[List[Any], str, dict]:
         order_list = smart_choose_load(username)
         # order_list = ['ku_wo']
         for who in order_list:
-            music_info = get_platform_music_info(who, music_name, artist)
+            music_info = get_platform_music_info(who, music_name, artist, send_user_info)
             if music_info != {}:
                 file_name, music_url, lyric = analyze_music_information(music_info, username)
                 if file_name != ['', ''] and (music_url != '' and music_url is not None):
@@ -363,7 +364,7 @@ def save_music_info(music_name, username) -> Tuple[List[Any], str, dict]:
     return [], '', {}
 
 
-def get_platform_music_info(platform, music_name, artist):
+def get_platform_music_info(platform, music_name, artist, send_user_info):
     music_info = {}
     try:
         if platform == 'cloud':
@@ -373,6 +374,8 @@ def get_platform_music_info(platform, music_name, artist):
                 'id': song_mid,
                 'platform': 'cloud',
                 'file_name': file_name,
+                'uid': send_user_info['uid'],
+                'uname': send_user_info['uname'],
             }
         elif platform == 'qq':
             music_dict = qqMusicApi.get_music_dict(music_name, artist)
@@ -381,6 +384,8 @@ def get_platform_music_info(platform, music_name, artist):
                 'id': song_mid,
                 'platform': 'qq',
                 'file_name': file_name,
+                'uid': send_user_info['uid'],
+                'uname': send_user_info['uname'],
             }
         elif platform == 'ku_wo':
             music_dict = kuWoApi.get_music_dict(music_name, artist)
@@ -389,6 +394,8 @@ def get_platform_music_info(platform, music_name, artist):
                 'id': song_mid,
                 'platform': 'ku_wo',
                 'file_name': file_name,
+                'uid': send_user_info['uid'],
+                'uname': send_user_info['uname'],
             }
             ...
     except (KeyError, TypeError):
