@@ -203,12 +203,14 @@ class LiveMusicWebsocket {
         this.send_formatted_ws('del_music', params);
     }
 
-    move_music(music, artist, index) {
+    move_music(music, artist, user_id, username, index) {
         let params = {
             url: this.vm.$data.url,
             'music_name': music,
             'artist': artist,
             'index': index,
+            'uid': user_id,
+            'uname': username,
         };
         if (this.vm.$data.where) {
             params.where = this.vm.$data.where;

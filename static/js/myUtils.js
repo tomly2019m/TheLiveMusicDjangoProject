@@ -452,10 +452,10 @@ class MyUtils {
                 })
             } else {
                 this.htmlAudioElement.play().then(() => {
-                this.is_play = 1
-                console.log(this)
-                console.log(this.is_play)
-            })
+                    this.is_play = 1
+                    console.log(this)
+                    console.log(this.is_play)
+                })
             }
         } catch (e) {
             this.htmlAudioElement.play().then(() => {
@@ -1603,20 +1603,14 @@ class MyUtils {
             console.log('comment: ' + comment + '\ncommand: ' + command)
             if (command === '点歌' || command === '.') {
                 let {music_name, artist, status} = extend.dan_mu_msg_filter(vm, extend, uid, uname, comment, command)
-                if (vm.$data.start_flag !== undefined) {
-                    if (vm.$data.start_flag && status && vm.$data.who_play === vm.$data.who_i_am) {
-                        extend.send_music_info_to_server(vm, music_name, artist, url, who)
-                    } else {
-                        console.log('stop\n' + music_name + ': ' + artist)
-                    }
+
+                if ((vm.$data.start_flag !== undefined ? vm.$data.start_flag : true) && status && vm.$data.who_play === vm.$data.who_i_am) {
+                    extend.send_music_info_to_server(vm, music_name, artist, uid, uname)
                 } else {
-                    if (status && vm.$data.who_play === vm.$data.who_i_am) {
-                        extend.send_music_info_to_server(vm, music_name, artist, url, who)
-                    } else {
-                        console.log('stop\n' + music_name + ': ' + artist)
-                    }
+                    console.log('stop\n' + music_name + ': ' + artist)
                 }
-            } else if (command === '切歌' || command === '>') {
+
+            } else if ((command === '切歌' || command === '>') && vm.$data.music_info[0].uid !== undefined ?  vm.$data.music_info[0].uid === 0 ? true : vm.$data.music_info[0].uid === uid : true) {
                 if (!extend.is_black_user(vm, uid, uname)) {
                     // $.get('/next_music', {url: url, where: who})
                     vm.$data.wss.next_music();
@@ -1763,7 +1757,7 @@ class MyUtils {
         };
     }
 
-    send_music_info_to_server(vm, music_name, artist, url, where) {
+    send_music_info_to_server(vm, music_name, artist, user_id, username) {
         // $.get('move_music', {
         //     index: -1,
         //     url: url,
@@ -1771,6 +1765,6 @@ class MyUtils {
         //     where_url: where,
         //     music_name: music_name
         // });
-        vm.$data.wss.move_music(music_name, artist, -1);
+        vm.$data.wss.move_music(music_name, artist, user_id, username, -1);
     }
 }
